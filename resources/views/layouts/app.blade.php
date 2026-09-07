@@ -4,64 +4,168 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EcoGim - @yield('title', 'Admin')</title>
-    <!-- Bootstrap 4 CDN -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
-    <!-- FontAwesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    
     <style>
+
+        /* =========================================================
+           VARIABLES
+        ========================================================= */
+        :root {
+            --navbar-h:  56px;
+            --sidebar-w: 220px;
+            --sidebar-cw: 64px;
+            --trans: .25s ease;
+        }
+
+        /* =========================================================
+           BASE
+        ========================================================= */
         body {
             font-size: .875rem;
             background-color: #f8f9fa;
+            /* Nada de margin/padding extra; el navbar ocupa el top */
         }
+
+        /* =========================================================
+           TOPBAR
+        ========================================================= */
+        .topbar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: var(--navbar-h);
+            z-index: 200;
+            background: #343a40;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 1px 4px rgba(0,0,0,.3);
+        }
+        .topbar-brand {
+            width: var(--sidebar-w);
+            flex-shrink: 0;
+            padding: 0 1rem;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            transition: width var(--trans);
+            text-decoration: none;
+        }
+        .topbar-brand:hover { color: #fff; text-decoration: none; }
+        .topbar-actions {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            padding: 0 1rem;
+        }
+        .topbar-toggle {
+            background: none;
+            border: none;
+            color: #c2c7d0;
+            font-size: 1.1rem;
+            cursor: pointer;
+            padding: 6px 10px;
+            border-radius: 4px;
+            line-height: 1;
+            transition: color var(--trans);
+        }
+        .topbar-toggle:hover, .topbar-toggle:focus { color: #fff; outline: none; }
+        .topbar-toggle i { transition: transform var(--trans); display: block; }
+        .topbar-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            padding-right: 1rem;
+        }
+        .topbar-right form button {
+            background: none;
+            border: none;
+            color: #c2c7d0;
+            cursor: pointer;
+            font-size: .875rem;
+            padding: 6px 12px;
+        }
+        .topbar-right form button:hover { color: #fff; }
+
+        /* Mobile toggle (hamburger) */
+        .topbar-mobile-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: #c2c7d0;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 6px 10px;
+        }
+        .topbar-mobile-toggle:focus { outline: none; }
+
+        /* =========================================================
+           SIDEBAR
+        ========================================================= */
         .sidebar {
             position: fixed;
-            top: 0;
-            bottom: 0;
+            top: var(--navbar-h);
             left: 0;
-            z-index: 100;
-            padding: 48px 0 0; 
-            box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
-            background-color: #343a40;
+            bottom: 0;
+            width: var(--sidebar-w);
+            z-index: 150;
+            background: #2d3238;
+            overflow: hidden;
+            transition: width var(--trans);
+            box-shadow: 2px 0 6px rgba(0,0,0,.15);
         }
-        .sidebar-sticky {
-            position: relative;
-            top: 0;
-            height: calc(100vh - 48px);
-            padding-top: .5rem;
+        .sidebar-inner {
+            width: 100%;   /* sigue el ancho actual del sidebar (expandido o colapsado) */
+            height: 100%;
             overflow-x: hidden;
             overflow-y: auto;
+            padding-top: .5rem;
         }
         .sidebar .nav-link {
-            font-weight: 500;
-            color: #c2c7d0;
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
             padding: 10px 20px;
+            color: #c2c7d0;
+            font-weight: 500;
+            border-left: 3px solid transparent;
+            transition: background var(--trans), color var(--trans), border-color var(--trans);
         }
-        .sidebar .nav-link .fas {
-            margin-right: 10px;
+        .sidebar .nav-link i {
             width: 20px;
             text-align: center;
-        }
-        .sidebar .nav-link:hover, .sidebar .nav-link.active {
-            color: #fff;
-            background-color: #495057;
-        }
-        .navbar-brand {
-            padding-top: .75rem;
-            padding-bottom: .75rem;
+            flex-shrink: 0;
+            margin-right: 10px;
             font-size: 1rem;
-            background-color: rgba(0, 0, 0, .25);
-            box-shadow: inset -1px 0 0 rgba(0, 0, 0, .25);
+        }
+        .sidebar .nav-link:hover { color: #fff; background: #3d4349; text-decoration: none; }
+        .sidebar .nav-link.active  { color: #fff; background: #3d4349; border-left-color: #2f7d72; }
+        .sidebar-heading {
+            font-size: .65rem;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: #6c757d;
+            padding: 12px 20px 4px;
+            white-space: nowrap;
+        }
+
+        /* =========================================================
+           MAIN CONTENT
+        ========================================================= */
+        #page-wrapper {
+            margin-top: var(--navbar-h);
+            margin-left: var(--sidebar-w);
+            transition: margin-left var(--trans);
+            min-height: calc(100vh - var(--navbar-h));
         }
         main {
-            min-height: calc(100vh - 56px);
-            padding: 84px 28px 32px;
+            padding: 28px 28px 32px;
         }
         .page-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-top: -18px;
             margin-bottom: 22px;
             padding: 0 0 12px 14px;
             border-bottom: 1px solid #dee2e6;
@@ -72,110 +176,252 @@
             color: #212529;
             font-size: 1.6rem;
             font-weight: 600;
-            letter-spacing: 0;
         }
+
+        /* =========================================================
+           COLLAPSED STATE (desktop)
+        ========================================================= */
+        body.sidebar-collapsed .sidebar          { width: var(--sidebar-cw); }
+        body.sidebar-collapsed #page-wrapper     { margin-left: var(--sidebar-cw); }
+        body.sidebar-collapsed .topbar-brand     { width: var(--sidebar-cw); }
+
+        body.sidebar-collapsed .sidebar .nav-link {
+            justify-content: center;
+            padding: 12px 0;
+        }
+        body.sidebar-collapsed .sidebar .nav-link i  { margin-right: 0; }
+        body.sidebar-collapsed .sidebar-label,
+        body.sidebar-collapsed .sidebar-heading      { display: none; }
+        body.sidebar-collapsed .topbar-toggle i      { transform: rotate(180deg); }
+
+        /* =========================================================
+           OVERLAY (móvil: fondo oscuro al abrir sidebar)
+        ========================================================= */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.5);
+            z-index: 140;
+        }
+        body.mobile-sidebar-open .sidebar-overlay { display: block; }
+
+        /* =========================================================
+           MOBILE  (<768px)
+        ========================================================= */
         @media (max-width: 767.98px) {
-            main {
-                padding: 76px 16px 24px;
+            /* Topbar: hamburger a la izquierda, título centrado, logout a la derecha */
+            .topbar-brand        { display: none; }
+            .topbar-actions      { display: none; }   /* oculta collapse desktop */
+            .topbar-mobile-toggle {
+                display: flex;
+                align-items: center;
+                padding: 0 12px;
+                flex-shrink: 0;
             }
-            .page-header {
-                margin-top: -10px;
-                margin-bottom: 18px;
+
+            /* Sidebar deslizable desde la izquierda */
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform var(--trans);
+                width: 260px !important;
+                z-index: 150;
             }
-            .page-title {
-                font-size: 1.5rem;
+            body.mobile-sidebar-open .sidebar { transform: translateX(0); }
+
+            /* El contenido ocupa todo el ancho */
+            #page-wrapper {
+                margin-left: 0 !important;
             }
+
+            main { padding: 20px 16px 24px; }
+            .page-title { font-size: 1.4rem; }
+
+            /* El sidebar-collapsed no aplica en móvil */
+            body.sidebar-collapsed .sidebar     { width: 260px !important; transform: translateX(-100%); }
+            body.sidebar-collapsed #page-wrapper { margin-left: 0 !important; }
+            body.sidebar-collapsed .sidebar .nav-link {
+                justify-content: flex-start;
+                padding: 10px 20px;
+            }
+            body.sidebar-collapsed .sidebar .nav-link i { margin-right: 10px; }
+            body.sidebar-collapsed .sidebar-label,
+            body.sidebar-collapsed .sidebar-heading { display: block; }
+            body.mobile-sidebar-open.sidebar-collapsed .sidebar { transform: translateX(0); }
         }
     </style>
     @stack('styles')
 </head>
 <body>
 
-    <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
-        <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="#">EcoGim Panel</a>
-        <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse" data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
+    <!-- ===== TOPBAR ===== -->
+    <header class="topbar">
+        <!-- Hamburger móvil (izquierda) -->
+        <button id="mobileSidebarToggle" class="topbar-mobile-toggle" title="Abrir menu">
+            <i class="fas fa-bars"></i>
         </button>
-        <ul class="navbar-nav px-3 ml-auto">
-            <li class="nav-item text-nowrap">
-                <form action="{{ route('logout') }}" method="POST" class="d-inline">
-                    @csrf
-                    <button type="submit" class="nav-link btn btn-link text-white">Cerrar Sesión</button>
-                </form>
-            </li>
-        </ul>
-    </nav>
 
-    <div class="container-fluid">
-        <div class="row">
-            <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block sidebar collapse">
-                <div class="sidebar-sticky pt-3">
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">
-                                <i class="fas fa-home"></i> Dashboard
-                            </a>
-                        </li>
-                        <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-                            <span>Módulos</span>
-                        </h6>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('user') ? 'active' : '' }}" href="{{ route('user') }}">
-                                <i class="fas fa-users"></i> Socios / Clientes
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <i class="fas fa-money-bill-wave"></i> Membresías y Pagos
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <i class="fas fa-camera"></i> Recepción Facial
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <i class="fas fa-gift"></i> Tienda EcoGim
-                            </a>
-                        </li>
-                        
-                        @if(Auth::user() && Auth::user()->rol === 'admin')
-                        <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-                            <span>Administración</span>
-                        </h6>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('empleados') ? 'active' : '' }}" href="{{ route('empleados') }}">
-                                <i class="fas fa-user-tie"></i> Empleados
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <i class="fas fa-cogs"></i> Configuración
-                            </a>
-                        </li>
-                        @endif
-                    </ul>
-                </div>
-            </nav>
+        <!-- Brand / Logo -->
+        <a class="topbar-brand" href="#">EcoGim</a>
 
-            <main role="main" class="col-md-9 ml-sm-auto col-lg-10">
-                <header class="page-header">
-                    <h1 class="page-title">@yield('title')</h1>
-                </header>
-                @yield('content')
-            </main>
+        <!-- Desktop: botón colapsar sidebar -->
+        <div class="topbar-actions">
+            <button id="sidebarToggle" class="topbar-toggle" title="Colapsar menu">
+                <i class="fas fa-bars"></i>
+            </button>
         </div>
+
+        <!-- Logout (derecha) -->
+        <div class="topbar-right">
+            <form action="{{ route('logout') }}" method="POST">
+                @csrf
+                <button type="submit">Cerrar Sesion</button>
+            </form>
+        </div>
+    </header>
+
+    <!-- Overlay oscuro (solo móvil, al abrir sidebar) -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside id="sidebar" class="sidebar">
+        <div class="sidebar-inner">
+            <ul class="nav flex-column mt-1">
+
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}"
+                       href="{{ route('dashboard') }}"
+                       title="Dashboard">
+                        <i class="fas fa-home"></i>
+                        <span class="sidebar-label">Dashboard</span>
+                    </a>
+                </li>
+
+                <div class="sidebar-heading">Modulos</div>
+
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('user') ? 'active' : '' }}"
+                       href="{{ route('user') }}"
+                       title="Socios / Clientes">
+                        <i class="fas fa-users"></i>
+                        <span class="sidebar-label">Socios / Clientes</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" title="Membresias y Pagos">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <span class="sidebar-label">Membresias y Pagos</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" title="Recepcion Facial">
+                        <i class="fas fa-camera"></i>
+                        <span class="sidebar-label">Recepcion Facial</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" title="Tienda EcoGim">
+                        <i class="fas fa-gift"></i>
+                        <span class="sidebar-label">Tienda EcoGim</span>
+                    </a>
+                </li>
+
+                @if(Auth::user() && Auth::user()->rol === 'admin')
+                    <div class="sidebar-heading">Administracion</div>
+
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('empleados') ? 'active' : '' }}"
+                           href="{{ route('empleados') }}"
+                           title="Empleados">
+                            <i class="fas fa-user-tie"></i>
+                            <span class="sidebar-label">Empleados</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" title="Configuracion">
+                            <i class="fas fa-cogs"></i>
+                            <span class="sidebar-label">Configuracion</span>
+                        </a>
+                    </li>
+                @endif
+
+            </ul>
+        </div>
+    </aside>
+
+    <!-- ===== PAGE WRAPPER ===== -->
+    <div id="page-wrapper">
+        <main>
+            <header class="page-header">
+                <h1 class="page-title">@yield('title')</h1>
+            </header>
+            @yield('content')
+        </main>
     </div>
 
-    <!-- Scripts -->
+    <!-- ===== SCRIPTS ===== -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Librerias obligatorias del PDF -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
-    
+
+    <script>
+        (function () {
+            var body    = document.body;
+            var toggle  = document.getElementById('sidebarToggle');
+            var mToggle = document.getElementById('mobileSidebarToggle');
+            var overlay = document.getElementById('sidebarOverlay');
+            var isMobile = function () { return window.innerWidth < 768; };
+
+            /* ---- Restaurar estado colapsado (solo desktop) ---- */
+            if (!isMobile() && localStorage.getItem('sidebar-collapsed') === 'true') {
+                body.classList.add('sidebar-collapsed');
+            }
+
+            /* ---- Desktop: colapsar/expandir sidebar ---- */
+            if (toggle) {
+                toggle.addEventListener('click', function () {
+                    var collapsed = body.classList.toggle('sidebar-collapsed');
+                    localStorage.setItem('sidebar-collapsed', collapsed);
+                });
+            }
+
+            /* ---- Mobile: abrir sidebar ---- */
+            function openMobileSidebar() {
+                body.classList.add('mobile-sidebar-open');
+            }
+            function closeMobileSidebar() {
+                body.classList.remove('mobile-sidebar-open');
+            }
+
+            if (mToggle) {
+                mToggle.addEventListener('click', openMobileSidebar);
+            }
+
+            /* Cerrar al tocar el overlay */
+            if (overlay) {
+                overlay.addEventListener('click', closeMobileSidebar);
+            }
+
+            /* Cerrar al tocar un enlace del sidebar (navega a otra página) */
+            document.querySelectorAll('#sidebar .nav-link').forEach(function (link) {
+                link.addEventListener('click', closeMobileSidebar);
+            });
+
+            /* Al cambiar de tamaño: limpiar estado móvil si pasa a desktop */
+            window.addEventListener('resize', function () {
+                if (!isMobile()) {
+                    closeMobileSidebar();
+                    /* Restaurar colapsado si corresponde */
+                    if (localStorage.getItem('sidebar-collapsed') === 'true') {
+                        body.classList.add('sidebar-collapsed');
+                    }
+                }
+            });
+        })();
+    </script>
+
     @stack('scripts')
 </body>
 </html>
