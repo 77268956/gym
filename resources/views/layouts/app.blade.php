@@ -54,7 +54,37 @@
             box-shadow: inset -1px 0 0 rgba(0, 0, 0, .25);
         }
         main {
-            padding-top: 60px;
+            min-height: calc(100vh - 56px);
+            padding: 84px 28px 32px;
+        }
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: -18px;
+            margin-bottom: 22px;
+            padding: 0 0 12px 14px;
+            border-bottom: 1px solid #dee2e6;
+            border-left: 4px solid #2f7d72;
+        }
+        .page-title {
+            margin: 0;
+            color: #212529;
+            font-size: 1.6rem;
+            font-weight: 600;
+            letter-spacing: 0;
+        }
+        @media (max-width: 767.98px) {
+            main {
+                padding: 76px 16px 24px;
+            }
+            .page-header {
+                margin-top: -10px;
+                margin-bottom: 18px;
+            }
+            .page-title {
+                font-size: 1.5rem;
+            }
         }
     </style>
     @stack('styles')
@@ -90,7 +120,7 @@
                             <span>Módulos</span>
                         </h6>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('user') }}">
+                            <a class="nav-link {{ request()->routeIs('user') ? 'active' : '' }}" href="{{ route('user') }}">
                                 <i class="fas fa-users"></i> Socios / Clientes
                             </a>
                         </li>
@@ -115,7 +145,7 @@
                             <span>Administración</span>
                         </h6>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">
+                            <a class="nav-link {{ request()->routeIs('empleados') ? 'active' : '' }}" href="{{ route('empleados') }}">
                                 <i class="fas fa-user-tie"></i> Empleados
                             </a>
                         </li>
@@ -129,7 +159,10 @@
                 </div>
             </nav>
 
-            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 ">
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10">
+                <header class="page-header">
+                    <h1 class="page-title">@yield('title')</h1>
+                </header>
                 @yield('content')
             </main>
         </div>
