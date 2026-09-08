@@ -5,8 +5,8 @@
 @push('styles')
 <style>
     :root {
-        --ic-accent: #2f7d72;
-        --ic-accent-soft: #e6f2f0;
+        --ic-accent: #0082CA;
+        --ic-accent-soft: #E5F4FC;
         --ic-green: #16a34a;
         --ic-red: #dc2626;
         --ic-border: #e9e9e7;
@@ -93,9 +93,9 @@
     /* ── Badges ── */
     .ic-badge-active   { background: var(--ic-accent-soft); color: var(--ic-accent); font-weight: 600; }
     .ic-badge-full     { background: #f1f1ef; color: #6b6b66; font-weight: 600; }
-    .ic-badge-pending  { background: #fff4e0; color: #b7791f; font-weight: 600; }
+    .ic-badge-pending  { background: #FFF8DD; color: #8A6D16; font-weight: 600; }
     .ic-badge-critical { background: #fde3e3; color: var(--ic-red); font-weight: 600; }
-    .ic-badge-warn     { background: #fff4e0; color: #b7791f; font-weight: 600; }
+    .ic-badge-warn     { background: #FFF8DD; color: #8A6D16; font-weight: 600; }
     /* ── List items ── */
     .ic-list-item {
         display: flex;
@@ -141,7 +141,7 @@
     .ic-action-button:focus {
         color: var(--ic-accent);
         background: var(--ic-accent-soft);
-        border-color: #cfe6e1;
+        border-color: #B8E1F4;
         box-shadow: none;
     }
     .ic-client-actions .dropdown-menu {
@@ -196,9 +196,9 @@
     }
     .ic-add-client:hover,
     .ic-add-client:focus {
-        background: #25665d;
-        border-color: #25665d;
-        box-shadow: 0 3px 8px rgba(47, 125, 114, .2);
+        background: #0F2C59;
+        border-color: #0F2C59;
+        box-shadow: 0 3px 8px rgba(0, 130, 202, .2);
     }
     @media (max-width: 767.98px) {
         .ic-client-toolbar { align-items: stretch !important; }
@@ -434,9 +434,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 labels: ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'],
                 datasets: [{
                     data: [1220,1280,1310,1350,1410,1480,1520,1560,1610,1680,1750,1842],
-                    borderColor: '#2f7d72',
-                    backgroundColor: 'rgba(47,125,114,0.10)',
-                    pointBackgroundColor: '#2f7d72',
+                    borderColor: '#0082CA',
+                    backgroundColor: 'rgba(0,130,202,0.10)',
+                    pointBackgroundColor: '#0082CA',
                     pointRadius: 3,
                     tension: 0.35,
                     fill: true,

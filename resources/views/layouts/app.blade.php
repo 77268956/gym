@@ -12,6 +12,11 @@
            VARIABLES
         ========================================================= */
         :root {
+            --primary-blue: #0082CA;
+            --dark-blue: #0F2C59;
+            --gold-accent: #D4AF37;
+            --background-light: #F8F9FA;
+            --text-main: #1A1D20;
             --navbar-h:  56px;
             --sidebar-w: 220px;
             --sidebar-cw: 64px;
@@ -23,9 +28,22 @@
         ========================================================= */
         body {
             font-size: .875rem;
-            background-color: #f8f9fa;
+            background-color: var(--background-light);
+            color: var(--text-main);
             /* Nada de margin/padding extra; el navbar ocupa el top */
         }
+
+        .btn-primary {
+            background-color: var(--primary-blue);
+            border-color: var(--primary-blue);
+        }
+        .btn-primary:hover,
+        .btn-primary:focus {
+            background-color: var(--dark-blue);
+            border-color: var(--dark-blue);
+        }
+        .text-primary { color: var(--primary-blue) !important; }
+        .border-primary { border-color: var(--primary-blue) !important; }
 
         /* =========================================================
            TOPBAR
@@ -35,7 +53,7 @@
             top: 0; left: 0; right: 0;
             height: var(--navbar-h);
             z-index: 200;
-            background: #343a40;
+            background: var(--dark-blue);
             display: flex;
             align-items: center;
             box-shadow: 0 1px 4px rgba(0,0,0,.3);
@@ -110,7 +128,7 @@
             bottom: 0;
             width: var(--sidebar-w);
             z-index: 150;
-            background: #2d3238;
+            background: var(--dark-blue);
             overflow: hidden;
             transition: width var(--trans);
             box-shadow: 2px 0 6px rgba(0,0,0,.15);
@@ -139,8 +157,8 @@
             margin-right: 10px;
             font-size: 1rem;
         }
-        .sidebar .nav-link:hover { color: #fff; background: #3d4349; text-decoration: none; }
-        .sidebar .nav-link.active  { color: #fff; background: #3d4349; border-left-color: #2f7d72; }
+        .sidebar .nav-link:hover { color: #fff; background: #173b70; text-decoration: none; }
+        .sidebar .nav-link.active  { color: #fff; background: #173b70; border-left-color: var(--primary-blue); }
         .sidebar-heading {
             font-size: .65rem;
             text-transform: uppercase;
@@ -169,7 +187,7 @@
             margin-bottom: 22px;
             padding: 0 0 12px 14px;
             border-bottom: 1px solid #dee2e6;
-            border-left: 4px solid #2f7d72;
+            border-left: 4px solid var(--primary-blue);
         }
         .page-title {
             margin: 0;
