@@ -29,4 +29,9 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function getRolAttribute(): string
+    {
+        return $this->attributes['rol'] ?? 'admin';
+    }
 }

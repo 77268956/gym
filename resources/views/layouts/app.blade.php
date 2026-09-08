@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EcoGim - @yield('title', 'Admin')</title>
+    <title>{{ $gymConfig->nombre_gimnasio ?? 'EcoGim' }} - @yield('title', 'Admin')</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
@@ -262,7 +262,12 @@
         </button>
 
         <!-- Brand / Logo -->
-        <a class="topbar-brand" href="#">EcoGim</a>
+        <a class="topbar-brand d-flex align-items-center" href="{{ route('dashboard') }}">
+            @if(isset($gymConfig) && $gymConfig->logo_path)
+                <img src="{{ asset('storage/' . $gymConfig->logo_path) }}" alt="Logo" style="height: 32px; max-height: 36px; max-width: 140px; object-fit: contain;" class="mr-2">
+            @endif
+            <span>{{ $gymConfig->nombre_gimnasio ?? 'EcoGim' }}</span>
+        </a>
 
         <!-- Desktop: botón colapsar sidebar -->
         <div class="topbar-actions">
@@ -338,9 +343,11 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#" title="Configuracion">
+                        <a class="nav-link {{ request()->routeIs('configuracion.*') ? 'active' : '' }}"
+                           href="{{ route('configuracion.index') }}"
+                           title="Configuración">
                             <i class="fas fa-cogs"></i>
-                            <span class="sidebar-label">Configuracion</span>
+                            <span class="sidebar-label">Configuración</span>
                         </a>
                     </li>
                 @endif

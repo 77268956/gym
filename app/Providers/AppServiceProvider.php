@@ -2,6 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\ConfiguracionGeneral;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +23,35 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        View::composer('*', function ($view) {
+            $gymConfig = null;
+            try {
+                if (Schema::hasTable('configuraciones_generales')) {
+                    $gymConfigData = Cache::remember('configuracion_general', 86400, function () {
+                        $model = ConfiguracionGeneral::first();
+
+                        return [
+                            'nombre_gimnasio' => $model->nombre_gimnasio ?? 'EcoGim',
+                            'logo_path' => $model->logo_path ?? null,
+                        ];
+                    });
+
+                    if (is_array($gymConfigData)) {
+                        $gymConfig = (object) $gymConfigData;
+                    }
+                }
+            } catch (\Throwable $e) {
+                // Si ocurre algún error (ej. durante comandos de CLI o instalación inicial)
+            }
+
+            if (! $gymConfig || ! is_object($gymConfig) || $gymConfig instanceof \__PHP_Incomplete_Class) {
+                $gymConfig = (object) [
+                    'nombre_gimnasio' => 'EcoGim',
+                    'logo_path' => null,
+                ];
+            }
+
+            $view->with('gymConfig', $gymConfig);
+        });
     }
 }
