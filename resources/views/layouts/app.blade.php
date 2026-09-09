@@ -331,7 +331,9 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#" title="Membresias y Pagos">
+                          <a class="nav-link {{ request()->routeIs('membresias.*') ? 'active' : '' }}"
+                              href="{{ route('membresias.index') }}"
+                       title="Membresias y Pagos">
                         <i class="fas fa-money-bill-wave"></i>
                         <span class="sidebar-label">Membresias y Pagos</span>
                     </a>

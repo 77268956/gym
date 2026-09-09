@@ -18,6 +18,7 @@ class TipoMembresia extends Model
         'nombre',
         'duracion_dias',
         'precio',
+        'descripcion',
         'estado',
     ];
 
