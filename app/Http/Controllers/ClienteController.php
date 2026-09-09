@@ -80,6 +80,45 @@ class ClienteController extends Controller
         return redirect()->route('user')->with('success', "Cliente {$cliente->nombre} registrado con membresía {$tipo->nombre}.");
     }
 
+    public function show(Cliente $cliente)
+    {
+        $cliente->load(['membresias.tipoMembresia', 'asistencias' => function($q) {
+            $q->orderBy('fecha', 'desc')->orderBy('hora', 'desc')->take(30);
+        }, 'canjes.producto']);
+
+        $membresiaActiva = $cliente->membresias()->where('estado', 'activa')->latest()->first();
+
+        // Calculate attendance stats
+        $mesActual = now()->month;
+        $anioActual = now()->year;
+        
+        $asistenciasMes = $cliente->asistencias()
+            ->whereMonth('fecha', $mesActual)
+            ->whereYear('fecha', $anioActual)
+            ->count();
+            
+        $asistenciasSemana = $cliente->asistencias()
+            ->whereBetween('fecha', [now()->startOfWeek(), now()->endOfWeek()])
+            ->count();
+
+        // Attendance by day of week for the chart
+        $asistenciasPorDia = $cliente->asistencias()
+            ->selectRaw('DAYOFWEEK(fecha) as dia, count(*) as total')
+            ->groupBy('dia')
+            ->pluck('total', 'dia')->toArray();
+        
+        // Map MySQL DAYOFWEEK (1=Sunday, 2=Monday, etc.) to a more standard array [Mon, Tue, Wed, Thu, Fri, Sat, Sun]
+        $diasChart = [];
+        $diasMapping = [2 => 'Lun', 3 => 'Mar', 4 => 'Mié', 5 => 'Jue', 6 => 'Vie', 7 => 'Sáb', 1 => 'Dom'];
+        foreach ($diasMapping as $mysqlDay => $name) {
+            $diasChart[] = $asistenciasPorDia[$mysqlDay] ?? 0;
+        }
+
+        return view('clientes.show', compact(
+            'cliente', 'membresiaActiva', 'asistenciasMes', 'asistenciasSemana', 'diasChart'
+        ));
+    }
+
     public function edit(Cliente $cliente)
     {
         $tiposMembresia = TipoMembresia::where('estado', 'activo')->orderBy('precio')->get();

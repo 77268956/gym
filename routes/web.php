@@ -26,6 +26,7 @@ Route::middleware('auth')->group(function () {
     // Módulo de Clientes
     Route::get('/clientes/crear', [ClienteController::class, 'create'])->name('clientes.create');
     Route::post('/clientes', [ClienteController::class, 'store'])->name('clientes.store');
+    Route::get('/clientes/{cliente}', [ClienteController::class, 'show'])->name('clientes.show');
     Route::get('/clientes/{cliente}/editar', [ClienteController::class, 'edit'])->name('clientes.edit');
     Route::put('/clientes/{cliente}', [ClienteController::class, 'update'])->name('clientes.update');
     Route::delete('/clientes/{cliente}', [ClienteController::class, 'destroy'])->name('clientes.destroy');
@@ -40,6 +41,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/empleados/{empleado}', [EmpleadoController::class, 'destroy'])->name('empleados.destroy');
     Route::patch('/empleados/{empleado}/toggle', [EmpleadoController::class, 'toggleStatus'])->name('empleados.toggleStatus');
 
+    // configuracion del sistema 
     Route::get('/configuracion', [ConfiguracionController::class, 'index'])->name('configuracion.index');
     Route::post('/configuracion', [ConfiguracionController::class, 'update'])->name('configuracion.update');
 

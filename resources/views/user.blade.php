@@ -381,6 +381,7 @@
                                             <i class="fas fa-ellipsis-v"></i>
                                         </button>
                                         <div class="dropdown-menu dropdown-menu-right">
+                                            <a class="dropdown-item" href="{{ route('clientes.show', $cliente) }}"><i class="fas fa-eye text-info mr-2"></i> Ver expediente</a>
                                             <a class="dropdown-item" href="{{ route('clientes.edit', $cliente) }}"><i class="fas fa-pen text-primary mr-2"></i> Editar cliente</a>
                                             <div class="dropdown-divider"></div>
                                             <form action="{{ route('clientes.toggleStatus', $cliente) }}" method="POST" class="d-inline">
