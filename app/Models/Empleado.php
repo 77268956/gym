@@ -17,6 +17,7 @@ class Empleado extends Authenticatable
         'password_hash',
         'rol',
         'foto_referencia',
+        'descriptor_facial',
         'hora_entrada_turno',
         'hora_salida_turno',
         'tolerancia_minutos',

@@ -141,26 +141,38 @@
 
                         <!-- SECCIÓN 3: FOTO DE REFERENCIA -->
                         <h6 class="text-uppercase text-muted font-weight-bold mt-4 mb-3 border-bottom pb-2" style="letter-spacing: .05em; font-size: .75rem;">
-                            3. Fotografía de Referencia (Opcional)
+                            3. Fotografía de Referencia (Reconocimiento Facial)
                         </h6>
+
+                        <!-- Campo oculto para la captura en Base64 de la cámara web -->
+                        <input type="hidden" name="foto_base64" id="foto_base64">
+                        <input type="hidden" name="descriptor_facial" id="descriptor_facial">
 
                         <div class="form-group mb-4">
                             <div class="row align-items-center">
                                 <div class="col-md-3 text-center mb-3 mb-md-0">
-                                    <div class="p-3 border rounded bg-light d-flex flex-column align-items-center justify-content-center" style="min-height: 120px;">
-                                        <img id="fotoPreview" src="#" alt="Previsualización" class="rounded-circle d-none mb-2" style="width: 80px; height: 80px; object-fit: cover;">
+                                    <div class="p-3 border rounded bg-light d-flex flex-column align-items-center justify-content-center" style="min-height: 140px;">
+                                        <img id="fotoPreview" src="#" alt="Previsualización" class="rounded-circle d-none mb-2" style="width: 90px; height: 90px; object-fit: cover;">
                                         <div id="fotoPlaceholder" class="text-muted text-center">
-                                            <i class="fas fa-user-circle fa-3x mb-1"></i>
-                                            <small class="d-block">Sin foto</small>
+                                            <i class="fas fa-user-circle fa-3x mb-1 text-primary"></i>
+                                            <small class="d-block">Sin foto asignada</small>
                                         </div>
+                                        <span id="webcamBadge" class="badge badge-success d-none mt-1"><i class="fas fa-camera mr-1"></i> Capturada por Webcam</span>
                                     </div>
                                 </div>
                                 <div class="col-md-9">
-                                    <div class="custom-file mb-2">
-                                        <input type="file" name="foto" id="foto" class="custom-file-input @error('foto') is-invalid @enderror" accept="image/*" onchange="previewFoto(this)">
-                                        <label class="custom-file-label" for="foto" data-browse="Buscar">Seleccionar foto de perfil...</label>
+                                    <div class="d-flex flex-column flex-sm-row align-items-sm-center mb-2">
+                                        <div class="custom-file flex-grow-1 mb-2 mb-sm-0 mr-sm-2">
+                                            <input type="file" name="foto" id="foto" class="custom-file-input @error('foto') is-invalid @enderror" accept="image/*" onchange="previewFoto(this)">
+                                            <label class="custom-file-label" for="foto" data-browse="Buscar">Subir desde archivo...</label>
+                                        </div>
+                                        <button type="button" class="btn btn-outline-primary font-weight-bold text-nowrap" onclick="openWebcamModal()">
+                                            <i class="fas fa-camera mr-1"></i> Usar Cámara Web
+                                        </button>
                                     </div>
-                                    <small class="form-text text-muted">Archivos permitidos: JPG, PNG, WEBP. Tamaño máximo: 2 MB.</small>
+                                    <small class="form-text text-muted">
+                                        Puedes subir un archivo de imagen (JPG/PNG) o tomar la foto en el momento con la cámara web. Esta foto se utilizará para la verificación en recepción facial.
+                                    </small>
                                 </div>
                             </div>
                         </div>
@@ -183,26 +195,122 @@
         </div>
     </div>
 </div>
+
+<!-- MODAL CÁMARA WEB -->
+<div class="modal fade" id="modalWebcam" tabindex="-1" role="dialog" aria-labelledby="modalWebcamLabel" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title font-weight-bold" id="modalWebcamLabel">
+                    <i class="fas fa-camera mr-2 text-info"></i> Capturar Foto con Cámara Web
+                </h5>
+                <button type="button" class="close text-white" onclick="closeWebcamModal()" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-3 text-center bg-black">
+                <video id="webcamVideo" autoplay playsinline style="width: 100%; max-height: 320px; border-radius: 8px; background: #1a1a1a;"></video>
+                <canvas id="webcamCanvas" class="d-none"></canvas>
+            </div>
+            <div class="modal-footer bg-light justify-content-between">
+                <button type="button" class="btn btn-secondary btn-sm px-3" onclick="closeWebcamModal()">Cancelar</button>
+                <button type="button" class="btn btn-success btn-sm px-4 font-weight-bold" onclick="takeSnapshot()">
+                    <i class="fas fa-camera mr-1"></i> Capturar Foto
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
 <script>
+    var webcamStream = null;
+
     function previewFoto(input) {
         if (input.files && input.files[0]) {
             var reader = new FileReader();
             reader.onload = function(e) {
                 var preview = document.getElementById('fotoPreview');
                 var placeholder = document.getElementById('fotoPlaceholder');
+                var badge = document.getElementById('webcamBadge');
+
                 preview.src = e.target.result;
                 preview.classList.remove('d-none');
                 placeholder.classList.add('d-none');
+                if (badge) badge.classList.add('d-none');
+
+                // Limpiar base64 previo de webcam
+                document.getElementById('foto_base64').value = '';
             };
             reader.readAsDataURL(input.files[0]);
 
             var label = input.nextElementSibling;
-            if (label) {
+            if (label && label.classList.contains('custom-file-label')) {
                 label.textContent = input.files[0].name;
             }
+        }
+    }
+
+    function openWebcamModal() {
+        $('#modalWebcam').modal('show');
+
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720, facingMode: 'user' } })
+                .then(function(stream) {
+                    webcamStream = stream;
+                    var video = document.getElementById('webcamVideo');
+                    video.srcObject = stream;
+                })
+                .catch(function(err) {
+                    alert('No se pudo acceder a la cámara web. Asegúrate de otorgar permisos de cámara en tu navegador.');
+                    closeWebcamModal();
+                });
+        } else {
+            alert('Tu navegador no soporta la captura de cámara en vivo.');
+            closeWebcamModal();
+        }
+    }
+
+    function closeWebcamModal() {
+        if (webcamStream) {
+            webcamStream.getTracks().forEach(function(track) {
+                track.stop();
+            });
+            webcamStream = null;
+        }
+        $('#modalWebcam').modal('hide');
+    }
+
+    function takeSnapshot() {
+        var video = document.getElementById('webcamVideo');
+        var canvas = document.getElementById('webcamCanvas');
+
+        if (video && video.videoWidth > 0) {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            var dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+            document.getElementById('foto_base64').value = dataUrl;
+
+            // Actualizar vista previa
+            var preview = document.getElementById('fotoPreview');
+            var placeholder = document.getElementById('fotoPlaceholder');
+            var badge = document.getElementById('webcamBadge');
+
+            preview.src = dataUrl;
+            preview.classList.remove('d-none');
+            placeholder.classList.add('d-none');
+            if (badge) badge.classList.remove('d-none');
+
+            // Limpiar file input para evitar conflicto
+            document.getElementById('foto').value = '';
+            var fileLabel = document.querySelector('.custom-file-label');
+            if (fileLabel) fileLabel.textContent = 'Subir desde archivo...';
+
+            closeWebcamModal();
         }
     }
 </script>

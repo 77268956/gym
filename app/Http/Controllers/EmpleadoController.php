@@ -84,6 +84,18 @@ class EmpleadoController extends Controller
         $fotoPath = null;
         if ($request->hasFile('foto')) {
             $fotoPath = $request->file('foto')->store('fotos_empleados', 'public');
+        } elseif ($request->filled('foto_base64')) {
+            $base64Image = $request->input('foto_base64');
+            if (preg_match('/^data:image\/(\w+);base64,/', $base64Image, $type)) {
+                $data = substr($base64Image, strpos($base64Image, ',') + 1);
+                $type = strtolower($type[1]);
+                $data = base64_decode($data);
+                if ($data !== false) {
+                    $filename = 'webcam_'.uniqid().'.'.($type === 'jpeg' ? 'jpg' : $type);
+                    $fotoPath = 'fotos_empleados/'.$filename;
+                    Storage::disk('public')->put($fotoPath, $data);
+                }
+            }
         }
 
         Empleado::create([
@@ -93,6 +105,7 @@ class EmpleadoController extends Controller
             'password_hash' => Hash::make($validated['password']),
             'rol' => $validated['rol'],
             'foto_referencia' => $fotoPath,
+            'descriptor_facial' => $request->input('descriptor_facial'),
             'hora_entrada_turno' => $validated['hora_entrada_turno'] ?? '08:00',
             'hora_salida_turno' => $validated['hora_salida_turno'] ?? '16:00',
             'tolerancia_minutos' => $validated['tolerancia_minutos'] ?? 10,
@@ -140,6 +153,10 @@ class EmpleadoController extends Controller
             'estado' => $validated['estado'],
         ];
 
+        if ($request->filled('descriptor_facial')) {
+            $data['descriptor_facial'] = $request->input('descriptor_facial');
+        }
+
         if ($request->filled('password')) {
             $data['password_hash'] = Hash::make($request->input('password'));
         }
@@ -149,6 +166,7 @@ class EmpleadoController extends Controller
                 Storage::disk('public')->delete($empleado->foto_referencia);
             }
             $data['foto_referencia'] = null;
+            $data['descriptor_facial'] = null;
         }
 
         if ($request->hasFile('foto')) {
@@ -156,6 +174,21 @@ class EmpleadoController extends Controller
                 Storage::disk('public')->delete($empleado->foto_referencia);
             }
             $data['foto_referencia'] = $request->file('foto')->store('fotos_empleados', 'public');
+        } elseif ($request->filled('foto_base64')) {
+            $base64Image = $request->input('foto_base64');
+            if (preg_match('/^data:image\/(\w+);base64,/', $base64Image, $type)) {
+                $imgData = substr($base64Image, strpos($base64Image, ',') + 1);
+                $type = strtolower($type[1]);
+                $imgData = base64_decode($imgData);
+                if ($imgData !== false) {
+                    if ($empleado->foto_referencia && Storage::disk('public')->exists($empleado->foto_referencia)) {
+                        Storage::disk('public')->delete($empleado->foto_referencia);
+                    }
+                    $filename = 'webcam_'.uniqid().'.'.($type === 'jpeg' ? 'jpg' : $type);
+                    $data['foto_referencia'] = 'fotos_empleados/'.$filename;
+                    Storage::disk('public')->put($data['foto_referencia'], $imgData);
+                }
+            }
         }
 
         $empleado->update($data);
