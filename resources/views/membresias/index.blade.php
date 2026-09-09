@@ -5,19 +5,20 @@
 @push('styles')
 <style>
     :root {
-        --ic-accent: #0082CA;
-        --ic-accent-soft: #E5F4FC;
-        --ic-green: #16a34a;
-        --ic-red: #dc2626;
-        --ic-border: #e9e9e7;
-        --ic-muted: #8a8a86;
+        --ic-accent: #2563EB;
+        --ic-accent-soft: #EFF6FF;
+        --ic-green: #10B981;
+        --ic-red: #EF4444;
+        --ic-border: #E2E8F0;
+        --ic-muted: #64748B;
     }
     .ic-card {
         background: #fff;
         border: 1px solid var(--ic-border);
         border-radius: .75rem;
-        padding: 1rem;
+        padding: 1.25rem;
         overflow: hidden;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     }
     /* ── Stat cards ── */
     .ic-stat-card {
@@ -54,8 +55,12 @@
     .ic-icon-yellow { background: #fef9c3; color: #8a6d16; }
 
     /* ── Badges ── */
-    .ic-badge-active   { background: #dcfce7; color: var(--ic-green); font-weight: 600; }
-    .ic-badge-inactive { background: #f1f1ef; color: #6b6b66; font-weight: 600; }
+    .ic-badge-active   { background: #D1FAE5; color: #059669; font-weight: 600; }
+    .ic-badge-inactive { background: #F1F5F9; color: #475569; font-weight: 600; }
+    .ic-badge-full     { background: #F1F5F9; color: #475569; font-weight: 600; }
+    .ic-badge-pending  { background: #FEF3C7; color: #D97706; font-weight: 600; }
+    .ic-badge-critical { background: #FEE2E2; color: var(--ic-red); font-weight: 600; }
+    .ic-badge-warn     { background: #FEF3C7; color: #D97706; font-weight: 600; }
 
     /* ── Table ── */
     .ic-table thead th {

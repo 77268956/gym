@@ -3,63 +3,153 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cliente;
+use App\Models\Membresia;
+use App\Models\TipoMembresia;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ClienteController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        // Handled by UserController
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        $tiposMembresia = TipoMembresia::where('estado', 'activo')->orderBy('precio')->get();
+        return view('clientes.create', compact('tiposMembresia'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'nombre'            => 'required|string|max:255',
+            'cedula'            => 'required|string|max:50|unique:clientes,cedula',
+            'telefono'          => 'nullable|string|max:20',
+            'historial_medico'  => 'nullable|string|max:2000',
+            'foto'              => 'nullable|image|max:2048',
+            'tipo_membresia_id' => 'required|exists:tipos_membresia,id',
+        ]);
+
+        $fotoPath = null;
+        $descriptorFacial = null;
+
+        if ($request->hasFile('foto')) {
+            $fotoPath = $request->file('foto')->store('fotos_clientes', 'public');
+        } elseif ($request->filled('foto_base64')) {
+            $base64Image = $request->input('foto_base64');
+            if (preg_match('/^data:image\/(\w+);base64,/', $base64Image, $type)) {
+                $data = substr($base64Image, strpos($base64Image, ',') + 1);
+                $ext = strtolower($type[1]);
+                $fileName = 'fotos_clientes/webcam_' . uniqid() . '.' . $ext;
+                Storage::disk('public')->put($fileName, base64_decode($data));
+                $fotoPath = $fileName;
+            }
+        }
+
+        if ($request->filled('descriptor_facial')) {
+            $descriptorFacial = $request->input('descriptor_facial');
+        }
+
+        $cliente = Cliente::create([
+            'nombre'            => $request->nombre,
+            'cedula'            => $request->cedula,
+            'telefono'          => $request->telefono,
+            'foto_referencia'   => $fotoPath,
+            'descriptor_facial' => $descriptorFacial,
+            'historial_medico'  => $request->historial_medico,
+            'puntos_ecogim'     => 0,
+            'estado'            => 'activo',
+            'ultima_actividad'  => now(),
+        ]);
+
+        $tipo = TipoMembresia::findOrFail($request->tipo_membresia_id);
+        $fechaInicio = Carbon::today();
+        $fechaVencimiento = $fechaInicio->copy()->addDays($tipo->duracion_dias ?? 30);
+
+        Membresia::create([
+            'cliente_id'        => $cliente->id,
+            'tipo_membresia_id' => $tipo->id,
+            'fecha_inicio'      => $fechaInicio,
+            'fecha_vencimiento' => $fechaVencimiento,
+            'estado'            => 'activa',
+        ]);
+
+        return redirect()->route('user')->with('success', "Cliente {$cliente->nombre} registrado con membresía {$tipo->nombre}.");
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Cliente $cliente)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Cliente $cliente)
     {
-        //
+        $tiposMembresia = TipoMembresia::where('estado', 'activo')->orderBy('precio')->get();
+        $membresiaActiva = $cliente->membresias()->where('estado', 'activa')->latest()->first();
+        return view('clientes.edit', compact('cliente', 'tiposMembresia', 'membresiaActiva'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Cliente $cliente)
     {
-        //
+        $request->validate([
+            'nombre'           => 'required|string|max:255',
+            'cedula'           => 'required|string|max:50|unique:clientes,cedula,' . $cliente->id,
+            'telefono'         => 'nullable|string|max:20',
+            'historial_medico' => 'nullable|string|max:2000',
+            'foto'             => 'nullable|image|max:2048',
+        ]);
+
+        $data = [
+            'nombre'           => $request->nombre,
+            'cedula'           => $request->cedula,
+            'telefono'         => $request->telefono,
+            'historial_medico' => $request->historial_medico,
+        ];
+
+        if ($request->boolean('eliminar_foto')) {
+            if ($cliente->foto_referencia) {
+                Storage::disk('public')->delete($cliente->foto_referencia);
+            }
+            $data['foto_referencia']   = null;
+            $data['descriptor_facial'] = null;
+        } elseif ($request->hasFile('foto')) {
+            if ($cliente->foto_referencia) {
+                Storage::disk('public')->delete($cliente->foto_referencia);
+            }
+            $data['foto_referencia']   = $request->file('foto')->store('fotos_clientes', 'public');
+            $data['descriptor_facial'] = null;
+        } elseif ($request->filled('foto_base64')) {
+            $base64Image = $request->input('foto_base64');
+            if (preg_match('/^data:image\/(\w+);base64,/', $base64Image, $type)) {
+                if ($cliente->foto_referencia) {
+                    Storage::disk('public')->delete($cliente->foto_referencia);
+                }
+                $ext = strtolower($type[1]);
+                $fileName = 'fotos_clientes/webcam_' . uniqid() . '.' . $ext;
+                Storage::disk('public')->put($fileName, base64_decode(substr($base64Image, strpos($base64Image, ',') + 1)));
+                $data['foto_referencia'] = $fileName;
+            }
+        }
+
+        if ($request->filled('descriptor_facial')) {
+            $data['descriptor_facial'] = $request->input('descriptor_facial');
+        }
+
+        $cliente->update($data);
+
+        return redirect()->route('user')->with('success', "Cliente {$cliente->nombre} actualizado.");
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Cliente $cliente)
     {
-        //
+        if ($cliente->foto_referencia) {
+            Storage::disk('public')->delete($cliente->foto_referencia);
+        }
+        $cliente->delete();
+        return redirect()->route('user')->with('success', "Cliente {$cliente->nombre} eliminado.");
+    }
+
+    public function toggleStatus(Cliente $cliente)
+    {
+        $cliente->update(['estado' => $cliente->estado === 'activo' ? 'inactivo' : 'activo']);
+        return redirect()->route('user')->with('success', 'Estado del cliente actualizado.');
     }
 }

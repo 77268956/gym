@@ -156,3 +156,36 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 - Run `vendor/bin/phpunit` to call the test runner directly. It accepts the same file path and `--filter=testName` arguments.
 
 </laravel-boost-guidelines>
+
+<context-optimization-rules>
+# Reglas de Optimización de Contexto y Tokens
+
+- **Respuestas Ultra Concisas**: No incluyas saludos, despedidas, ni explicaciones largas y teóricas a menos que el usuario lo pida. Ve directo a la solución o al código.
+- **Edición Inteligente**: Utiliza siempre la herramienta `replace_file_content` para editar partes específicas de los archivos en lugar de reescribir todo el archivo desde cero. No incluyas el archivo completo en la respuesta a menos que sea estrictamente necesario.
+- **Investigación Enfocada**: En lugar de leer archivos completos, usa `grep_search` para buscar lo que necesitas.
+- **Sin código redundante**: No escribas código repetitivo ni pruebas adicionales si el usuario no las ha solicitado o si no son críticas para la funcionalidad.
+</context-optimization-rules>
+
+<gymx-design-standards>
+# Estándares de Diseño UI/UX GymX
+
+**NOTA IMPORTANTE:**
+La paleta de colores general y el diseño del Navbar (barra de navegación superior) **están sujetos a cambios futuros** por petición del usuario. No trates estos elementos como definitivos y prepárate para modificarlos cuando el usuario lo indique.
+
+**Componentes Estructurales (Consistencia)**
+Para ahorrar tokens y mantener la consistencia sin leer las vistas anteriores (`user.blade.php`), utiliza este CSS base al crear nuevas vistas de lista (`index.blade.php`):
+
+```css
+/* Inyectar en @push('styles') */
+.ic-card { border: none; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.04); }
+.ic-card-header { background: #fff; border-bottom: 1px solid #f0f2f5; border-radius: 12px 12px 0 0 !important; padding: 1.25rem 1.5rem; }
+.ic-action-btn-primary { background: linear-gradient(45deg, #4e73df, #224abe); border: none; color: white; border-radius: 8px; padding: 0.5rem 1rem; }
+.ic-table-container { background: #fff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.04); overflow: hidden; }
+.ic-table th { background: #f8f9fc; color: #4e73df; text-transform: uppercase; font-size: 0.75rem; }
+.ic-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+.ic-status-active { background-color: #D1FAE5; color: #059669; padding: 0.35rem 0.75rem; border-radius: 50px; font-size: 0.75rem; font-weight: 600; }
+.ic-status-inactive { background-color: #F1F5F9; color: #475569; padding: 0.35rem 0.75rem; border-radius: 50px; font-size: 0.75rem; font-weight: 600; }
+.ic-client-actions .btn { border-radius: 50%; width: 35px; height: 35px; background: #F8FAFC; color: #64748B; border: 1px solid #E2E8F0; }
+```
+Usa las clases `ic-card`, `ic-table`, `ic-action-btn-primary`, `ic-status-active` siempre que construyas tablas de datos y tarjetas de estadísticas. No inventes clases nuevas para componentes que ya tienen un estándar.
+</gymx-design-standards>

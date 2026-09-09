@@ -5,19 +5,20 @@
 @push('styles')
 <style>
     :root {
-        --ic-accent: #0082CA;
-        --ic-accent-soft: #E5F4FC;
-        --ic-green: #16a34a;
-        --ic-red: #dc2626;
-        --ic-border: #e9e9e7;
-        --ic-muted: #8a8a86;
+        --ic-accent: #2563EB;
+        --ic-accent-soft: #EFF6FF;
+        --ic-green: #10B981;
+        --ic-red: #EF4444;
+        --ic-border: #E2E8F0;
+        --ic-muted: #64748B;
     }
     .ic-card {
         background: #fff;
         border: 1px solid var(--ic-border);
         border-radius: .75rem;
-        padding: .55rem .65rem;
+        padding: 1.25rem;
         overflow: hidden;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     }
     /* ── Stat cards ── */
     .ic-stat-card {
@@ -91,11 +92,12 @@
         color: #1c1c1a;
     }
     /* ── Badges ── */
-    .ic-badge-active   { background: var(--ic-accent-soft); color: var(--ic-accent); font-weight: 600; }
-    .ic-badge-full     { background: #f1f1ef; color: #6b6b66; font-weight: 600; }
-    .ic-badge-pending  { background: #FFF8DD; color: #8A6D16; font-weight: 600; }
-    .ic-badge-critical { background: #fde3e3; color: var(--ic-red); font-weight: 600; }
-    .ic-badge-warn     { background: #FFF8DD; color: #8A6D16; font-weight: 600; }
+    .ic-badge-active   { background: #D1FAE5; color: #059669; font-weight: 600; }
+    .ic-badge-inactive { background: #F1F5F9; color: #475569; font-weight: 600; }
+    .ic-badge-full     { background: #F1F5F9; color: #475569; font-weight: 600; }
+    .ic-badge-pending  { background: #FEF3C7; color: #D97706; font-weight: 600; }
+    .ic-badge-critical { background: #FEE2E2; color: var(--ic-red); font-weight: 600; }
+    .ic-badge-warn     { background: #FEF3C7; color: #D97706; font-weight: 600; }
     /* ── List items ── */
     .ic-list-item {
         display: flex;
@@ -308,9 +310,9 @@
                             <option>Vencida</option>
                             <option>Sin membresía</option>
                         </select>
-                        <button type="button" class="ic-add-client btn btn-sm text-white ml-2">
+                        <a href="{{ route('clientes.create') }}" class="ic-add-client btn btn-sm text-white ml-2">
                             <i class="fas fa-plus mr-1"></i> Añadir cliente
-                        </button>
+                        </a>
                     </div>
                 </div>
 
@@ -329,48 +331,47 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @php
-                                $listaClientes = $clientes ?? [
-                                    (object)['nombre' => 'Logan Cole',    'cedula' => '0801-1990-04521', 'telefono' => '(504) 9812-3344', 'membresia' => 'activa',        'puntos' => 240, 'ultima_actividad' => 'Hoy, 09:42 AM',  'estado' => 'activo'],
-                                    (object)['nombre' => 'Diana Prince',  'cedula' => '0801-1988-11023', 'telefono' => '(504) 9945-2210', 'membresia' => 'vencida',       'puntos' => 80,  'ultima_actividad' => 'Hace 6 días',    'estado' => 'activo'],
-                                    (object)['nombre' => 'Roy Harper',    'cedula' => '0801-1995-33871', 'telefono' => '(504) 9877-6612', 'membresia' => 'activa',        'puntos' => 130, 'ultima_actividad' => 'Ayer, 08:50 AM', 'estado' => 'activo'],
-                                    (object)['nombre' => 'Selina Kyle',   'cedula' => '0801-1992-00456', 'telefono' => '(504) 9822-9034', 'membresia' => 'sin_membresia', 'puntos' => 0,   'ultima_actividad' => 'Hace 63 días',   'estado' => 'inactivo'],
-                                ];
-                            @endphp
-                            @forelse ($listaClientes as $cliente)
+                            @forelse ($clientes as $cliente)
                             <tr>
                                 <td>
                                     <div class="d-flex align-items-center">
-                                        <div class="rounded-circle ic-avatar d-flex align-items-center justify-content-center mr-2">
-                                            {{ collect(explode(' ', $cliente->nombre))->map(fn($p) => strtoupper($p[0] ?? ''))->take(2)->implode('') }}
-                                        </div>
+                                        @if($cliente->foto_referencia)
+                                            <img src="{{ asset('storage/' . $cliente->foto_referencia) }}" alt="{{ $cliente->nombre }}" class="rounded-circle ic-avatar mr-2" style="width: 40px; height: 40px; object-fit: cover;">
+                                        @else
+                                            <div class="rounded-circle ic-avatar d-flex align-items-center justify-content-center mr-2 bg-primary text-white" style="width: 40px; height: 40px;">
+                                                {{ collect(explode(' ', $cliente->nombre))->map(fn($p) => strtoupper($p[0] ?? ''))->take(2)->implode('') }}
+                                            </div>
+                                        @endif
                                         <div>
-                                            <div class="ic-client-name">{{ $cliente->nombre }}</div>
-                                            <div class="ic-client-id">Cliente registrado</div>
+                                            <div class="ic-client-name font-weight-bold">{{ $cliente->nombre }}</div>
+                                            <div class="ic-client-id text-muted" style="font-size: .75rem;">Registrado: {{ $cliente->created_at->format('d/m/Y') }}</div>
                                         </div>
                                     </div>
                                 </td>
                                 <td class="text-muted">{{ $cliente->cedula }}</td>
-                                <td class="text-muted">{{ $cliente->telefono }}</td>
+                                <td class="text-muted">{{ $cliente->telefono ?? 'N/A' }}</td>
                                 <td>
                                     @php
-                                        $mBadge = match($cliente->membresia) {
-                                            'activa' => 'ic-badge-active',
-                                            'vencida' => 'ic-badge-critical',
-                                            default  => 'ic-badge-full',
-                                        };
-                                        $mLabel = match($cliente->membresia) {
-                                            'activa' => 'ACTIVA',
-                                            'vencida' => 'VENCIDA',
-                                            default  => 'SIN MEMBRESÍA',
-                                        };
+                                        $membresiaActiva = $cliente->membresias->first();
+                                        if ($membresiaActiva) {
+                                            if (\Carbon\Carbon::parse($membresiaActiva->fecha_vencimiento)->isPast()) {
+                                                $mBadge = 'ic-badge-critical';
+                                                $mLabel = 'VENCIDA';
+                                            } else {
+                                                $mBadge = 'ic-badge-active';
+                                                $mLabel = 'ACTIVA';
+                                            }
+                                        } else {
+                                            $mBadge = 'ic-badge-full';
+                                            $mLabel = 'SIN MEMBRESÍA';
+                                        }
                                     @endphp
                                     <span class="{{ $mBadge }} px-2 py-1 rounded-pill" style="font-size:.7rem">{{ $mLabel }}</span>
                                 </td>
-                                <td class="ic-points">{{ $cliente->puntos }} pts</td>
-                                <td class="text-muted">{{ $cliente->ultima_actividad }}</td>
+                                <td class="ic-points">{{ $cliente->puntos_ecogim ?? 0 }} pts</td>
+                                <td class="text-muted">{{ $cliente->ultima_actividad ? $cliente->ultima_actividad->diffForHumans() : 'Nunca' }}</td>
                                 <td>
-                                    <span class="{{ $cliente->estado === 'activo' ? 'ic-badge-active' : 'ic-badge-full' }} px-2 py-1 rounded-pill" style="font-size:.7rem">
+                                    <span class="{{ $cliente->estado === 'activo' ? 'ic-status-active' : 'ic-status-inactive' }}">
                                         {{ strtoupper($cliente->estado) }}
                                     </span>
                                 </td>
@@ -380,33 +381,32 @@
                                             <i class="fas fa-ellipsis-v"></i>
                                         </button>
                                         <div class="dropdown-menu dropdown-menu-right">
-                                            <a class="dropdown-item" href="#"><i class="fas fa-eye"></i> Ver expediente</a>
-                                            <a class="dropdown-item" href="#"><i class="fas fa-pen"></i> Editar cliente</a>
-                                            <a class="dropdown-item" href="#"><i class="fas fa-id-card"></i> Ver membresía</a>
+                                            <a class="dropdown-item" href="{{ route('clientes.edit', $cliente) }}"><i class="fas fa-pen text-primary mr-2"></i> Editar cliente</a>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger" href="#"><i class="fas fa-trash-alt"></i> Eliminar</a>
+                                            <form action="{{ route('clientes.toggleStatus', $cliente) }}" method="POST" class="d-inline">
+                                                @csrf @method('PATCH')
+                                                <button type="submit" class="dropdown-item text-warning"><i class="fas fa-exchange-alt mr-2"></i> Cambiar estado</button>
+                                            </form>
+                                            <form action="{{ route('clientes.destroy', $cliente) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este cliente?');">
+                                                @csrf @method('DELETE')
+                                                <button type="submit" class="dropdown-item text-danger"><i class="fas fa-trash-alt mr-2"></i> Eliminar</button>
+                                            </form>
                                         </div>
                                     </div>
                                 </td>
                             </tr>
                             @empty
-                            <tr><td colspan="8" class="text-muted">No hay clientes registrados.</td></tr>
+                            <tr><td colspan="8" class="text-muted text-center py-4">No hay clientes registrados aún.</td></tr>
                             @endforelse
                         </tbody>
                     </table>
                 </div>
 
                 <div class="d-flex justify-content-between align-items-center mt-3">
-                    <span class="ic-list-sub">Mostrando 4 de {{ $totalClientes ?? 1842 }} clientes</span>
-                    <nav>
-                        <ul class="pagination pagination-sm mb-0">
-                            <li class="page-item disabled"><a class="page-link" href="#">Anterior</a></li>
-                            <li class="page-item active"><a class="page-link" href="#" style="background:var(--ic-accent);border-color:var(--ic-accent)">1</a></li>
-                            <li class="page-item"><a class="page-link" href="#">2</a></li>
-                            <li class="page-item"><a class="page-link" href="#">3</a></li>
-                            <li class="page-item"><a class="page-link" href="#">Siguiente</a></li>
-                        </ul>
-                    </nav>
+                    <span class="ic-list-sub">Mostrando {{ $clientes->count() }} de {{ $clientes->total() }} clientes</span>
+                    <div>
+                        {{ $clientes->links('pagination::bootstrap-4') }}
+                    </div>
                 </div>
             </div>
         </div>

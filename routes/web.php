@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\ConfiguracionController;
 use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\TipoMembresiaController;
@@ -21,6 +22,14 @@ Route::middleware('auth')->group(function () {
     })->name('dashboard');
 
     Route::get('/user', [UserController::class, 'userget'])->name('user');
+
+    // Módulo de Clientes
+    Route::get('/clientes/crear', [ClienteController::class, 'create'])->name('clientes.create');
+    Route::post('/clientes', [ClienteController::class, 'store'])->name('clientes.store');
+    Route::get('/clientes/{cliente}/editar', [ClienteController::class, 'edit'])->name('clientes.edit');
+    Route::put('/clientes/{cliente}', [ClienteController::class, 'update'])->name('clientes.update');
+    Route::delete('/clientes/{cliente}', [ClienteController::class, 'destroy'])->name('clientes.destroy');
+    Route::patch('/clientes/{cliente}/toggle', [ClienteController::class, 'toggleStatus'])->name('clientes.toggleStatus');
 
     // Módulo de Empleados
     Route::get('/empleados', [EmpleadoController::class, 'index'])->name('empleados');

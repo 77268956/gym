@@ -17,6 +17,7 @@ class Cliente extends Model
         'cedula',
         'telefono',
         'foto_referencia',
+        'descriptor_facial',
         'historial_medico',
         'puntos_ecogim',
         'estado',
