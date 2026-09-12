@@ -184,14 +184,14 @@
                 <div class="row">
                     @foreach($tiposMembresia as $tipo)
                     <div class="col-md-6 mb-4">
-                        <div class="membresia-card h-100" data-id="{{ $tipo->id }}" data-nombre="{{ $tipo->nombre }}" data-precio="L. {{ number_format($tipo->precio, 2) }}" data-duracion="{{ $tipo->duracion_dias }} días" onclick="seleccionarMembresia(this)" style="cursor:pointer;background:#fff;border-radius:12px;padding:1.5rem;border:2px solid #E2E8F0;transition:all .2s;">
+                        <div class="membresia-card h-100" data-id="{{ $tipo->id }}" data-nombre="{{ $tipo->nombre }}" data-precio="{{ $gymConfig->simbolo_moneda }} {{ number_format($tipo->precio, 2) }}" data-duracion="{{ $tipo->duracion_dias }} días" onclick="seleccionarMembresia(this)" style="cursor:pointer;background:#fff;border-radius:12px;padding:1.5rem;border:2px solid #E2E8F0;transition:all .2s;">
                             <div class="d-flex justify-content-between align-items-start mb-3">
                                 <div>
                                     <h5 class="font-weight-bold mb-1" style="color:#1E293B;">{{ $tipo->nombre }}</h5>
                                     <span class="badge badge-pill" style="background:#EFF6FF;color:#2563EB;font-size:.75rem;">{{ $tipo->duracion_dias }} días</span>
                                 </div>
                                 <div class="text-right">
-                                    <div class="h4 font-weight-bold mb-0" style="color:#2563EB;">L. {{ number_format($tipo->precio, 2) }}</div>
+                                    <div class="h4 font-weight-bold mb-0" style="color:#2563EB;">{{ $gymConfig->simbolo_moneda }} {{ number_format($tipo->precio, 2) }}</div>
                                     <small class="text-muted">/ plan</small>
                                 </div>
                             </div>
@@ -353,7 +353,7 @@
         @foreach($tiposMembresia as $tipo)
             @if(old('tipo_membresia_id') == $tipo->id)
                 document.getElementById('membresiaSelNombre').textContent = '{{ $tipo->nombre }}';
-                document.getElementById('membresiaSelPrecio').textContent = 'L. {{ number_format($tipo->precio, 2) }}';
+                document.getElementById('membresiaSelPrecio').textContent = '{{ $gymConfig->simbolo_moneda }} {{ number_format($tipo->precio, 2) }}';
                 document.getElementById('membresiaSelDuracion').textContent = '{{ $tipo->duracion_dias }} días';
                 document.getElementById('membresiaSeleccionadaBox').classList.remove('d-none');
                 document.getElementById('membresiaVaciaBox').classList.add('d-none');

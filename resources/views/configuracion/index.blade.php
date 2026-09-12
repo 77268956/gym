@@ -101,6 +101,21 @@
                         </div>
                     </div>
 
+                                        <!-- Moneda -->
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <label class="font-weight-bold">Moneda (Nombre)</label>
+                            <input type="text" name="moneda" class="form-control" value="{{ old('moneda', $configuracion->moneda ?? 'Lempira') }}" placeholder="Lempira">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="font-weight-bold">Símbolo</label>
+                            <input type="text" name="simbolo_moneda" class="form-control" value="{{ old('simbolo_moneda', $configuracion->simbolo_moneda ?? 'L.') }}" placeholder="L.">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="font-weight-bold">Código ISO</label>
+                            <input type="text" name="codigo_moneda" class="form-control" value="{{ old('codigo_moneda', $configuracion->codigo_moneda ?? 'HNL') }}" placeholder="HNL">
+                        </div>
+                    </div>
                     <hr class="my-4">
 
                     <!-- Botones de Acción -->

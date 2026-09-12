@@ -54,6 +54,11 @@ class ConfiguracionController extends Controller
             $configuracion->logo_path = $path;
         }
 
+        // Moneda
+        $configuracion->moneda = $request->input('moneda', 'Lempira');
+        $configuracion->simbolo_moneda = $request->input('simbolo_moneda', 'L.');
+        $configuracion->codigo_moneda = $request->input('codigo_moneda', 'HNL');
+
         $configuracion->save();
 
         // Limpiar caché global

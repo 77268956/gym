@@ -404,9 +404,9 @@
                 </div>
 
                 <div class="d-flex justify-content-between align-items-center mt-3">
-                    <span class="ic-list-sub">Mostrando {{ $clientes->count() }} de {{ $clientes->total() }} clientes</span>
+                    <span class="ic-list-sub">Mostrando {{ $clientes->count() }} </span>
                     <div>
-                        {{ $clientes->links('pagination::bootstrap-4') }}
+                        
                     </div>
                 </div>
             </div>
@@ -449,6 +449,16 @@
 @endsection
 
 @push('scripts')
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('table.ic-table').DataTable({
+        language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json' },
+        pageLength: 10
+    });
+});
+</script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {

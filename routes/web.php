@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\ConfiguracionController;
 use App\Http\Controllers\EmpleadoController;
+use App\Http\Controllers\PagoController;
 use App\Http\Controllers\TipoMembresiaController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -41,7 +42,13 @@ Route::middleware('auth')->group(function () {
     Route::delete('/empleados/{empleado}', [EmpleadoController::class, 'destroy'])->name('empleados.destroy');
     Route::patch('/empleados/{empleado}/toggle', [EmpleadoController::class, 'toggleStatus'])->name('empleados.toggleStatus');
 
-    // configuracion del sistema 
+    // Módulo de Pagos
+    Route::get('/pagos', [PagoController::class, 'index'])->name('pagos.index');
+    Route::get('/pagos/nuevo', [PagoController::class, 'create'])->name('pagos.create');
+    Route::post('/pagos', [PagoController::class, 'store'])->name('pagos.store');
+    Route::get('/pagos/cliente/{cliente}/info', [PagoController::class, 'clienteInfo'])->name('pagos.clienteInfo');
+
+    // configuracion del sistema
     Route::get('/configuracion', [ConfiguracionController::class, 'index'])->name('configuracion.index');
     Route::post('/configuracion', [ConfiguracionController::class, 'update'])->name('configuracion.update');
 

@@ -33,6 +33,7 @@ class AppServiceProvider extends ServiceProvider
                         return [
                             'nombre_gimnasio' => $model->nombre_gimnasio ?? 'EcoGim',
                             'logo_path' => $model->logo_path ?? null,
+                            'simbolo_moneda' => $model->simbolo_moneda ?? 'L.',
                         ];
                     });
 
@@ -48,6 +49,7 @@ class AppServiceProvider extends ServiceProvider
                 $gymConfig = (object) [
                     'nombre_gimnasio' => 'EcoGim',
                     'logo_path' => null,
+                    'simbolo_moneda' => 'L.',
                 ];
             }
 
