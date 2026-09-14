@@ -152,8 +152,8 @@ async function loadModelsAndData() {
             }
 
             if (labeledDescriptors.length > 0) {
-                // Umbral ajustado a 0.6 (estándar recomendado)
-                faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, 0.6);
+                // Umbral ajustado a 0.42 (estándar recomendado)
+                faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, 0.42);
             }
 
             document.getElementById('modelLoader').className = 'badge badge-success p-2';
