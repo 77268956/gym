@@ -242,10 +242,33 @@
 @endsection
 
 @push('scripts')
+<script src="{{ asset('js/face-api.min.js') }}"></script>
 <script>
     // ── Membresía selection ──
     var selectedMembresiaId = null;
     var selectedMembresiaCard = null;
+    var faceApiModelsReady = Promise.all([
+        faceapi.nets.ssdMobilenetv1.loadFromUri('{{ asset('models') }}'),
+        faceapi.nets.faceLandmark68Net.loadFromUri('{{ asset('models') }}'),
+        faceapi.nets.faceRecognitionNet.loadFromUri('{{ asset('models') }}')
+    ]);
+
+    async function setFaceDescriptor(dataUrl) {
+        try {
+            await faceApiModelsReady;
+            var image = await faceapi.fetchImage(dataUrl);
+            var detection = await faceapi.detectSingleFace(image)
+                .withFaceLandmarks()
+                .withFaceDescriptor();
+
+            document.getElementById('descriptor_facial').value = detection
+                ? JSON.stringify(Array.from(detection.descriptor))
+                : '';
+        } catch (error) {
+            console.error('No se pudo generar el descriptor facial.', error);
+            document.getElementById('descriptor_facial').value = '';
+        }
+    }
 
     function abrirModalMembresias() {
         $('#modalMembresias').modal('show');
@@ -294,6 +317,7 @@
                 if (placeholder) placeholder.classList.add('d-none');
                 if (badge) badge.classList.add('d-none');
                 document.getElementById('foto_base64').value = '';
+                setFaceDescriptor(e.target.result);
             };
             reader.readAsDataURL(input.files[0]);
             var label = input.nextElementSibling;
@@ -333,6 +357,7 @@
             canvas.getContext('2d').drawImage(video, 0, 0);
             var dataUrl = canvas.toDataURL('image/jpeg', 0.9);
             document.getElementById('foto_base64').value = dataUrl;
+            setFaceDescriptor(dataUrl);
             var preview = document.getElementById('fotoPreview');
             var placeholder = document.getElementById('fotoPlaceholder');
             var badge = document.getElementById('webcamBadge');

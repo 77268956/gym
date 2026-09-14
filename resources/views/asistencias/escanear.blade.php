@@ -121,7 +121,7 @@
     // Array de clientes de la base de datos
     const dbClientes = @json($clientes);
 
-    async function loadModelsAndData() {
+async function loadModelsAndData() {
         try {
             await Promise.all([
                 faceapi.nets.ssdMobilenetv1.loadFromUri('/models'),
@@ -132,19 +132,28 @@
             // Cargar los descriptores
             const labeledDescriptors = [];
             for (let c of dbClientes) {
-                if(c.descriptor_facial) {
+                if (c.descriptor_facial) {
                     try {
-                        const descriptorArray = new Float32Array(Object.values(JSON.parse(c.descriptor_facial)));
-                        labeledDescriptors.push(new faceapi.LabeledFaceDescriptors(c.id.toString(), [descriptorArray]));
+                        let parsed = typeof c.descriptor_facial === 'string'
+                            ? JSON.parse(c.descriptor_facial)
+                            : c.descriptor_facial;
+
+                        // Extraer los valores sea un Array o un Objeto indexado
+                        let rawArray = Array.isArray(parsed) ? parsed : Object.values(parsed);
+
+                        if (rawArray.length === 128) {
+                            const descriptorArray = new Float32Array(rawArray);
+                            labeledDescriptors.push(new faceapi.LabeledFaceDescriptors(c.id.toString(), [descriptorArray]));
+                        }
                     } catch (e) {
-                        console.error("Error parseando descriptor de cliente " + c.id);
+                        console.error("Error parseando descriptor de cliente " + c.id, e);
                     }
                 }
             }
 
-            if(labeledDescriptors.length > 0) {
-                // distance threshold 0.5 (más estricto que 0.6 por defecto)
-                faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, 0.5);
+            if (labeledDescriptors.length > 0) {
+                // Umbral ajustado a 0.6 (estándar recomendado)
+                faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, 0.6);
             }
 
             document.getElementById('modelLoader').className = 'badge badge-success p-2';
@@ -184,32 +193,45 @@
         resetStatus();
     }
 
-    video.addEventListener('play', () => {
-        const displaySize = { width: video.videoWidth || 640, height: video.videoHeight || 480 };
-        faceapi.matchDimensions(overlay, displaySize);
+video.addEventListener('play', () => {
+    // Asegurar que el video tenga dimensiones antes de dimensionar el canvas
+    const width = video.videoWidth || 640;
+    const height = video.videoHeight || 480;
+
+    overlay.width = width;
+    overlay.height = height;
+
+    const displaySize = { width: width, height: height };
+    faceapi.matchDimensions(overlay, displaySize);
+
+    scanInterval = setInterval(async () => {
+        if (!isScanning || !faceMatcher) return;
+
+        // Detección
+        const detections = await faceapi.detectAllFaces(video)
+            .withFaceLandmarks()
+            .withFaceDescriptors();
+
+        const resizedDetections = faceapi.resizeResults(detections, displaySize);
+
+        const ctx = overlay.getContext('2d');
+        ctx.clearRect(0, 0, overlay.width, overlay.height);
+
+        faceapi.draw.drawDetections(overlay, resizedDetections);
+
+        const results = resizedDetections.map(d => faceMatcher.findBestMatch(d.descriptor));
         
-        scanInterval = setInterval(async () => {
-            if(!isScanning || !faceMatcher) return;
+        results.forEach((result, i) => {
+            const box = resizedDetections[i].detection.box;
+            const drawBox = new faceapi.draw.DrawBox(box, { label: result.toString() });
+            drawBox.draw(overlay);
             
-            const detections = await faceapi.detectAllFaces(video).withFaceLandmarks().withFaceDescriptors();
-            const resizedDetections = faceapi.resizeResults(detections, displaySize);
-            
-            overlay.getContext('2d').clearRect(0, 0, overlay.width, overlay.height);
-            faceapi.draw.drawDetections(overlay, resizedDetections);
-            
-            const results = resizedDetections.map(d => faceMatcher.findBestMatch(d.descriptor));
-            
-            results.forEach((result, i) => {
-                const box = resizedDetections[i].detection.box;
-                const drawBox = new faceapi.draw.DrawBox(box, { label: result.toString() });
-                drawBox.draw(overlay);
-                
-                if(result.label !== 'unknown' && result.label !== lastScannedId) {
-                    procesarAsistencia(result.label);
-                }
-            });
-        }, 1000); // 1 segundo de intervalo para no saturar el servidor
-    });
+            if (result.label !== 'unknown' && result.label !== lastScannedId) {
+                procesarAsistencia(result.label);
+            }
+        });
+    }, 1000);
+});
 
     function procesarAsistencia(clienteId) {
         lastScannedId = clienteId; // Bloqueo temporal
@@ -231,16 +253,18 @@
             const msg = document.getElementById('statusMsg');
             const details = document.getElementById('clientDetails');
             
-            statusBox.className = 'scan-status ' + data.status;
+            statusBox.className = 'scan-status ' + (data.cliente ? 'success' : data.status);
             
-            if(data.status === 'success') {
+            if(data.status === 'success' || data.status === 'warning') {
                 icon.className = 'fas fa-check-circle fa-4x mb-3';
-                title.textContent = '¡Acceso Permitido!';
+                title.textContent = '¡Bienvenido, ' + data.cliente + '!';
                 msg.textContent = data.message;
                 
                 document.getElementById('clientNombre').textContent = data.cliente;
-                document.getElementById('clientMembresia').textContent = 'Vence: ' + data.membresia_vence;
-                document.getElementById('clientPuntos').textContent = data.puntos;
+                document.getElementById('clientMembresia').textContent = data.membresia_vence
+                    ? 'Vence: ' + data.membresia_vence
+                    : 'Sin membresía activa';
+                document.getElementById('clientPuntos').textContent = data.puntos ?? 0;
                 
                 if(data.foto) {
                     document.getElementById('clientFoto').src = data.foto;
@@ -249,11 +273,6 @@
                 }
                 
                 details.classList.remove('d-none');
-            } else if(data.status === 'warning') {
-                icon.className = 'fas fa-exclamation-triangle fa-4x mb-3';
-                title.textContent = 'Aviso';
-                msg.textContent = data.message;
-                details.classList.add('d-none');
             } else {
                 icon.className = 'fas fa-times-circle fa-4x mb-3';
                 title.textContent = 'Acceso Denegado';

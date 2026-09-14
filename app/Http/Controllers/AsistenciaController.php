@@ -9,15 +9,33 @@ use Carbon\Carbon;
 
 class AsistenciaController extends Controller
 {
+
+/*
     public function escanear()
     {
         // Traer solo clientes activos que tengan un descriptor facial configurado
         $clientes = Cliente::whereNotNull('descriptor_facial')
                            ->where('estado', 'activo')
                            ->get(['id', 'nombre', 'descriptor_facial', 'estado']);
-                           
+
         return view('asistencias.escanear', compact('clientes'));
+
     }
+
+    */
+
+
+
+    public function escanear()
+{
+    // Cargar todos los clientes que tengan descriptor facial grabado
+    $clientes = Cliente::whereNotNull('descriptor_facial')
+                       ->get(['id', 'nombre', 'descriptor_facial', 'estado']);
+
+    return view('asistencias.escanear', compact('clientes'));
+}
+
+
 
     public function registrarEscaneo(Request $request)
     {
@@ -31,18 +49,22 @@ class AsistenciaController extends Controller
 
         if ($cliente->estado !== 'activo') {
             return response()->json([
-                'status' => 'error',
+                'status' => 'warning',
                 'message' => 'El cliente está inactivo.',
-                'cliente' => $cliente->nombre
+                'cliente' => $cliente->nombre,
+                'puntos' => $cliente->puntos_ecogim ?? 0,
+                'foto' => $cliente->foto_referencia ? asset('storage/' . $cliente->foto_referencia) : null
             ]);
         }
 
         $membresiaActiva = $cliente->membresias->first();
         if (!$membresiaActiva) {
             return response()->json([
-                'status' => 'error',
+                'status' => 'warning',
                 'message' => 'El cliente no tiene una membresía activa.',
-                'cliente' => $cliente->nombre
+                'cliente' => $cliente->nombre,
+                'puntos' => $cliente->puntos_ecogim ?? 0,
+                'foto' => $cliente->foto_referencia ? asset('storage/' . $cliente->foto_referencia) : null
             ]);
         }
 
@@ -57,6 +79,8 @@ class AsistenciaController extends Controller
                 'status' => 'warning',
                 'message' => 'Asistencia ya registrada hace unos momentos.',
                 'cliente' => $cliente->nombre,
+                'puntos' => $cliente->puntos_ecogim ?? 0,
+                'membresia_vence' => Carbon::parse($membresiaActiva->fecha_vencimiento)->format('d/m/Y'),
                 'foto' => $cliente->foto_referencia ? asset('storage/' . $cliente->foto_referencia) : null
             ]);
         }
@@ -73,7 +97,8 @@ class AsistenciaController extends Controller
             'puntos_otorgados' => true
         ]);
 
-                $cliente->increment('puntos_recompensa', 1);
+                $cliente->increment('puntos_ecogim', 1);
+                $cliente->refresh();
 
         // Crear registro del movimiento de puntos
         \App\Models\MovimientoPunto::create([
@@ -90,6 +115,7 @@ class AsistenciaController extends Controller
             'message' => '¡Bienvenido! Asistencia registrada exitosamente.',
             'cliente' => $cliente->nombre,
             'membresia_vence' => Carbon::parse($membresiaActiva->fecha_vencimiento)->format('d/m/Y'),
+            'puntos' => $cliente->puntos_ecogim,
             'foto' => $cliente->foto_referencia ? asset('storage/' . $cliente->foto_referencia) : null
         ]);
     }
