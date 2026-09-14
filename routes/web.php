@@ -11,6 +11,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return redirect()->route('login');
+
+    // Módulo de Asistencias (Escáner Facial)
+    Route::get('/escanear', [\App\Http\Controllers\AsistenciaController::class, 'escanear'])->name('asistencias.escanear');
+    Route::post('/escanear/registrar', [\App\Http\Controllers\AsistenciaController::class, 'registrarEscaneo'])->name('asistencias.registrar');
 });
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -58,4 +62,8 @@ Route::middleware('auth')->group(function () {
     Route::put('/membresias/{tipoMembresia}', [TipoMembresiaController::class, 'update'])->name('membresias.update');
     Route::delete('/membresias/{tipoMembresia}', [TipoMembresiaController::class, 'destroy'])->name('membresias.destroy');
     Route::patch('/membresias/{tipoMembresia}/toggle', [TipoMembresiaController::class, 'toggleStatus'])->name('membresias.toggleStatus');
+
+    // Módulo de Asistencias (Escáner Facial)
+    Route::get('/escanear', [\App\Http\Controllers\AsistenciaController::class, 'escanear'])->name('asistencias.escanear');
+    Route::post('/escanear/registrar', [\App\Http\Controllers\AsistenciaController::class, 'registrarEscaneo'])->name('asistencias.registrar');
 });

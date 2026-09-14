@@ -402,13 +402,19 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('pagos.*') ? 'active' : '' }}" href="{{ route('pagos.index') }}" title="Pagos y Cobros">
+                        <i class="fas fa-wallet"></i>
+                        <span class="sidebar-label">Pagos y Cobros</span>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('membresias.*') ? 'active' : '' }}" href="{{ route('membresias.index') }}" title="Membresías y Pagos">
                         <i class="fas fa-id-card"></i>
                         <span class="sidebar-label">Membresías y Pagos</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#" title="Recepción Facial">
+                    <a class="nav-link {{ request()->routeIs('asistencias.*') ? 'active' : '' }}" href="{{ route('asistencias.escanear') }}" title="Escanear Facial">
                         <i class="fas fa-camera"></i>
                         <span class="sidebar-label">Recepción Facial</span>
                     </a>
