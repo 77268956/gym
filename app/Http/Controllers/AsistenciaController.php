@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Cliente;
 use App\Models\AsistenciaCliente;
 use Illuminate\Http\Request;
+use App\Models\ConfiguracionPunto;
 use Carbon\Carbon;
 
 class AsistenciaController extends Controller
@@ -113,9 +114,9 @@ class AsistenciaController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => '¡Bienvenido! Asistencia registrada exitosamente.',
+            'puntos' => $cliente->puntos_ecogim,
             'cliente' => $cliente->nombre,
             'membresia_vence' => Carbon::parse($membresiaActiva->fecha_vencimiento)->format('d/m/Y'),
-            'puntos' => $cliente->puntos_ecogim,
             'foto' => $cliente->foto_referencia ? asset('storage/' . $cliente->foto_referencia) : null
         ]);
     }

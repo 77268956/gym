@@ -4,13 +4,32 @@
 
 @push('styles')
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css">
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <style>
     .badge-membresia-activa  { background:#D1FAE5; color:#059669; padding:.3rem .6rem; border-radius:50px; font-size:.72rem; font-weight:600; }
     .badge-membresia-vencida { background:#FEE2E2; color:#EF4444; padding:.3rem .6rem; border-radius:50px; font-size:.72rem; font-weight:600; }
     .badge-membresia-sin     { background:#F1F5F9; color:#475569; padding:.3rem .6rem; border-radius:50px; font-size:.72rem; font-weight:600; }
-    #modalClientesTable_wrapper .dataTables_filter { display:none; }
-    #modalClientesTable_wrapper .dataTables_info,
-    #modalClientesTable_wrapper .dataTables_paginate { font-size:.8rem; }
+    
+    /* Select2 custom styling for Bootstrap 4 */
+    .select2-container .select2-selection--single {
+        height: calc(1.5em + .75rem + 2px);
+        border: 1px solid #ced4da;
+        border-radius: .25rem;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: calc(1.5em + .75rem);
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: calc(1.5em + .75rem);
+    }
+    
+    .client-result { display: flex; align-items: center; }
+    .client-result img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-right: 15px; }
+    .client-result .avatar-placeholder { width: 40px; height: 40px; border-radius: 50%; background: #2563EB; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 15px; font-size: 14px; }
+    .client-result .info { display: flex; flex-direction: column; }
+    .client-result .name { font-weight: bold; color: #1e293b; }
+    .client-result .cedula { font-size: 0.85em; color: #64748b; }
+    .client-result .badges { margin-top: 4px; }
 </style>
 @endpush
 
@@ -112,128 +131,63 @@
 </div>
 
 {{-- ============================================================
-     MODAL 1: SELECCIÓN DE CLIENTE
+     MODAL SELECCIÓN DE CLIENTE (BÚSQUEDA)
 ============================================================ --}}
 <div class="modal fade" id="modalClientes" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
-        <div class="modal-content border-0 shadow-lg">
-            <div class="modal-header" style="background:#1E293B;">
-                <h5 class="modal-title font-weight-bold text-white">
-                    <i class="fas fa-users mr-2 text-primary"></i> Seleccionar Cliente para Cobro
+    <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+        <div class="modal-content border-0" style="border-radius: 16px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.2);">
+            
+            <div class="modal-header border-0 pb-0" style="background: linear-gradient(135deg, #1E293B, #0F172A); padding: 1.5rem 1.5rem 1rem;">
+                <h5 class="modal-title font-weight-bold text-white w-100 text-center">
+                    <i class="fas fa-search-dollar mb-2 d-block text-primary" style="font-size: 2rem;"></i>
+                    Nuevo Cobro
                 </h5>
-                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+                <button type="button" class="close text-white position-absolute" style="top: 15px; right: 20px; opacity: 0.8;" data-dismiss="modal"><span>&times;</span></button>
             </div>
 
-            {{-- Filtros --}}
-            <div class="modal-body border-bottom py-3" style="background:#F8FAFC;">
-                <div class="row align-items-center">
-                    <div class="col-md-5 mb-2 mb-md-0">
-                        <div class="input-group input-group-sm">
-                            <div class="input-group-prepend"><span class="input-group-text"><i class="fas fa-search"></i></span></div>
-                            <input type="text" id="buscarCliente" class="form-control" placeholder="Buscar por nombre o cédula...">
+            <div class="modal-body p-4 bg-white">
+                <div class="form-group mb-0">
+                    <label class="font-weight-bold text-muted small text-uppercase mb-2">Selecciona un socio</label>
+                    <select id="select2Cliente" class="form-control form-control-lg" style="width: 100%;"></select>
+                </div>
+                
+                <div id="clienteSeleccionadoInfo" class="d-none mt-4 animate__animated animate__fadeIn">
+                    <div class="card bg-light border-0" style="border-radius: 12px;">
+                        <div class="card-body p-4 text-center">
+                            
+                            <div class="position-relative d-inline-block mb-3">
+    <div id="infoFoto"></div>
+</div>
+
+<h5 id="infoNombre" class="font-weight-bold mb-0 text-dark" style="font-size: 1.25rem;">Nombre</h5>
+<p id="infoCedula" class="text-muted mb-3 small">Cédula</p>
+
+<div class="d-flex justify-content-center align-items-center mb-4">
+    <span class="text-muted small mr-2">Membresía:</span>
+    <span id="infoMembresia" class="badge badge-pill px-3 py-2 mr-2" style="font-size: 0.8rem; letter-spacing: 0.5px;">MEMB</span>
+    <span class="text-muted small mr-2 ml-2">Cliente:</span>
+    <span id="infoEstado" class="badge badge-pill px-3 py-2" style="font-size: 0.8rem; letter-spacing: 0.5px;">ESTADO</span>
+</div>
+
+<a href="#" id="btnCobrar" class="btn btn-primary font-weight-bold btn-block py-3" style="border-radius: 10px; font-size: 1.05rem; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);">
+                                <i class="fas fa-arrow-right mr-2"></i> Procesar Cobro
+                            </a>
+
+                            <div id="alertaYaActiva" class="alert alert-warning d-none mt-3 mb-0 small text-left" style="border-radius: 8px;">
+                                <i class="fas fa-exclamation-triangle mr-1"></i> El socio tiene una membresía vigente.
+                            </div>
                         </div>
                     </div>
-                    <div class="col-md-4 mb-2 mb-md-0">
-                        <select id="filtroMembresia" class="form-control form-control-sm">
-                            <option value="">Todos — Membresía</option>
-                            <option value="ACTIVA">Membresía Activa</option>
-                            <option value="VENCIDA">Membresía Vencida</option>
-                            <option value="SIN MEMBRESÍA">Sin Membresía</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <select id="filtroEstadoCliente" class="form-control form-control-sm">
-                            <option value="">Todos — Estado</option>
-                            <option value="ACTIVO">Activos</option>
-                            <option value="INACTIVO">Inactivos</option>
-                        </select>
-                    </div>
                 </div>
-            </div>
-
-            {{-- Tabla de clientes --}}
-            <div class="modal-body p-0">
-                <div class="table-responsive">
-                    <table id="modalClientesTable" class="table ic-table mb-0 w-100">
-                        <thead>
-                            <tr>
-                                <th>CLIENTE</th>
-                                <th>CÉDULA</th>
-                                <th>TELÉFONO</th>
-                                <th>MEMBRESÍA</th>
-                                <th>ESTADO</th>
-                                <th class="text-center">ACCIONES</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($clientes as $c)
-                            @php
-                                $membActiva = $c->membresias->first();
-                                if ($membActiva) {
-                                    $mLabel = 'ACTIVA'; $mClass = 'badge-membresia-activa';
-                                } else {
-                                    $tieneVencida = $c->membresias()->where('estado', 'vencida')->exists();
-                                    $mLabel = $tieneVencida ? 'VENCIDA' : 'SIN MEMBRESÍA';
-                                    $mClass = $tieneVencida ? 'badge-membresia-vencida' : 'badge-membresia-sin';
-                                }
-                                $puedeActivar = $mLabel !== 'ACTIVA';
-                            @endphp
-                            <tr>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        @if($c->foto_referencia)
-                                            <img src="{{ asset('storage/' . $c->foto_referencia) }}" class="rounded-circle mr-2" style="width:36px;height:36px;object-fit:cover;">
-                                        @else
-                                            <div class="rounded-circle mr-2 d-flex align-items-center justify-content-center bg-primary text-white" style="width:36px;height:36px;font-size:.8rem;font-weight:700;">
-                                                {{ strtoupper(substr($c->nombre, 0, 2)) }}
-                                            </div>
-                                        @endif
-                                        <div>
-                                            <div class="font-weight-bold" style="font-size:.88rem;">{{ $c->nombre }}</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="text-muted" style="font-size:.85rem;">{{ $c->cedula }}</td>
-                                <td class="text-muted" style="font-size:.85rem;">{{ $c->telefono ?? '—' }}</td>
-                                <td><span class="{{ $mClass }}">{{ $mLabel }}</span></td>
-                                <td>
-                                    <span class="{{ $c->estado === 'activo' ? 'ic-status-active' : 'ic-status-inactive' }}">
-                                        {{ strtoupper($c->estado) }}
-                                    </span>
-                                </td>
-                                <td class="text-center">
-                                    <a href="{{ route('clientes.show', $c) }}"
-                                       target="_blank"
-                                       class="btn btn-sm btn-outline-info px-2 py-1 mr-1"
-                                       title="Ver expediente">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    <a href="{{ route('pagos.create') }}?cliente_id={{ $c->id }}"
-                                        class="btn btn-sm px-2 py-1 {{ $puedeActivar ? 'btn-primary' : 'btn-secondary' }}"
-                                        title="{{ $puedeActivar ? 'Procesar cobro' : 'Ya tiene membresía activa' }}"
-                                        {!! $puedeActivar ? '' : 'style="pointer-events: none;"' !!}>
-                                        <i class="fas fa-cash-register mr-1"></i>
-                                        {{ $puedeActivar ? 'Cobrar' : 'Activa' }}
-                                    </a>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="modal-footer bg-white">
-                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>
-</div>
-@endsection
+</div>@endsection
 
 @push('scripts')
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
 $(document).ready(function() {
     $('#pagosTable').DataTable({
@@ -242,19 +196,101 @@ $(document).ready(function() {
         pageLength: 15
     });
 
-    var tClientes = $('#modalClientesTable').DataTable({
-        language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json' },
-        dom: 'rt<"d-flex justify-content-between align-items-center px-3 py-2"ip>',
-        pageLength: 8,
-        columnDefs: [{ orderable: false, targets: 5 }]
+    $('#select2Cliente').select2({
+        dropdownParent: $('#modalClientes'),
+        placeholder: 'Escribe nombre o cédula...',
+        allowClear: true,
+        ajax: {
+            url: '{{ route("pagos.buscarClientes") }}',
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return { q: params.term };
+            },
+            processResults: function (data) {
+                return { results: data.results };
+            },
+            cache: true
+        },
+        templateResult: formatClient,
+        templateSelection: formatClientSelection
     });
-
-    $('#buscarCliente').on('keyup', function() { tClientes.search(this.value).draw(); });
-    $('#filtroMembresia').on('change', function() {
-        tClientes.column(3).search(this.value ? '^' + this.value + '$' : '', true, false).draw();
+    
+    function formatClient(client) {
+        if (client.loading) return client.text;
+        
+        var imgHtml = '';
+        if (client.foto) {
+            imgHtml = '<img src="' + client.foto + '" />';
+        } else {
+            var initials = client.text.substring(0,2).toUpperCase();
+            imgHtml = '<div class="avatar-placeholder">' + initials + '</div>';
+        }
+        
+        var mClass = 'badge-secondary';
+        if (client.membresia_status === 'ACTIVA') mClass = 'badge-membresia-activa';
+        else if (client.membresia_status === 'VENCIDA') mClass = 'badge-membresia-vencida';
+        else mClass = 'badge-membresia-sin';
+        
+        return $(
+            '<div class="client-result">' +
+                imgHtml +
+                '<div class="info">' +
+                    '<span class="name">' + client.text + '</span>' +
+                    '<span class="cedula">' + (client.cedula ? client.cedula : '') + '</span>' +
+                    '<div class="badges">' +
+                        '<span class="badge ' + mClass + ' mr-1">' + client.membresia_status + '</span>' +
+                    '</div>' +
+                '</div>' +
+            '</div>'
+        );
+    }
+    
+    function formatClientSelection(client) {
+        return client.text || client.id;
+    }
+    
+    $('#select2Cliente').on('select2:select', function (e) {
+        var data = e.params.data;
+        $('#clienteSeleccionadoInfo').removeClass('d-none');
+        
+        $('#infoNombre').text(data.text);
+        $('#infoCedula').text(data.cedula || 'Sin Cédula');
+        
+        // Foto
+        if (data.foto) {
+            $('#infoFoto').html('<img src="' + data.foto + '" class="rounded-circle" style="width:80px;height:80px;object-fit:cover;">');
+        } else {
+            $('#infoFoto').html('<div class="rounded-circle mx-auto d-flex align-items-center justify-content-center bg-primary text-white font-weight-bold" style="width:80px;height:80px;font-size:1.5rem;">' + data.text.substring(0,2).toUpperCase() + '</div>');
+        }
+        
+        // Membresia badge
+        var mBadge = $('#infoMembresia');
+        mBadge.text(data.membresia_status);
+        mBadge.removeClass('badge-membresia-activa badge-membresia-vencida badge-membresia-sin');
+        if (data.membresia_status === 'ACTIVA') {
+            mBadge.addClass('badge-membresia-activa');
+            $('#alertaYaActiva').removeClass('d-none');
+            $('#btnCobrar').removeClass('btn-primary').addClass('btn-secondary');
+        } else {
+            if (data.membresia_status === 'VENCIDA') mBadge.addClass('badge-membresia-vencida');
+            else mBadge.addClass('badge-membresia-sin');
+            $('#alertaYaActiva').addClass('d-none');
+            $('#btnCobrar').removeClass('btn-secondary').addClass('btn-primary');
+        }
+        
+        // Estado
+        $('#infoEstado').text(data.estado.toUpperCase());
+        $('#infoEstado').removeClass().addClass('badge badge-pill px-3 py-2 ' + (data.estado === 'activo' ? 'ic-status-active' : 'ic-status-inactive'));
+        
+        // Btn Link
+        $('#btnCobrar').attr('href', '{{ route("pagos.create") }}?cliente_id=' + data.id);
     });
-    $('#filtroEstadoCliente').on('change', function() {
-        tClientes.column(4).search(this.value ? '^' + this.value + '$' : '', true, false).draw();
+    
+    // Clear on open
+    $('#modalClientes').on('show.bs.modal', function () {
+        $('#select2Cliente').val(null).trigger('change');
+        $('#clienteSeleccionadoInfo').addClass('d-none');
     });
 });
 </script>

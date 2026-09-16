@@ -121,4 +121,46 @@ class PagoController extends Controller
 
         return response()->json($data);
     }
+
+    /** AJAX: devuelve clientes buscados para Select2 */
+    public function buscarClientes(Request $request)
+    {
+        $term = $request->input('q');
+        
+        $query = Cliente::with(['membresias' => function ($q) {
+            $q->where('estado', 'activa')->where('fecha_vencimiento', '>=', Carbon::today())->latest();
+        }]);
+
+        if ($term) {
+            $query->where(function($q) use ($term) {
+                $q->where('nombre', 'LIKE', '%' . $term . '%')
+                  ->orWhere('cedula', 'LIKE', '%' . $term . '%');
+            });
+        }
+
+        $clientes = $query->limit(20)->get();
+        
+        $resultados = [];
+        foreach ($clientes as $c) {
+            $membActiva = $c->membresias->first();
+            
+            if ($membActiva) {
+                $membStatus = 'ACTIVA';
+            } else {
+                $tieneVencida = $c->membresias()->where('estado', 'vencida')->exists();
+                $membStatus = $tieneVencida ? 'VENCIDA' : 'SIN MEMBRESÍA';
+            }
+            
+            $resultados[] = [
+                'id' => $c->id,
+                'text' => $c->nombre,
+                'cedula' => $c->cedula,
+                'estado' => $c->estado,
+                'membresia_status' => $membStatus,
+                'foto' => $c->foto_referencia ? asset('storage/' . $c->foto_referencia) : null
+            ];
+        }
+
+        return response()->json(['results' => $resultados]);
+    }
 }

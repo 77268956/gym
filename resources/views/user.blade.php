@@ -388,7 +388,7 @@
                                                 @csrf @method('PATCH')
                                                 <button type="submit" class="dropdown-item text-warning"><i class="fas fa-exchange-alt mr-2"></i> Cambiar estado</button>
                                             </form>
-                                            <form action="{{ route('clientes.destroy', $cliente) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este cliente?');">
+                                            <form action="{{ route('clientes.destroy', $cliente) }}" method="POST" class="d-inline form-delete">
                                                 @csrf @method('DELETE')
                                                 <button type="submit" class="dropdown-item text-danger"><i class="fas fa-trash-alt mr-2"></i> Eliminar</button>
                                             </form>

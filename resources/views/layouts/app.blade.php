@@ -487,6 +487,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cleave.js/1.6.0/cleave.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
 
     <script>
@@ -527,6 +528,46 @@
                 }
             });
         })();
+    </script>
+        <script>
+        // Configurar Notyf
+        var notyf = new Notyf({
+            duration: 4000,
+            position: { x: 'right', y: 'top' },
+            ripple: true
+        });
+
+        @if(session('success'))
+            notyf.success("{{ session('success') }}");
+        @endif
+        
+        @if(session('error'))
+            notyf.error("{{ session('error') }}");
+        @endif
+        
+        @if($errors->any())
+            notyf.error("Por favor revisa los errores en el formulario.");
+        @endif
+
+        // SweetAlert2 global para formularios de eliminación
+        $(document).on('submit', '.form-delete', function(e) {
+            e.preventDefault();
+            var form = this;
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: 'Esta acción no se puede deshacer.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#DC2626',
+                cancelButtonColor: '#64748B',
+                confirmButtonText: '<i class="fas fa-trash-alt"></i> Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        });
     </script>
     @stack('scripts')
 </body>

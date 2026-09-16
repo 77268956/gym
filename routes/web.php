@@ -51,6 +51,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/pagos/nuevo', [PagoController::class, 'create'])->name('pagos.create');
     Route::post('/pagos', [PagoController::class, 'store'])->name('pagos.store');
     Route::get('/pagos/cliente/{cliente}/info', [PagoController::class, 'clienteInfo'])->name('pagos.clienteInfo');
+    Route::get('/pagos/buscar-clientes', [PagoController::class, 'buscarClientes'])->name('pagos.buscarClientes');
 
     // configuracion del sistema
     Route::get('/configuracion', [ConfiguracionController::class, 'index'])->name('configuracion.index');

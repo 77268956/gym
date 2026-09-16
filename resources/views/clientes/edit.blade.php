@@ -278,4 +278,22 @@
         setFaceDescriptor(@json(asset('storage/' . $cliente->foto_referencia)));
     @endif
 </script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (document.getElementById('telefono')) {
+        new Cleave('#telefono', {
+            delimiters: ['-'],
+            blocks: [4, 4],
+            numericOnly: true
+        });
+    }
+    if (document.getElementById('cedula')) {
+        new Cleave('#cedula', {
+            delimiters: ['-', '-'],
+            blocks: [4, 4, 5],
+            numericOnly: true
+        });
+    }
+});
+</script>
 @endpush

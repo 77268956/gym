@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ConfiguracionGeneral;
+use App\Models\ConfiguracionPunto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
@@ -16,7 +17,8 @@ class ConfiguracionController extends Controller
             'logo_path' => null,
         ]);
 
-        return view('configuracion.index', compact('configuracion'));
+        $configuracionPuntos = ConfiguracionPunto::first();
+        return view('configuracion.index', compact('configuracion', 'configuracionPuntos'));
     }
 
     public function update(Request $request)
@@ -60,6 +62,12 @@ class ConfiguracionController extends Controller
         $configuracion->codigo_moneda = $request->input('codigo_moneda', 'HNL');
 
         $configuracion->save();
+
+        // Puntos por visita
+        ConfiguracionPunto::updateOrCreate([], [
+            'puntos_por_visita' => (int) $request->input('puntos_por_visita', 10),
+            'vigente_desde' => now()->toDateString(),
+        ]);
 
         // Limpiar caché global
         Cache::forget('configuracion_general');
