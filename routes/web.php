@@ -22,6 +22,10 @@ Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+// Escáner facial público para recepción
+Route::get('/escanear-publico', [AsistenciaController::class, 'escanear'])->name('asistencias.publico');
+Route::post('/escanear-publico/registrar', [AsistenciaController::class, 'registrarEscaneo'])->name('asistencias.publico.registrar');
+
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
         return view('dashboard');

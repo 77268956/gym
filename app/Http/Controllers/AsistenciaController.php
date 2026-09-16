@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Cliente;
 use App\Models\AsistenciaCliente;
-use Illuminate\Http\Request;
+use App\Models\Cliente;
 use App\Models\ConfiguracionPunto;
+use App\Models\MovimientoPunto;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class AsistenciaController extends Controller
 {
@@ -19,18 +20,16 @@ class AsistenciaController extends Controller
         return view('asistencias.escanear', compact('clientes'));
     }
 
-
-
     public function registrarEscaneo(Request $request)
     {
         $request->validate([
-            'cliente_id' => 'required|exists:clientes,id'
+            'cliente_id' => 'required|exists:clientes,id',
         ]);
 
         $cliente = Cliente::with([
             'membresias' => function ($q) {
                 $q->where('estado', 'activa')->latest();
-            }
+            },
         ])->findOrFail($request->cliente_id);
 
         if ($cliente->estado !== 'activo') {
@@ -39,35 +38,34 @@ class AsistenciaController extends Controller
                 'message' => 'El cliente está inactivo.',
                 'cliente' => $cliente->nombre,
                 'puntos' => $cliente->puntos_ecogim ?? 0,
-                'foto' => $cliente->foto_referencia ? asset('storage/' . $cliente->foto_referencia) : null
+                'foto' => $cliente->foto_referencia ? asset('storage/'.$cliente->foto_referencia) : null,
             ]);
         }
 
         $membresiaActiva = $cliente->membresias->first();
-        if (!$membresiaActiva) {
+        if (! $membresiaActiva) {
             return response()->json([
                 'status' => 'warning',
                 'message' => 'El cliente no tiene una membresía activa.',
                 'cliente' => $cliente->nombre,
                 'puntos' => $cliente->puntos_ecogim ?? 0,
-                'foto' => $cliente->foto_referencia ? asset('storage/' . $cliente->foto_referencia) : null
+                'foto' => $cliente->foto_referencia ? asset('storage/'.$cliente->foto_referencia) : null,
             ]);
         }
 
-        // Evitar doble escaneo en los últimos 30 minutos
+        // Evitar duplicar asistencias durante el mismo día.
         $ultimaAsistencia = AsistenciaCliente::where('cliente_id', $cliente->id)
             ->where('fecha', date('Y-m-d'))
-            ->where('hora', '>=', Carbon::now()->subMinutes(30)->format('H:i:s'))
             ->first();
 
         if ($ultimaAsistencia) {
             return response()->json([
-                'status' => 'warning',
-                'message' => 'Asistencia ya registrada hace unos momentos.',
+                'status' => 'success',
+                'message' => '¡Bienvenido! Tu asistencia ya estaba registrada hoy.',
                 'cliente' => $cliente->nombre,
                 'puntos' => $cliente->puntos_ecogim ?? 0,
                 'membresia_vence' => Carbon::parse($membresiaActiva->fecha_vencimiento)->format('d/m/Y'),
-                'foto' => $cliente->foto_referencia ? asset('storage/' . $cliente->foto_referencia) : null
+                'foto' => $cliente->foto_referencia ? asset('storage/'.$cliente->foto_referencia) : null,
             ]);
         }
 
@@ -78,10 +76,10 @@ class AsistenciaController extends Controller
             ->exists();
 
         // Obtener la cantidad de puntos configurada
-        $config = \App\Models\ConfiguracionPunto::first();
+        $config = ConfiguracionPunto::first();
         $puntosAGanar = $config ? $config->puntos_por_visita : 0;
 
-        $otorgarPuntos = !$yaObtuvoPuntosHoy && $puntosAGanar > 0;
+        $otorgarPuntos = ! $yaObtuvoPuntosHoy && $puntosAGanar > 0;
 
         $asistencia = AsistenciaCliente::create([
             'cliente_id' => $cliente->id,
@@ -89,7 +87,7 @@ class AsistenciaController extends Controller
             'fecha' => date('Y-m-d'),
             'hora' => date('H:i:s'),
             'metodo_registro' => 'facial',
-            'puntos_otorgados' => $otorgarPuntos
+            'puntos_otorgados' => $otorgarPuntos,
         ]);
 
         if ($otorgarPuntos) {
@@ -97,7 +95,7 @@ class AsistenciaController extends Controller
             $cliente->refresh();
 
             // Crear registro del movimiento de puntos
-            \App\Models\MovimientoPunto::create([
+            MovimientoPunto::create([
                 'cliente_id' => $cliente->id,
                 'tipo_movimiento' => 'ganado',
                 'puntos' => $puntosAGanar,
@@ -113,7 +111,7 @@ class AsistenciaController extends Controller
             'puntos' => $cliente->puntos_ecogim,
             'cliente' => $cliente->nombre,
             'membresia_vence' => Carbon::parse($membresiaActiva->fecha_vencimiento)->format('d/m/Y'),
-            'foto' => $cliente->foto_referencia ? asset('storage/' . $cliente->foto_referencia) : null
+            'foto' => $cliente->foto_referencia ? asset('storage/'.$cliente->foto_referencia) : null,
         ]);
     }
 }
