@@ -5,9 +5,17 @@ namespace App\Http\Controllers;
 use App\Models\Cliente;
 use App\Models\Membresia;
 use Carbon\Carbon;
+use Illuminate\Contracts\View\View;
 
 class UserController extends Controller
 {
+    public function profile(): View
+    {
+        return view('perfil.index', [
+            'usuario' => auth()->user(),
+        ]);
+    }
+
     public function userget()
     {
         $nombre = 'Jose Perez';
@@ -16,10 +24,10 @@ class UserController extends Controller
         $attendanceRate = 84.2; // mock
         $newSignups = Cliente::whereMonth('created_at', now()->month)->count();
         $totalClientes = Cliente::count();
-                $membresiasPorVencer = Membresia::where('estado', 'activa')
+        $membresiasPorVencer = Membresia::where('estado', 'activa')
             ->where('fecha_vencimiento', '<=', now()->addDays(7))
             ->count();
-            
+
         $clientes = Cliente::with(['membresias' => function ($q) {
             $q->where('estado', 'activa');
         }])->orderBy('id', 'desc')->get();
@@ -34,11 +42,12 @@ class UserController extends Controller
             ->get()
             ->map(function ($m) {
                 $dias = now()->startOfDay()->diffInDays(Carbon::parse($m->fecha_vencimiento)->startOfDay(), false);
-                return (object)[
+
+                return (object) [
                     'nombre' => $m->cliente->nombre ?? 'Desconocido',
                     'plan' => $m->tipoMembresia ? $m->tipoMembresia->nombre : 'Membresía',
-                    'dias' => max(0, (int)$dias),
-                    'nivel' => $dias <= 3 ? 'critical' : 'warn'
+                    'dias' => max(0, (int) $dias),
+                    'nivel' => $dias <= 3 ? 'critical' : 'warn',
                 ];
             });
 
@@ -50,13 +59,13 @@ class UserController extends Controller
             $date = Carbon::now()->subMonths($i);
             $mesNum = $date->format('n');
             $year = $date->format('Y');
-            
-            $mesesLabels[] = strtoupper(substr($date->translatedFormat('F'), 0, 3)); 
-            
+
+            $mesesLabels[] = strtoupper(substr($date->translatedFormat('F'), 0, 3));
+
             $count = Cliente::whereYear('created_at', $year)
-                         ->whereMonth('created_at', $mesNum)
-                         ->count();
-                         
+                ->whereMonth('created_at', $mesNum)
+                ->count();
+
             $mesesData[] = $count;
         }
 

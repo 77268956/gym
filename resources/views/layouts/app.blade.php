@@ -194,6 +194,8 @@
             align-items: center;
             margin-bottom: 0.75rem;
         }
+        .sidebar-user-link { width: 100%; color: inherit; text-decoration: none; }
+        .sidebar-user-link:hover { color: inherit; text-decoration: none; }
         .sidebar-user-avatar {
             width: 36px;
             height: 36px;
@@ -448,7 +450,7 @@
         
         <!-- Sidebar Footer (Usuario y Cerrar Sesión) -->
         <div class="sidebar-footer">
-            <div class="sidebar-user">
+            <a href="{{ route('perfil') }}" class="sidebar-user sidebar-user-link" title="Ver perfil">
                 <div class="sidebar-user-avatar shadow-sm">
                     {{ strtoupper(substr(Auth::user()->usuario ?? 'A', 0, 1)) }}
                 </div>
@@ -462,7 +464,7 @@
                         @endif
                     </span>
                 </div>
-            </div>
+            </a>
             <form action="{{ route('logout') }}" method="POST">
                 @csrf
                 <button type="submit" class="btn-logout" title="Cerrar Sesión">

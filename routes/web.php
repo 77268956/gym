@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AsistenciaController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\ConfiguracionController;
@@ -13,8 +14,8 @@ Route::get('/', function () {
     return redirect()->route('login');
 
     // Módulo de Asistencias (Escáner Facial)
-    Route::get('/escanear', [\App\Http\Controllers\AsistenciaController::class, 'escanear'])->name('asistencias.escanear');
-    Route::post('/escanear/registrar', [\App\Http\Controllers\AsistenciaController::class, 'registrarEscaneo'])->name('asistencias.registrar');
+    Route::get('/escanear', [AsistenciaController::class, 'escanear'])->name('asistencias.escanear');
+    Route::post('/escanear/registrar', [AsistenciaController::class, 'registrarEscaneo'])->name('asistencias.registrar');
 });
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -25,6 +26,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
+
+    Route::get('/perfil', [UserController::class, 'profile'])->name('perfil');
 
     Route::get('/user', [UserController::class, 'userget'])->name('user');
 
@@ -65,6 +68,6 @@ Route::middleware('auth')->group(function () {
     Route::patch('/membresias/{tipoMembresia}/toggle', [TipoMembresiaController::class, 'toggleStatus'])->name('membresias.toggleStatus');
 
     // Módulo de Asistencias (Escáner Facial)
-    Route::get('/escanear', [\App\Http\Controllers\AsistenciaController::class, 'escanear'])->name('asistencias.escanear');
-    Route::post('/escanear/registrar', [\App\Http\Controllers\AsistenciaController::class, 'registrarEscaneo'])->name('asistencias.registrar');
+    Route::get('/escanear', [AsistenciaController::class, 'escanear'])->name('asistencias.escanear');
+    Route::post('/escanear/registrar', [AsistenciaController::class, 'registrarEscaneo'])->name('asistencias.registrar');
 });
