@@ -30,6 +30,7 @@ class UserController extends Controller
 
         $clientes = Cliente::with(['membresias' => function ($q) {
             $q->where('estado', 'activa');
+            $q->with('tipoMembresia');
         }])->orderBy('id', 'desc')->get();
 
         // 1. Membresías por vencer detallado

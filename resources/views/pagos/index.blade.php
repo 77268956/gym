@@ -49,13 +49,14 @@
     .ic-card-title { font-weight: 700; font-size: 0.8rem; color: var(--sidebar-bg); margin-bottom: 0.5rem; text-transform: uppercase; }
     
     /* Panel scrollable para la tabla */
-    .table-panel { flex: 1; min-height: 0; overflow-y: auto; padding-right: 5px; }
+    .table-panel { flex: 1; min-height: 0; overflow: hidden; padding-right: 5px; }
     
     /* Fix datatables height */
     .dataTables_wrapper { display: flex; flex-direction: column; height: 100%; }
     .dataTables_wrapper .row { margin-left: 0; margin-right: 0; }
-    .dataTables_scroll { flex-grow: 1; overflow: hidden; display: flex; flex-direction: column; min-height: 0; margin-top: 0.5rem; margin-bottom: 0.5rem; }
-    .dataTables_scrollBody { flex-grow: 1; min-height: 0; overflow-y: auto !important; max-height: none !important; height: auto !important; }
+    .dataTables_scroll { flex: 1 1 auto; overflow: hidden; display: flex; flex-direction: column; min-height: 0; margin-top: 0.5rem; margin-bottom: 0.5rem; }
+    .dataTables_scroll > .col-sm-12 { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+    .dataTables_scrollBody { flex: 1 1 auto; min-height: 0; height: auto !important; max-height: none !important; overflow-y: auto !important; }
     
     .ic-table thead th { font-size: 0.7rem; color: #64748B; background: #F8FAFC; border-bottom: 2px solid #E2E8F0; padding: 0.5rem; white-space: nowrap; }
     .ic-table td { font-size: 0.85rem; vertical-align: middle; white-space: nowrap; border-top: 1px solid #F1F5F9; padding: 0.5rem; }

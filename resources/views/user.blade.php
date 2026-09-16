@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Socios / Clientes')
+@section('title', 'Clientes')
 
 @push('styles')
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css">
@@ -182,6 +182,9 @@
                                         }
                                     @endphp
                                     <span class="{{ $mClass }}">{{ $mLabel }}</span>
+                                    @if($membActiva)
+                                        <small class="d-block text-muted mt-1">{{ $membActiva->tipoMembresia->nombre ?? 'Tipo no disponible' }}</small>
+                                    @endif
                                 </td>
                                 <td class="font-weight-bold text-primary">{{ $cliente->puntos_recompensa ?? ($cliente->puntos_ecogim ?? 0) }}</td>
                                 <td>
