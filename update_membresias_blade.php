@@ -1,3 +1,7 @@
+<?php
+$f = 'c:/laragon/www/GymX/resources/views/membresias/index.blade.php';
+
+$blade = <<<'BLADE'
 @extends('layouts.app')
 
 @section('title', 'Tipos de Membresía')
@@ -419,3 +423,7 @@ function openEditModal(plan) {
 }
 </script>
 @endpush
+BLADE;
+
+file_put_contents($f, $blade);
+echo "Membresias view updated.";

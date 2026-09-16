@@ -1,3 +1,7 @@
+<?php
+$f = 'c:/laragon/www/GymX/resources/views/configuracion/index.blade.php';
+
+$blade = <<<'BLADE'
 @extends('layouts.app')
 
 @section('title', 'Configuración General')
@@ -186,3 +190,7 @@
     }
 </script>
 @endpush
+BLADE;
+
+file_put_contents($f, $blade);
+echo "Configuracion view updated.";

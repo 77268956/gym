@@ -1,6 +1,10 @@
+<?php
+$f = 'c:/laragon/www/GymX/resources/views/empleados/edit.blade.php';
+
+$blade = <<<'BLADE'
 @extends('layouts.app')
 
-@section('title', 'Nuevo Empleado / Recepcionista')
+@section('title', 'Editar Empleado - ' . $empleado->nombre)
 
 @push('styles')
 <style>
@@ -43,7 +47,7 @@
                 {{-- Header --}}
                 <div class="d-flex justify-content-between align-items-center mb-3 flex-shrink-0">
                     <h5 class="mb-0 font-weight-bold text-dark" style="font-size:0.95rem;">
-                        <i class="fas fa-user-plus text-primary mr-2"></i> Registrar Nuevo Empleado
+                        <i class="fas fa-user-edit text-primary mr-2"></i> Editar Empleado: {{ $empleado->nombre }}
                     </h5>
                     <a href="{{ route('empleados') }}" class="btn btn-outline-secondary btn-sm font-weight-bold">
                         <i class="fas fa-arrow-left mr-1"></i> Volver
@@ -57,15 +61,22 @@
                         <button type="button" class="close p-2" data-dismiss="alert"><span>&times;</span></button>
                     </div>
                 @endif
+                @if(session('success'))
+                    <div class="alert alert-success alert-dismissible fade show p-2 mb-3" style="font-size:0.85rem;">
+                        <i class="fas fa-check-circle mr-1"></i> {{ session('success') }}
+                        <button type="button" class="close p-2" data-dismiss="alert"><span>&times;</span></button>
+                    </div>
+                @endif
 
                 {{-- Scrollable Form --}}
                 <div class="config-scroll">
-                    <form action="{{ route('empleados.store') }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('empleados.update', $empleado) }}" method="POST" enctype="multipart/form-data">
                         @csrf
+                        @method('PUT')
                         <input type="hidden" name="foto_base64" id="foto_base64">
-                        <input type="hidden" name="descriptor_facial" id="descriptor_facial">
+                        <input type="hidden" name="descriptor_facial" id="descriptor_facial" value="{{ $empleado->descriptor_facial }}">
 
-                        {{-- SECCIÓN 1: DATOS PERSONALES --}}
+                        {{-- SECCIÓN 1: DATOS PERSONALES Y ACCESO --}}
                         <div class="config-section">
                             <div class="config-section-title"><i class="fas fa-id-badge mr-2"></i> 1. Información Personal y Credenciales</div>
                             <div class="row">
@@ -73,7 +84,7 @@
                                     <label class="config-label">Nombre Completo <span class="text-danger">*</span></label>
                                     <div class="input-group input-group-sm">
                                         <div class="input-group-prepend"><span class="input-group-text"><i class="fas fa-user"></i></span></div>
-                                        <input type="text" name="nombre" class="form-control @error('nombre') is-invalid @enderror" value="{{ old('nombre') }}" placeholder="Ej: Amanda Waller" required>
+                                        <input type="text" name="nombre" class="form-control @error('nombre') is-invalid @enderror" value="{{ old('nombre', $empleado->nombre) }}" required>
                                     </div>
                                     @error('nombre')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                                 </div>
@@ -81,7 +92,7 @@
                                     <label class="config-label">Cédula / Identificación <span class="text-danger">*</span></label>
                                     <div class="input-group input-group-sm">
                                         <div class="input-group-prepend"><span class="input-group-text"><i class="fas fa-id-card"></i></span></div>
-                                        <input type="text" name="cedula" id="cedula" class="form-control @error('cedula') is-invalid @enderror" value="{{ old('cedula') }}" placeholder="Ej: 0801-1992-45678" required>
+                                        <input type="text" name="cedula" id="cedula" class="form-control @error('cedula') is-invalid @enderror" value="{{ old('cedula', $empleado->cedula) }}" required>
                                     </div>
                                     @error('cedula')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                                 </div>
@@ -89,14 +100,14 @@
                                     <label class="config-label">Usuario de Acceso <span class="text-danger">*</span></label>
                                     <div class="input-group input-group-sm">
                                         <div class="input-group-prepend"><span class="input-group-text"><i class="fas fa-user-tag"></i></span></div>
-                                        <input type="text" name="usuario" class="form-control @error('usuario') is-invalid @enderror" value="{{ old('usuario') }}" placeholder="Ej: awaller" required>
+                                        <input type="text" name="usuario" class="form-control @error('usuario') is-invalid @enderror" value="{{ old('usuario', $empleado->usuario) }}" required>
                                     </div>
                                 </div>
                                 <div class="col-md-6 form-group mb-2">
-                                    <label class="config-label">Contraseña Inicial <span class="text-danger">*</span></label>
+                                    <label class="config-label">Contraseña (Opcional)</label>
                                     <div class="input-group input-group-sm">
                                         <div class="input-group-prepend"><span class="input-group-text"><i class="fas fa-key"></i></span></div>
-                                        <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" placeholder="Mínimo 6 caracteres" required>
+                                        <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" placeholder="Dejar en blanco para conservar">
                                     </div>
                                 </div>
                             </div>
@@ -110,31 +121,31 @@
                                 <div class="col-md-6 form-group mb-3">
                                     <label class="config-label">Rol en el Sistema <span class="text-danger">*</span></label>
                                     <select name="rol" class="form-control form-control-sm @error('rol') is-invalid @enderror" required>
-                                        <option value="empleado" {{ old('rol') === 'empleado' ? 'selected' : '' }}>Recepcionista / Empleado</option>
-                                        <option value="admin" {{ old('rol') === 'admin' ? 'selected' : '' }}>Administrador General</option>
+                                        <option value="empleado" {{ old('rol', $empleado->rol) === 'empleado' ? 'selected' : '' }}>Recepcionista / Empleado</option>
+                                        <option value="admin" {{ old('rol', $empleado->rol) === 'admin' ? 'selected' : '' }}>Administrador General</option>
                                     </select>
                                 </div>
                                 <div class="col-md-6 form-group mb-3">
                                     <label class="config-label">Estado del Empleado <span class="text-danger">*</span></label>
                                     <select name="estado" class="form-control form-control-sm @error('estado') is-invalid @enderror" required>
-                                        <option value="activo" {{ old('estado', 'activo') === 'activo' ? 'selected' : '' }}>Activo</option>
-                                        <option value="inactivo" {{ old('estado') === 'inactivo' ? 'selected' : '' }}>Inactivo</option>
+                                        <option value="activo" {{ old('estado', $empleado->estado) === 'activo' ? 'selected' : '' }}>Activo</option>
+                                        <option value="inactivo" {{ old('estado', $empleado->estado) === 'inactivo' ? 'selected' : '' }}>Inactivo</option>
                                     </select>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-4 form-group mb-0">
                                     <label class="config-label">Hora de Entrada (Turno)</label>
-                                    <input type="time" name="hora_entrada_turno" class="form-control form-control-sm" value="{{ old('hora_entrada_turno', '08:00') }}">
+                                    <input type="time" name="hora_entrada_turno" class="form-control form-control-sm" value="{{ old('hora_entrada_turno', \Carbon\Carbon::parse($empleado->hora_entrada_turno ?? '08:00')->format('H:i')) }}">
                                 </div>
                                 <div class="col-md-4 form-group mb-0">
                                     <label class="config-label">Hora de Salida (Turno)</label>
-                                    <input type="time" name="hora_salida_turno" class="form-control form-control-sm" value="{{ old('hora_salida_turno', '16:00') }}">
+                                    <input type="time" name="hora_salida_turno" class="form-control form-control-sm" value="{{ old('hora_salida_turno', \Carbon\Carbon::parse($empleado->hora_salida_turno ?? '16:00')->format('H:i')) }}">
                                 </div>
                                 <div class="col-md-4 form-group mb-0">
                                     <label class="config-label">Tolerancia (Minutos)</label>
                                     <div class="input-group input-group-sm">
-                                        <input type="number" name="tolerancia_minutos" class="form-control" value="{{ old('tolerancia_minutos', 10) }}" min="0" max="120">
+                                        <input type="number" name="tolerancia_minutos" class="form-control" value="{{ old('tolerancia_minutos', $empleado->tolerancia_minutos ?? 10) }}" min="0" max="120">
                                         <div class="input-group-append"><span class="input-group-text">min</span></div>
                                     </div>
                                 </div>
@@ -148,11 +159,19 @@
                             <div class="row align-items-center">
                                 <div class="col-md-3 text-center mb-2 mb-md-0">
                                     <div class="p-3 border rounded bg-white d-flex flex-column align-items-center justify-content-center" style="min-height:120px;">
-                                        <img id="fotoPreview" src="#" alt="Preview" class="rounded-circle d-none mb-2" style="width:80px;height:80px;object-fit:cover;">
-                                        <div id="fotoPlaceholder" class="text-muted text-center">
-                                            <i class="fas fa-user-circle fa-2x mb-1 text-primary"></i>
-                                            <small class="d-block" style="font-size:0.7rem;">Sin foto</small>
-                                        </div>
+                                        @if($empleado->foto_referencia)
+                                            <img id="fotoPreview" src="{{ asset('storage/' . $empleado->foto_referencia) }}" alt="Foto" class="rounded-circle mb-2" style="width:80px;height:80px;object-fit:cover;">
+                                            <div id="fotoPlaceholder" class="text-muted text-center d-none">
+                                                <i class="fas fa-user-circle fa-2x mb-1 text-primary"></i>
+                                                <small class="d-block" style="font-size:0.7rem;">Sin foto</small>
+                                            </div>
+                                        @else
+                                            <img id="fotoPreview" src="#" alt="Preview" class="rounded-circle d-none mb-2" style="width:80px;height:80px;object-fit:cover;">
+                                            <div id="fotoPlaceholder" class="text-muted text-center">
+                                                <i class="fas fa-user-circle fa-2x mb-1 text-primary"></i>
+                                                <small class="d-block" style="font-size:0.7rem;">Sin foto</small>
+                                            </div>
+                                        @endif
                                         <span id="webcamBadge" class="badge badge-success d-none mt-1" style="font-size:0.6rem;"><i class="fas fa-camera mr-1"></i> Webcam</span>
                                     </div>
                                 </div>
@@ -160,13 +179,28 @@
                                     <div class="d-flex flex-column flex-sm-row align-items-sm-center mb-1">
                                         <div class="custom-file custom-file-sm flex-grow-1 mb-2 mb-sm-0 mr-sm-2">
                                             <input type="file" name="foto" id="foto" class="custom-file-input @error('foto') is-invalid @enderror" accept="image/*" onchange="previewFoto(this)">
-                                            <label class="custom-file-label" for="foto" style="font-size:0.85rem; height: calc(1.5em + 0.5rem + 2px); padding: 0.25rem 0.5rem;">Subir desde archivo...</label>
+                                            <label class="custom-file-label" for="foto" style="font-size:0.85rem; height: calc(1.5em + 0.5rem + 2px); padding: 0.25rem 0.5rem;">Cambiar fotografía...</label>
                                         </div>
                                         <button type="button" class="btn btn-outline-primary btn-sm font-weight-bold text-nowrap" onclick="openWebcamModal()">
                                             <i class="fas fa-camera mr-1"></i> Usar Cámara
                                         </button>
                                     </div>
                                     <small class="form-text text-muted" style="font-size:0.7rem;">JPG/PNG, máx 2MB. Usado para reconocimiento facial.</small>
+
+                                    @if($empleado->descriptor_facial)
+                                        <div class="mt-2">
+                                            <span class="badge badge-info" style="font-size:0.7rem;"><i class="fas fa-check-circle mr-1"></i> Descriptor Facial guardado</span>
+                                        </div>
+                                    @endif
+
+                                    @if($empleado->foto_referencia)
+                                        <div class="custom-control custom-checkbox mt-2">
+                                            <input type="checkbox" class="custom-control-input" id="eliminar_foto" name="eliminar_foto" value="1">
+                                            <label class="custom-control-label text-danger" for="eliminar_foto" style="font-size:0.8rem;">
+                                                <i class="fas fa-trash-alt mr-1"></i> Eliminar foto actual
+                                            </label>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -175,7 +209,7 @@
                         <div class="d-flex justify-content-end mt-3 mb-2">
                             <a href="{{ route('empleados') }}" class="btn btn-outline-secondary btn-sm px-4 font-weight-bold mr-2">Cancelar</a>
                             <button type="submit" class="btn btn-primary btn-sm px-4 font-weight-bold">
-                                <i class="fas fa-save mr-2"></i> Guardar Empleado
+                                <i class="fas fa-save mr-2"></i> Actualizar Empleado
                             </button>
                         </div>
                     </form>
@@ -216,8 +250,10 @@
             reader.onload = function(e) {
                 document.getElementById('fotoPreview').src = e.target.result;
                 document.getElementById('fotoPreview').classList.remove('d-none');
-                document.getElementById('fotoPlaceholder').classList.add('d-none');
-                document.getElementById('webcamBadge').classList.add('d-none');
+                var placeholder = document.getElementById('fotoPlaceholder');
+                if(placeholder) placeholder.classList.add('d-none');
+                var badge = document.getElementById('webcamBadge');
+                if(badge) badge.classList.add('d-none');
                 document.getElementById('foto_base64').value = '';
             };
             reader.readAsDataURL(input.files[0]);
@@ -245,8 +281,10 @@
             document.getElementById('foto_base64').value = dataUrl;
             document.getElementById('fotoPreview').src = dataUrl;
             document.getElementById('fotoPreview').classList.remove('d-none');
-            document.getElementById('fotoPlaceholder').classList.add('d-none');
-            document.getElementById('webcamBadge').classList.remove('d-none');
+            var placeholder = document.getElementById('fotoPlaceholder');
+            if(placeholder) placeholder.classList.add('d-none');
+            var badge = document.getElementById('webcamBadge');
+            if(badge) badge.classList.remove('d-none');
             document.getElementById('foto').value = '';
             document.querySelector('.custom-file-label').textContent = 'Subir desde archivo...';
             closeWebcamModal();
@@ -261,3 +299,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 @endpush
+BLADE;
+
+file_put_contents($f, $blade);
+echo "Empleado edit view updated.";

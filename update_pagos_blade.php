@@ -1,3 +1,7 @@
+<?php
+$f = 'c:/laragon/www/GymX/resources/views/pagos/index.blade.php';
+
+$blade = <<<'BLADE'
 @extends('layouts.app')
 
 @section('title', 'Pagos y Cobros')
@@ -22,9 +26,9 @@
     
     /* KPI Cards */
     .kpi-card {
-        border-radius: 8px;
+        border-radius: 10px;
         border: none;
-        padding: 0.5rem 1rem; /* Más delgadas */
+        padding: 0.8rem 1.25rem;
         color: white;
         box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         display: flex;
@@ -33,9 +37,9 @@
         background: linear-gradient(135deg, #1E293B, #0F172A);
         height: 100%;
     }
-    .kpi-icon { font-size: 1.6rem; opacity: 0.4; } /* Icono más pequeño */
-    .kpi-value { font-size: 1.3rem; font-weight: 800; margin: 0; line-height: 1; } /* Texto más pequeño */
-    .kpi-label { font-size: 0.65rem; font-weight: 600; text-transform: uppercase; opacity: 0.8; margin-top: 2px;}
+    .kpi-icon { font-size: 2.2rem; opacity: 0.4; }
+    .kpi-value { font-size: 1.6rem; font-weight: 800; margin: 0; line-height: 1; }
+    .kpi-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; opacity: 0.8; margin-top: 4px;}
 
     .ic-card {
         background: #fff;
@@ -86,7 +90,7 @@
 
     {{-- KPI Cards --}}
     <div class="row tight flex-shrink-0">
-        <div class="col-md-4">
+        <div class="col-md-6">
             <div class="kpi-card">
                 <div>
                     <h3 class="kpi-value text-success">{{ $gymConfig->simbolo_moneda }} {{ number_format($pagosHoy, 2) }}</h3>
@@ -95,20 +99,11 @@
                 <i class="fas fa-hand-holding-usd kpi-icon"></i>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="kpi-card">
-                <div>
-                    <h3 class="kpi-value text-info">{{ $gymConfig->simbolo_moneda }} {{ number_format($pagosMes ?? 0, 2) }}</h3>
-                    <div class="kpi-label">Ingresos del Mes</div>
-                </div>
-                <i class="fas fa-calendar-check kpi-icon"></i>
-            </div>
-        </div>
-        <div class="col-md-4">
+        <div class="col-md-6">
             <div class="kpi-card">
                 <div>
                     <h3 class="kpi-value">{{ $gymConfig->simbolo_moneda }} {{ number_format($totalIngresos, 2) }}</h3>
-                    <div class="kpi-label">Ingresos Históricos</div>
+                    <div class="kpi-label">Ingresos Totales (Global)</div>
                 </div>
                 <i class="fas fa-wallet kpi-icon"></i>
             </div>
@@ -356,3 +351,7 @@ $(document).ready(function() {
 });
 </script>
 @endpush
+BLADE;
+
+file_put_contents($f, $blade);
+echo "Pagos view updated.";

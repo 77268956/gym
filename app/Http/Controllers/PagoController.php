@@ -20,6 +20,9 @@ class PagoController extends Controller
 
         $totalIngresos = $pagos->sum('monto');
         $pagosHoy = Pago::whereDate('fecha_pago', Carbon::today())->sum('monto');
+        $pagosMes = Pago::whereYear('fecha_pago', Carbon::now()->year)
+                        ->whereMonth('fecha_pago', Carbon::now()->month)
+                        ->sum('monto');
 
         // Para el modal de selección de clientes
         $clientes = Cliente::with(['membresias' => function ($q) {
@@ -28,7 +31,7 @@ class PagoController extends Controller
 
         $tiposMembresia = TipoMembresia::where('estado', 'activo')->orderBy('precio')->get();
 
-        return view('pagos.index', compact('pagos', 'totalIngresos', 'pagosHoy', 'clientes', 'tiposMembresia'));
+        return view('pagos.index', compact('pagos', 'totalIngresos', 'pagosHoy', 'pagosMes', 'clientes', 'tiposMembresia'));
     }
 
     public function create(Request $request)

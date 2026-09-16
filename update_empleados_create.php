@@ -1,3 +1,7 @@
+<?php
+$f = 'c:/laragon/www/GymX/resources/views/empleados/create.blade.php';
+
+$blade = <<<'BLADE'
 @extends('layouts.app')
 
 @section('title', 'Nuevo Empleado / Recepcionista')
@@ -261,3 +265,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 @endpush
+BLADE;
+
+file_put_contents($f, $blade);
+echo "Empleado create view updated.";

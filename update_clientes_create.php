@@ -1,6 +1,10 @@
+<?php
+$f = 'c:/laragon/www/GymX/resources/views/clientes/create.blade.php';
+
+$blade = <<<'BLADE'
 @extends('layouts.app')
 
-@section('title', 'Nuevo Empleado / Recepcionista')
+@section('title', 'Nuevo Socio / Cliente')
 
 @push('styles')
 <style>
@@ -43,9 +47,9 @@
                 {{-- Header --}}
                 <div class="d-flex justify-content-between align-items-center mb-3 flex-shrink-0">
                     <h5 class="mb-0 font-weight-bold text-dark" style="font-size:0.95rem;">
-                        <i class="fas fa-user-plus text-primary mr-2"></i> Registrar Nuevo Empleado
+                        <i class="fas fa-user-plus text-primary mr-2"></i> Registrar Nuevo Socio
                     </h5>
-                    <a href="{{ route('empleados') }}" class="btn btn-outline-secondary btn-sm font-weight-bold">
+                    <a href="{{ route('user') }}" class="btn btn-outline-secondary btn-sm font-weight-bold">
                         <i class="fas fa-arrow-left mr-1"></i> Volver
                     </a>
                 </div>
@@ -57,23 +61,30 @@
                         <button type="button" class="close p-2" data-dismiss="alert"><span>&times;</span></button>
                     </div>
                 @endif
+                @if(session('success'))
+                    <div class="alert alert-success alert-dismissible fade show p-2 mb-3" style="font-size:0.85rem;">
+                        <i class="fas fa-check-circle mr-1"></i> {{ session('success') }}
+                        <button type="button" class="close p-2" data-dismiss="alert"><span>&times;</span></button>
+                    </div>
+                @endif
 
                 {{-- Scrollable Form --}}
                 <div class="config-scroll">
-                    <form action="{{ route('empleados.store') }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('clientes.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <input type="hidden" name="foto_base64" id="foto_base64">
                         <input type="hidden" name="descriptor_facial" id="descriptor_facial">
+                        <input type="hidden" name="tipo_membresia_id" id="tipo_membresia_id" value="{{ old('tipo_membresia_id') }}">
 
                         {{-- SECCIÓN 1: DATOS PERSONALES --}}
                         <div class="config-section">
-                            <div class="config-section-title"><i class="fas fa-id-badge mr-2"></i> 1. Información Personal y Credenciales</div>
+                            <div class="config-section-title"><i class="fas fa-address-card mr-2"></i> 1. Información Personal</div>
                             <div class="row">
                                 <div class="col-md-6 form-group mb-3">
                                     <label class="config-label">Nombre Completo <span class="text-danger">*</span></label>
                                     <div class="input-group input-group-sm">
                                         <div class="input-group-prepend"><span class="input-group-text"><i class="fas fa-user"></i></span></div>
-                                        <input type="text" name="nombre" class="form-control @error('nombre') is-invalid @enderror" value="{{ old('nombre') }}" placeholder="Ej: Amanda Waller" required>
+                                        <input type="text" name="nombre" class="form-control @error('nombre') is-invalid @enderror" value="{{ old('nombre') }}" placeholder="Ej: Carlos Martínez" required>
                                     </div>
                                     @error('nombre')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                                 </div>
@@ -81,63 +92,50 @@
                                     <label class="config-label">Cédula / Identificación <span class="text-danger">*</span></label>
                                     <div class="input-group input-group-sm">
                                         <div class="input-group-prepend"><span class="input-group-text"><i class="fas fa-id-card"></i></span></div>
-                                        <input type="text" name="cedula" id="cedula" class="form-control @error('cedula') is-invalid @enderror" value="{{ old('cedula') }}" placeholder="Ej: 0801-1992-45678" required>
+                                        <input type="text" name="cedula" id="cedula" class="form-control @error('cedula') is-invalid @enderror" value="{{ old('cedula') }}" placeholder="Ej: 0801-1990-12345" required>
                                     </div>
                                     @error('cedula')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                                 </div>
                                 <div class="col-md-6 form-group mb-2">
-                                    <label class="config-label">Usuario de Acceso <span class="text-danger">*</span></label>
+                                    <label class="config-label">Teléfono</label>
                                     <div class="input-group input-group-sm">
-                                        <div class="input-group-prepend"><span class="input-group-text"><i class="fas fa-user-tag"></i></span></div>
-                                        <input type="text" name="usuario" class="form-control @error('usuario') is-invalid @enderror" value="{{ old('usuario') }}" placeholder="Ej: awaller" required>
+                                        <div class="input-group-prepend"><span class="input-group-text"><i class="fas fa-phone"></i></span></div>
+                                        <input type="text" name="telefono" id="telefono" class="form-control @error('telefono') is-invalid @enderror" value="{{ old('telefono') }}" placeholder="Ej: 9999-9999">
                                     </div>
                                 </div>
                                 <div class="col-md-6 form-group mb-2">
-                                    <label class="config-label">Contraseña Inicial <span class="text-danger">*</span></label>
-                                    <div class="input-group input-group-sm">
-                                        <div class="input-group-prepend"><span class="input-group-text"><i class="fas fa-key"></i></span></div>
-                                        <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" placeholder="Mínimo 6 caracteres" required>
-                                    </div>
+                                    <label class="config-label">Historial Médico / Notas</label>
+                                    <textarea name="historial_medico" class="form-control form-control-sm @error('historial_medico') is-invalid @enderror" rows="1" placeholder="Alergias, lesiones, etc.">{{ old('historial_medico') }}</textarea>
                                 </div>
                             </div>
                         </div>
 
-                        {{-- SECCIÓN 2: ROL Y TURNO --}}
+                        {{-- SECCIÓN 2: MEMBRESÍA --}}
                         <div class="config-section">
-                            <div class="config-section-title"><i class="fas fa-clock mr-2"></i> 2. Rol y Horario de Turno</div>
+                            <div class="config-section-title"><i class="fas fa-dumbbell mr-2"></i> 2. Membresía <span class="text-danger">*</span></div>
                             
-                            <div class="row">
-                                <div class="col-md-6 form-group mb-3">
-                                    <label class="config-label">Rol en el Sistema <span class="text-danger">*</span></label>
-                                    <select name="rol" class="form-control form-control-sm @error('rol') is-invalid @enderror" required>
-                                        <option value="empleado" {{ old('rol') === 'empleado' ? 'selected' : '' }}>Recepcionista / Empleado</option>
-                                        <option value="admin" {{ old('rol') === 'admin' ? 'selected' : '' }}>Administrador General</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-6 form-group mb-3">
-                                    <label class="config-label">Estado del Empleado <span class="text-danger">*</span></label>
-                                    <select name="estado" class="form-control form-control-sm @error('estado') is-invalid @enderror" required>
-                                        <option value="activo" {{ old('estado', 'activo') === 'activo' ? 'selected' : '' }}>Activo</option>
-                                        <option value="inactivo" {{ old('estado') === 'inactivo' ? 'selected' : '' }}>Inactivo</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-4 form-group mb-0">
-                                    <label class="config-label">Hora de Entrada (Turno)</label>
-                                    <input type="time" name="hora_entrada_turno" class="form-control form-control-sm" value="{{ old('hora_entrada_turno', '08:00') }}">
-                                </div>
-                                <div class="col-md-4 form-group mb-0">
-                                    <label class="config-label">Hora de Salida (Turno)</label>
-                                    <input type="time" name="hora_salida_turno" class="form-control form-control-sm" value="{{ old('hora_salida_turno', '16:00') }}">
-                                </div>
-                                <div class="col-md-4 form-group mb-0">
-                                    <label class="config-label">Tolerancia (Minutos)</label>
-                                    <div class="input-group input-group-sm">
-                                        <input type="number" name="tolerancia_minutos" class="form-control" value="{{ old('tolerancia_minutos', 10) }}" min="0" max="120">
-                                        <div class="input-group-append"><span class="input-group-text">min</span></div>
+                            <div id="membresiaSeleccionadaBox" class="d-none p-3 border rounded mb-2" style="background:#EFF6FF;border-color:#2563EB !important;">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="font-weight-bold text-primary" id="membresiaSelNombre">—</span>
+                                        <small class="text-muted ml-2" id="membresiaSelDuracion"></small>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <span class="h6 mb-0 font-weight-bold text-primary mr-3" id="membresiaSelPrecio"></span>
+                                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="abrirModalMembresias()">
+                                            <i class="fas fa-exchange-alt mr-1"></i> Cambiar
+                                        </button>
                                     </div>
                                 </div>
+                            </div>
+
+                            <div id="membresiaVaciaBox" class="{{ old('tipo_membresia_id') ? 'd-none' : '' }}">
+                                <button type="button" class="btn btn-outline-primary btn-sm px-4 py-2" onclick="abrirModalMembresias()">
+                                    <i class="fas fa-id-card mr-2"></i> Seleccionar Plan de Membresía
+                                </button>
+                                @error('tipo_membresia_id')
+                                    <div class="text-danger small mt-1"><i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
 
@@ -173,13 +171,51 @@
 
                         {{-- Footer Buttons --}}
                         <div class="d-flex justify-content-end mt-3 mb-2">
-                            <a href="{{ route('empleados') }}" class="btn btn-outline-secondary btn-sm px-4 font-weight-bold mr-2">Cancelar</a>
+                            <a href="{{ route('user') }}" class="btn btn-outline-secondary btn-sm px-4 font-weight-bold mr-2">Cancelar</a>
                             <button type="submit" class="btn btn-primary btn-sm px-4 font-weight-bold">
-                                <i class="fas fa-save mr-2"></i> Guardar Empleado
+                                <i class="fas fa-save mr-2"></i> Guardar Cliente
                             </button>
                         </div>
                     </form>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- MODAL MEMBRESÍAS --}}
+<div class="modal fade" id="modalMembresias" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content border-0 shadow-lg" style="border-radius:12px;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #1E293B, #0F172A);">
+                <h6 class="modal-title font-weight-bold text-white"><i class="fas fa-id-card mr-2 text-primary"></i> Seleccionar Plan</h6>
+                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body p-4" style="background:#F8FAFC;">
+                <div class="row">
+                    @foreach($tiposMembresia as $tipo)
+                    <div class="col-md-6 mb-3">
+                        <div class="membresia-card h-100" data-id="{{ $tipo->id }}" data-nombre="{{ $tipo->nombre }}" data-precio="{{ $gymConfig->simbolo_moneda }} {{ number_format($tipo->precio, 2) }}" data-duracion="{{ $tipo->duracion_dias }} días" onclick="seleccionarMembresia(this)" style="cursor:pointer;background:#fff;border-radius:8px;padding:1rem;border:2px solid #E2E8F0;transition:all .2s;">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <h6 class="font-weight-bold mb-1" style="color:#1E293B;">{{ $tipo->nombre }}</h6>
+                                    <span class="badge badge-pill" style="background:#EFF6FF;color:#2563EB;font-size:.7rem;">{{ $tipo->duracion_dias }} días</span>
+                                </div>
+                                <div class="text-right">
+                                    <div class="h5 font-weight-bold mb-0" style="color:#2563EB;">{{ $gymConfig->simbolo_moneda }} {{ number_format($tipo->precio, 2) }}</div>
+                                </div>
+                            </div>
+                            <div class="mt-2 text-right check-icon d-none">
+                                <span class="badge badge-success px-2 py-1"><i class="fas fa-check mr-1"></i> Seleccionado</span>
+                            </div>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+            <div class="modal-footer bg-white py-2">
+                <button type="button" class="btn btn-outline-secondary btn-sm" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary btn-sm font-weight-bold px-4" id="btnConfirmarMembresia" disabled onclick="confirmarMembresia()">Confirmar</button>
             </div>
         </div>
     </div>
@@ -207,9 +243,49 @@
 @endsection
 
 @push('scripts')
+<script src="{{ asset('js/face-api.min.js') }}"></script>
 <script>
-    var webcamStream = null;
+    var selectedMembresiaId = null;
+    var selectedMembresiaCard = null;
+    var faceApiModelsReady = Promise.all([
+        faceapi.nets.ssdMobilenetv1.loadFromUri('{{ asset('models') }}'),
+        faceapi.nets.faceLandmark68Net.loadFromUri('{{ asset('models') }}'),
+        faceapi.nets.faceRecognitionNet.loadFromUri('{{ asset('models') }}')
+    ]);
 
+    async function setFaceDescriptor(dataUrl) {
+        try {
+            await faceApiModelsReady;
+            var image = await faceapi.fetchImage(dataUrl);
+            var detection = await faceapi.detectSingleFace(image).withFaceLandmarks().withFaceDescriptor();
+            document.getElementById('descriptor_facial').value = detection ? JSON.stringify(Array.from(detection.descriptor)) : '';
+        } catch (error) { document.getElementById('descriptor_facial').value = ''; }
+    }
+
+    function abrirModalMembresias() { $('#modalMembresias').modal('show'); }
+    function seleccionarMembresia(el) {
+        document.querySelectorAll('.membresia-card').forEach(function(c) {
+            c.style.borderColor = '#E2E8F0'; c.style.background = '#fff';
+            c.querySelector('.check-icon').classList.add('d-none');
+        });
+        el.style.borderColor = '#2563EB'; el.style.background = '#EFF6FF';
+        el.querySelector('.check-icon').classList.remove('d-none');
+        selectedMembresiaId = el.dataset.id; selectedMembresiaCard = el;
+        document.getElementById('btnConfirmarMembresia').disabled = false;
+    }
+    function confirmarMembresia() {
+        if (!selectedMembresiaId) return;
+        var el = selectedMembresiaCard;
+        document.getElementById('tipo_membresia_id').value = selectedMembresiaId;
+        document.getElementById('membresiaSelNombre').textContent = el.dataset.nombre;
+        document.getElementById('membresiaSelPrecio').textContent = el.dataset.precio;
+        document.getElementById('membresiaSelDuracion').textContent = el.dataset.duracion;
+        document.getElementById('membresiaSeleccionadaBox').classList.remove('d-none');
+        document.getElementById('membresiaVaciaBox').classList.add('d-none');
+        $('#modalMembresias').modal('hide');
+    }
+
+    var webcamStream = null;
     function previewFoto(input) {
         if (input.files && input.files[0]) {
             var reader = new FileReader();
@@ -219,6 +295,7 @@
                 document.getElementById('fotoPlaceholder').classList.add('d-none');
                 document.getElementById('webcamBadge').classList.add('d-none');
                 document.getElementById('foto_base64').value = '';
+                setFaceDescriptor(e.target.result);
             };
             reader.readAsDataURL(input.files[0]);
             var lbl = input.nextElementSibling; if(lbl) lbl.textContent = input.files[0].name;
@@ -243,6 +320,7 @@
             canvas.getContext('2d').drawImage(video, 0, 0);
             var dataUrl = canvas.toDataURL('image/jpeg', 0.9);
             document.getElementById('foto_base64').value = dataUrl;
+            setFaceDescriptor(dataUrl);
             document.getElementById('fotoPreview').src = dataUrl;
             document.getElementById('fotoPreview').classList.remove('d-none');
             document.getElementById('fotoPlaceholder').classList.add('d-none');
@@ -252,12 +330,28 @@
             closeWebcamModal();
         }
     }
+
+    @if(old('tipo_membresia_id'))
+        document.getElementById('tipo_membresia_id').value = '{{ old("tipo_membresia_id") }}';
+        @foreach($tiposMembresia as $tipo)
+            @if(old('tipo_membresia_id') == $tipo->id)
+                document.getElementById('membresiaSelNombre').textContent = '{{ $tipo->nombre }}';
+                document.getElementById('membresiaSelPrecio').textContent = '{{ $gymConfig->simbolo_moneda }} {{ number_format($tipo->precio, 2) }}';
+                document.getElementById('membresiaSelDuracion').textContent = '{{ $tipo->duracion_dias }} días';
+                document.getElementById('membresiaSeleccionadaBox').classList.remove('d-none');
+                document.getElementById('membresiaVaciaBox').classList.add('d-none');
+            @endif
+        @endforeach
+    @endif
 </script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    if (document.getElementById('cedula')) {
-        new Cleave('#cedula', { delimiters: ['-', '-'], blocks: [4, 4, 5], numericOnly: true });
-    }
+    if (document.getElementById('telefono')) new Cleave('#telefono', { delimiters: ['-'], blocks: [4, 4], numericOnly: true });
+    if (document.getElementById('cedula')) new Cleave('#cedula', { delimiters: ['-', '-'], blocks: [4, 4, 5], numericOnly: true });
 });
 </script>
 @endpush
+BLADE;
+
+file_put_contents($f, $blade);
+echo "Cliente create view updated.";

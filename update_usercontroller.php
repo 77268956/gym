@@ -1,22 +1,14 @@
 <?php
+$f = 'c:/laragon/www/GymX/app/Http/Controllers/UserController.php';
+$c = file_get_contents($f);
 
-namespace App\Http\Controllers;
+// Add Carbon if missing
+if (strpos($c, 'use Carbon\Carbon;') === false) {
+    $c = str_replace('use App\Models\Membresia;', "use App\Models\Membresia;\nuse Carbon\Carbon;", $c);
+}
 
-use App\Models\Cliente;
-use App\Models\Membresia;
-use Carbon\Carbon;
-
-class UserController extends Controller
-{
-    public function userget()
-    {
-        $nombre = 'Jose Perez';
-        $activeMembers = Cliente::where('estado', 'activo')->count();
-        $monthlyRevenue = 42390; // mock
-        $attendanceRate = 84.2; // mock
-        $newSignups = Cliente::whereMonth('created_at', now()->month)->count();
-        $totalClientes = Cliente::count();
-                $membresiasPorVencer = Membresia::where('estado', 'activa')
+$chartLogic = <<<'EOD'
+        $membresiasPorVencer = Membresia::where('estado', 'activa')
             ->where('fecha_vencimiento', '<=', now()->addDays(7))
             ->count();
             
@@ -78,4 +70,9 @@ class UserController extends Controller
             'growthData'
         ));
     }
-}
+EOD;
+
+$c = preg_replace("/\\\$membresiasPorVencer = Membresia::where.*?\}\n/is", $chartLogic . "\n", $c);
+
+file_put_contents($f, $c);
+echo "UserController updated.";

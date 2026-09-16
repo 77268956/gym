@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Empleado;
+use App\Models\Pago;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -37,17 +39,43 @@ class EmpleadoController extends Controller
         $empleados = $query->orderBy('nombre', 'asc')->paginate(12)->withQueryString();
 
         // Estadísticas ejecutivas
-        $totalEmpleados = Empleado::count();
+                $totalEmpleados = Empleado::count();
         $empleadosActivos = Empleado::where('estado', 'activo')->count();
         $empleadosInactivos = Empleado::where('estado', 'inactivo')->count();
         $recepcionistasCount = Empleado::where('rol', 'empleado')->count();
+
+        // -----------------------------------------------------
+        // Datos para la gráfica de Productividad (Últimos 6 meses, empezando del anterior)
+        // -----------------------------------------------------
+        $mesesLabels = [];
+        $mesesData = [];
+        
+        Carbon::setLocale('es'); // Para asegurar que los meses salgan en español
+
+        for ($i = 6; $i >= 1; $i--) {
+            $date = Carbon::now()->subMonths($i);
+            $mesNum = $date->format('n');
+            $year = $date->format('Y');
+            
+            // Ejemplo: 'AGO'
+            $mesesLabels[] = strtoupper(substr($date->translatedFormat('F'), 0, 3)); 
+
+            // Contar pagos procesados en ese mes
+            $count = Pago::whereYear('fecha_pago', $year)
+                         ->whereMonth('fecha_pago', $mesNum)
+                         ->count();
+                         
+            $mesesData[] = $count;
+        }
 
         return view('empleados.index', compact(
             'empleados',
             'totalEmpleados',
             'empleadosActivos',
             'empleadosInactivos',
-            'recepcionistasCount'
+            'recepcionistasCount',
+            'mesesLabels',
+            'mesesData'
         ));
     }
 

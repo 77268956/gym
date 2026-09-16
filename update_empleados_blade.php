@@ -1,3 +1,7 @@
+<?php
+$f = 'c:/laragon/www/GymX/resources/views/empleados/index.blade.php';
+
+$blade = <<<'BLADE'
 @extends('layouts.app')
 
 @section('title', 'Empleados / Staff')
@@ -73,7 +77,8 @@
     .ic-badge-inactive { background: #F1F5F9; color: #475569; padding: 3px 8px; border-radius: 50px; font-weight: 600; font-size: 0.7rem; }
     .ic-badge-warn { background: #FEF3C7; color: #D97706; padding: 3px 8px; border-radius: 50px; font-weight: 600; font-size: 0.7rem; }
     .ic-badge-critical { background: #FEE2E2; color: #EF4444; padding: 3px 8px; border-radius: 50px; font-weight: 600; font-size: 0.7rem; }
-    .ic-badge-role { background: linear-gradient(135deg, #1E293B, #0F172A); color: white; padding: 3px 10px; border-radius: 50px; font-weight: 600; font-size: 0.7rem; letter-spacing: 0.05em; }
+    .ic-badge-admin { background: #E0E7FF; color: #4338CA; padding: 3px 8px; border-radius: 50px; font-weight: 600; font-size: 0.7rem; }
+    .ic-badge-staff { background: #F3E8FF; color: #7E22CE; padding: 3px 8px; border-radius: 50px; font-weight: 600; font-size: 0.7rem; }
     
     /* List item */
     .ic-list-item { display: flex; justify-content: space-between; align-items: center; padding: 0.4rem 0; border-bottom: 1px solid #F1F5F9; }
@@ -150,7 +155,7 @@
                                 <th>USUARIO</th>
                                 <th>CÉDULA</th>
                                 <th>ROL</th>
-                                
+                                <th>TELÉFONO</th>
                                 <th>ESTADO</th>
                                 <th class="text-center">ACCIONES</th>
                             </tr>
@@ -171,11 +176,11 @@
                                 <td class="text-muted">{{ $empleado->usuario }}</td>
                                 <td>{{ $empleado->cedula }}</td>
                                 <td>
-                                    <span class="ic-badge-role">
+                                    <span class="{{ $empleado->rol === 'admin' ? 'ic-badge-admin' : 'ic-badge-staff' }}">
                                         {{ strtoupper($empleado->rol === 'admin' ? 'Administrador' : 'Recepción') }}
                                     </span>
                                 </td>
-                                
+                                <td>{{ $empleado->telefono ?? '—' }}</td>
                                 <td>
                                     <span class="{{ $empleado->estado === 'activo' ? 'ic-badge-active' : 'ic-badge-inactive' }}">
                                         {{ strtoupper($empleado->estado) }}
@@ -221,32 +226,31 @@
                 </div>
             </div>
 
-            {{-- Panel Asistencias (Pendientes) --}}
+            {{-- Panel Turnos --}}
             <div class="ic-card flex-grow-1" style="min-height:0;">
                 <div class="d-flex justify-content-between align-items-center mb-2 flex-shrink-0">
-                    <span class="ic-card-title mb-0"><i class="fas fa-clock text-warning mr-1"></i> Faltan por llegar</span>
-                    <span class="ic-badge-warn">HOY</span>
+                    <span class="ic-card-title mb-0"><i class="fas fa-calendar-alt text-info mr-1"></i> Turnos</span>
+                    <span class="ic-badge-active">HOY</span>
                 </div>
                 <div style="overflow-y:auto; padding-right:4px;">
                     @php
-                        // DATOS DE PRUEBA: Empleados que no han marcado entrada
-                        $listaFaltantes = [
-                            (object)['nombre' => 'Carlos Javier', 'turno' => 'Turno Mañana', 'hora_esperada' => '07:00 AM'],
-                            (object)['nombre' => 'María José',    'turno' => 'Turno Tarde',  'hora_esperada' => '02:00 PM'],
+                        $listaTurnos = [
+                            (object)['nombre' => 'Admin General', 'plan' => 'Turno Completo', 'dias' => 0, 'nivel' => 'active'],
+                            (object)['nombre' => 'Recepción 1', 'plan' => 'Mañana', 'dias' => 0, 'nivel' => 'active'],
                         ];
                     @endphp
-                    @forelse ($listaFaltantes as $item)
+                    @forelse ($listaTurnos as $item)
                     <div class="ic-list-item">
                         <div>
                             <div class="ic-list-title">{{ $item->nombre }}</div>
-                            <div class="ic-list-sub">{{ $item->turno }} ({{ $item->hora_esperada }})</div>
+                            <div class="ic-list-sub">{{ $item->plan }}</div>
                         </div>
                         <div>
-                            <span class="ic-badge-critical">PENDIENTE</span>
+                            <span class="ic-badge-active">EN CURSO</span>
                         </div>
                     </div>
                     @empty
-                    <p class="text-muted small">Todos los empleados han marcado llegada.</p>
+                    <p class="text-muted small">No hay turnos registrados.</p>
                     @endforelse
                 </div>
             </div>
@@ -279,10 +283,10 @@ $(document).ready(function() {
         new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: {!! json_encode($mesesLabels ?? ['1','2','3','4','5','6']) !!},
+                labels: ['E','F','M','A','M','J'],
                 datasets: [{
-                    label: 'Pagos Procesados',
-                    data: {!! json_encode($mesesData ?? [0,0,0,0,0,0]) !!},
+                    label: 'Registros',
+                    data: [12, 18, 15, 20, 24, 30],
                     backgroundColor: 'rgba(16, 185, 129, 0.7)',
                     borderRadius: 4
                 }]
@@ -301,3 +305,7 @@ $(document).ready(function() {
 });
 </script>
 @endpush
+BLADE;
+
+file_put_contents($f, $blade);
+echo "Empleados view updated.";

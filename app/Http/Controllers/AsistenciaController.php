@@ -10,31 +10,14 @@ use Carbon\Carbon;
 
 class AsistenciaController extends Controller
 {
-
-/*
     public function escanear()
     {
-        // Traer solo clientes activos que tengan un descriptor facial configurado
+        // Cargar todos los clientes que tengan descriptor facial grabado
         $clientes = Cliente::whereNotNull('descriptor_facial')
-                           ->where('estado', 'activo')
-                           ->get(['id', 'nombre', 'descriptor_facial', 'estado']);
+            ->get(['id', 'nombre', 'descriptor_facial', 'estado']);
 
         return view('asistencias.escanear', compact('clientes'));
-
     }
-
-    */
-
-
-
-    public function escanear()
-{
-    // Cargar todos los clientes que tengan descriptor facial grabado
-    $clientes = Cliente::whereNotNull('descriptor_facial')
-                       ->get(['id', 'nombre', 'descriptor_facial', 'estado']);
-
-    return view('asistencias.escanear', compact('clientes'));
-}
 
 
 
@@ -44,9 +27,11 @@ class AsistenciaController extends Controller
             'cliente_id' => 'required|exists:clientes,id'
         ]);
 
-        $cliente = Cliente::with(['membresias' => function($q) {
-            $q->where('estado', 'activa')->latest();
-        }])->findOrFail($request->cliente_id);
+        $cliente = Cliente::with([
+            'membresias' => function ($q) {
+                $q->where('estado', 'activa')->latest();
+            }
+        ])->findOrFail($request->cliente_id);
 
         if ($cliente->estado !== 'activo') {
             return response()->json([
@@ -76,7 +61,7 @@ class AsistenciaController extends Controller
             ->first();
 
         if ($ultimaAsistencia) {
-             return response()->json([
+            return response()->json([
                 'status' => 'warning',
                 'message' => 'Asistencia ya registrada hace unos momentos.',
                 'cliente' => $cliente->nombre,
@@ -86,30 +71,41 @@ class AsistenciaController extends Controller
             ]);
         }
 
-        // Puntos otorgados (boolean según DB)
-        // Regla: 1 asistencia = 1 punto? La tabla dice booleano, pero los puntos_recompensa son un contador.
-        // Voy a asmir que sí se otorgaron puntos
+        // Verificar si ya se le otorgaron puntos hoy
+        $yaObtuvoPuntosHoy = AsistenciaCliente::where('cliente_id', $cliente->id)
+            ->where('fecha', date('Y-m-d'))
+            ->where('puntos_otorgados', true)
+            ->exists();
+
+        // Obtener la cantidad de puntos configurada
+        $config = \App\Models\ConfiguracionPunto::first();
+        $puntosAGanar = $config ? $config->puntos_por_visita : 0;
+
+        $otorgarPuntos = !$yaObtuvoPuntosHoy && $puntosAGanar > 0;
+
         $asistencia = AsistenciaCliente::create([
             'cliente_id' => $cliente->id,
             'empleado_valida_id' => auth()->id() ?? null,
             'fecha' => date('Y-m-d'),
             'hora' => date('H:i:s'),
             'metodo_registro' => 'facial',
-            'puntos_otorgados' => true
+            'puntos_otorgados' => $otorgarPuntos
         ]);
 
-                $cliente->increment('puntos_ecogim', 1);
-                $cliente->refresh();
+        if ($otorgarPuntos) {
+            $cliente->increment('puntos_ecogim', $puntosAGanar);
+            $cliente->refresh();
 
-        // Crear registro del movimiento de puntos
-        \App\Models\MovimientoPunto::create([
-            'cliente_id' => $cliente->id,
-            'tipo_movimiento' => 'ganado',
-            'puntos' => 1,
-            'origen_tabla' => 'asistencias_clientes',
-            'origen_id' => $asistencia->id,
-            'fecha' => now(),
-        ]);
+            // Crear registro del movimiento de puntos
+            \App\Models\MovimientoPunto::create([
+                'cliente_id' => $cliente->id,
+                'tipo_movimiento' => 'ganado',
+                'puntos' => $puntosAGanar,
+                'origen_tabla' => 'asistencias_clientes',
+                'origen_id' => $asistencia->id,
+                'fecha' => now(),
+            ]);
+        }
 
         return response()->json([
             'status' => 'success',
