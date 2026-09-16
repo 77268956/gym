@@ -401,7 +401,7 @@
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('user') ? 'active' : '' }}" href="{{ route('user') }}" title="Socios / Clientes">
                         <i class="fas fa-users"></i>
-                        <span class="sidebar-label">Socios / Clientes</span>
+                        <span class="sidebar-label">Clientes</span>
                     </a>
                 </li>
                 <li class="nav-item">

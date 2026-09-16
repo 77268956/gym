@@ -78,7 +78,7 @@
                                     @error('nombre')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                                 </div>
                                 <div class="col-md-6 form-group mb-3">
-                                    <label class="config-label">Cédula / Identificación <span class="text-danger">*</span></label>
+                                    <label class="config-label">Identificación <span class="text-danger">*</span></label>
                                     <div class="input-group input-group-sm">
                                         <div class="input-group-prepend"><span class="input-group-text"><i class="fas fa-id-card"></i></span></div>
                                         <input type="text" name="cedula" id="cedula" class="form-control @error('cedula') is-invalid @enderror" value="{{ old('cedula') }}" placeholder="Ej: 0801-1992-45678" required>
