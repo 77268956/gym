@@ -14,5 +14,9 @@ class ConfiguracionGeneral extends Model
         'moneda',
         'simbolo_moneda',
         'codigo_moneda',
+        'color_primario',
+        'color_primario_hover',
+        'color_sidebar',
+        'color_sidebar_hover',
     ];
 }

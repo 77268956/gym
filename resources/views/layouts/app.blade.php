@@ -17,10 +17,10 @@
            VARIABLES - Modern Gym Admin Palette
         ========================================================= */
         :root {
-            --primary: #2563EB;       /* Blue 600 - Azul Puro (No morado) */
-            --primary-hover: #1D4ED8; /* Blue 700 */
-            --sidebar-bg: #1E293B;    /* Slate 800 - Fondo oscuro y elegante */
-            --sidebar-hover: #334155; /* Slate 700 */
+            --primary: {{ $gymConfig->color_primario ?? '#2563EB' }};
+            --primary-hover: {{ $gymConfig->color_primario_hover ?? '#1D4ED8' }};
+            --sidebar-bg: {{ $gymConfig->color_sidebar ?? '#1E293B' }};
+            --sidebar-hover: {{ $gymConfig->color_sidebar_hover ?? '#334155' }};
             --topbar-bg: #FFFFFF;     /* Topbar limpio */
             --background-light: #F1F5F9; /* Slate 100 - Fondo app */
             --text-main: #334155;
@@ -55,6 +55,7 @@
         }
         .text-primary { color: var(--primary) !important; }
         .border-primary { border-color: var(--primary) !important; }
+        .modal-header { background: var(--sidebar-bg) !important; }
 
         /* =========================================================
            TOPBAR

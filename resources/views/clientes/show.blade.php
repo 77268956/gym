@@ -4,7 +4,7 @@
 
 @push('styles')
 <style>
-    .ic-profile-header { background: linear-gradient(135deg, var(--primary), #1e40af); color: white; border-radius: 12px; padding: 2rem; position: relative; overflow: hidden; }
+    .ic-profile-header { background: var(--primary); color: white; border-radius: 12px; padding: 2rem; position: relative; overflow: hidden; }
     .ic-profile-header::after { content: ''; position: absolute; right: 0; top: 0; width: 300px; height: 100%; background: url('data:image/svg+xml;utf8,<svg opacity="0.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="white"/></svg>') no-repeat right center; background-size: cover; pointer-events: none; }
     .ic-avatar-large { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 4px solid rgba(255,255,255,0.2); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
     .ic-stat-box { background: white; border-radius: 10px; padding: 1rem; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.02); border: 1px solid #f1f5f9; }
@@ -270,7 +270,7 @@
                             label: 'Visitas',
                             data: {!! json_encode($diasChart) !!},
                             backgroundColor: 'rgba(37, 99, 235, 0.7)',
-                            borderColor: '#2563EB',
+                            borderColor: getComputedStyle(document.documentElement).getPropertyValue('--primary').trim(),
                             borderWidth: 1,
                             borderRadius: 4
                         }]

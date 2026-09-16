@@ -21,7 +21,7 @@
     .main-container { flex: 1; overflow: hidden; display: flex; flex-direction: column; padding: 0 !important; }
     
     :root {
-        --ic-accent: #2563EB;
+        --ic-accent: var(--primary);
         --ic-green: #10B981;
         --ic-red: #EF4444;
         --ic-muted: #64748B;
@@ -37,7 +37,7 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        background: linear-gradient(135deg, #1E293B, #0F172A);
+        background: var(--sidebar-bg);
         height: 100%;
     }
     .kpi-icon { font-size: 1.8rem; opacity: 0.4; }
@@ -53,7 +53,7 @@
         flex-direction: column;
         margin-bottom: 0 !important;
     }
-    .ic-card-title { font-weight: 700; font-size: 0.8rem; color: #1E293B; margin-bottom: 0.5rem; text-transform: uppercase; }
+    .ic-card-title { font-weight: 700; font-size: 0.8rem; color: var(--sidebar-bg); margin-bottom: 0.5rem; text-transform: uppercase; }
     
     /* Panel scrollable para la tabla */
     .table-panel { flex: 1; min-height: 0; overflow-y: auto; padding-right: 5px; }
@@ -73,12 +73,12 @@
     .ic-badge-inactive { background: #F1F5F9; color: #475569; padding: 3px 8px; border-radius: 50px; font-weight: 600; font-size: 0.7rem; }
     .ic-badge-warn { background: #FEF3C7; color: #D97706; padding: 3px 8px; border-radius: 50px; font-weight: 600; font-size: 0.7rem; }
     .ic-badge-critical { background: #FEE2E2; color: #EF4444; padding: 3px 8px; border-radius: 50px; font-weight: 600; font-size: 0.7rem; }
-    .ic-badge-role { background: linear-gradient(135deg, #1E293B, #0F172A); color: white; padding: 3px 10px; border-radius: 50px; font-weight: 600; font-size: 0.7rem; letter-spacing: 0.05em; }
+    .ic-badge-role { background: var(--sidebar-bg); color: white; padding: 3px 10px; border-radius: 50px; font-weight: 600; font-size: 0.7rem; letter-spacing: 0.05em; }
     
     /* List item */
     .ic-list-item { display: flex; justify-content: space-between; align-items: center; padding: 0.4rem 0; border-bottom: 1px solid #F1F5F9; }
     .ic-list-item:last-child { border-bottom: none; }
-    .ic-list-title { font-size: 0.8rem; font-weight: 600; color: #1E293B; }
+    .ic-list-title { font-size: 0.8rem; font-weight: 600; color: var(--sidebar-bg); }
     .ic-list-sub { font-size: 0.7rem; color: var(--ic-muted); }
 
     .row.tight { margin-bottom: 0.75rem; }

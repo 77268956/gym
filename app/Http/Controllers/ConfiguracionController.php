@@ -18,6 +18,7 @@ class ConfiguracionController extends Controller
         ]);
 
         $configuracionPuntos = ConfiguracionPunto::first();
+
         return view('configuracion.index', compact('configuracion', 'configuracionPuntos'));
     }
 
@@ -26,10 +27,15 @@ class ConfiguracionController extends Controller
         $request->validate([
             'nombre_gimnasio' => 'required|string|max:255',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
+            'color_primario' => ['nullable', 'regex:/^#[0-9A-Fa-f]{6}$/'],
+            'color_primario_hover' => ['nullable', 'regex:/^#[0-9A-Fa-f]{6}$/'],
+            'color_sidebar' => ['nullable', 'regex:/^#[0-9A-Fa-f]{6}$/'],
+            'color_sidebar_hover' => ['nullable', 'regex:/^#[0-9A-Fa-f]{6}$/'],
         ], [
             'nombre_gimnasio.required' => 'El nombre del gimnasio es obligatorio.',
             'logo.image' => 'El archivo del logo debe ser una imagen válida.',
             'logo.max' => 'El tamaño máximo del logo es 2 MB.',
+            '*.regex' => 'Los colores deben tener un formato hexadecimal válido.',
         ]);
 
         $configuracion = ConfiguracionGeneral::firstOrCreate([], [
@@ -60,6 +66,10 @@ class ConfiguracionController extends Controller
         $configuracion->moneda = $request->input('moneda', 'Lempira');
         $configuracion->simbolo_moneda = $request->input('simbolo_moneda', 'L.');
         $configuracion->codigo_moneda = $request->input('codigo_moneda', 'HNL');
+        $configuracion->color_primario = $request->input('color_primario', '#2563EB');
+        $configuracion->color_primario_hover = $request->input('color_primario_hover', '#1D4ED8');
+        $configuracion->color_sidebar = $request->input('color_sidebar', '#1E293B');
+        $configuracion->color_sidebar_hover = $request->input('color_sidebar_hover', '#334155');
 
         $configuracion->save();
 

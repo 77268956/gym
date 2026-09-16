@@ -34,6 +34,10 @@ class AppServiceProvider extends ServiceProvider
                             'nombre_gimnasio' => $model->nombre_gimnasio ?? 'EcoGim',
                             'logo_path' => $model->logo_path ?? null,
                             'simbolo_moneda' => $model->simbolo_moneda ?? 'L.',
+                            'color_primario' => $model->color_primario ?? '#2563EB',
+                            'color_primario_hover' => $model->color_primario_hover ?? '#1D4ED8',
+                            'color_sidebar' => $model->color_sidebar ?? '#1E293B',
+                            'color_sidebar_hover' => $model->color_sidebar_hover ?? '#334155',
                         ];
                     });
 
@@ -50,6 +54,10 @@ class AppServiceProvider extends ServiceProvider
                     'nombre_gimnasio' => 'EcoGim',
                     'logo_path' => null,
                     'simbolo_moneda' => 'L.',
+                    'color_primario' => '#2563EB',
+                    'color_primario_hover' => '#1D4ED8',
+                    'color_sidebar' => '#1E293B',
+                    'color_sidebar_hover' => '#334155',
                 ];
             }
 

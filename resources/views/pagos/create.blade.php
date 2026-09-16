@@ -10,8 +10,8 @@
     .select2-container--default .select2-selection--single .select2-selection__arrow { height: 36px; }
     .metodo-card { border: 2px solid #e2e8f0; border-radius: 8px; padding: 1rem; text-align: center; cursor: pointer; transition: all 0.2s; }
     .metodo-card:hover { border-color: #cbd5e1; background: #f8fafc; }
-    .metodo-card.selected { border-color: #2563EB; background: #EFF6FF; }
-    .metodo-card.selected i { color: #2563EB; }
+    .metodo-card.selected { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 10%, white); }
+    .metodo-card.selected i { color: var(--primary); }
     .metodo-card i { font-size: 2rem; color: #94a3b8; margin-bottom: 0.5rem; }
 </style>
 @endpush
@@ -150,7 +150,7 @@
 <div class="modal fade" id="modalPlanesPago" tabindex="-1" role="dialog" aria-hidden="true" style="z-index: 1060;">
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content border-0 shadow-lg">
-            <div class="modal-header" style="background:#1E293B;">
+            <div class="modal-header">
                 <h5 class="modal-title font-weight-bold text-white">
                     <i class="fas fa-id-card mr-2 text-primary"></i> Seleccionar Plan de Membresía
                 </h5>
@@ -164,10 +164,10 @@
                             <div class="d-flex justify-content-between align-items-start mb-3">
                                 <div>
                                     <h5 class="font-weight-bold mb-1" style="color:#1E293B;">{{ $tipo->nombre }}</h5>
-                                    <span class="badge badge-pill" style="background:#EFF6FF;color:#2563EB;font-size:.75rem;">{{ $tipo->duracion_dias }} días</span>
+                                    <span class="badge badge-pill" style="background:color-mix(in srgb, var(--primary) 10%, white);color:var(--primary);font-size:.75rem;">{{ $tipo->duracion_dias }} días</span>
                                 </div>
                                 <div class="text-right">
-                                    <div class="h4 font-weight-bold mb-0" style="color:#2563EB;">{{ $gymConfig->simbolo_moneda }} {{ number_format($tipo->precio, 2) }}</div>
+                                    <div class="h4 font-weight-bold mb-0" style="color:var(--primary);">{{ $gymConfig->simbolo_moneda }} {{ number_format($tipo->precio, 2) }}</div>
                                 </div>
                             </div>
                             @if($tipo->descripcion)
@@ -271,7 +271,7 @@
             c.querySelector('.check-icon').classList.add('d-none');
         });
         
-        el.style.borderColor = '#2563EB';
+        el.style.borderColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
         el.style.background = '#EFF6FF';
         el.querySelector('.check-icon').classList.remove('d-none');
         

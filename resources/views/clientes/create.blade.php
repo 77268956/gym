@@ -28,7 +28,7 @@
         font-size: 0.8rem; font-weight: 700; text-transform: uppercase;
         color: #1E293B; margin-bottom: 1rem; letter-spacing: 0.05em;
     }
-    .config-section-title i { color: #2563EB; }
+    .config-section-title i { color: var(--primary); }
 
     .config-label { font-weight: 600; font-size: 0.85rem; color: #334155; margin-bottom: 0.3rem; }
 </style>
@@ -110,7 +110,7 @@
                         <div class="config-section">
                             <div class="config-section-title"><i class="fas fa-dumbbell mr-2"></i> 2. Membresía <span class="text-danger">*</span></div>
                             
-                            <div id="membresiaSeleccionadaBox" class="d-none p-3 border rounded mb-2" style="background:#EFF6FF;border-color:#2563EB !important;">
+                            <div id="membresiaSeleccionadaBox" class="d-none p-3 border rounded mb-2" style="background:color-mix(in srgb, var(--primary) 10%, white);border-color:var(--primary) !important;">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
                                         <span class="font-weight-bold text-primary" id="membresiaSelNombre">—</span>
@@ -183,7 +183,7 @@
 <div class="modal fade" id="modalMembresias" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content border-0 shadow-lg" style="border-radius:12px;">
-            <div class="modal-header" style="background: linear-gradient(135deg, #1E293B, #0F172A);">
+            <div class="modal-header">
                 <h6 class="modal-title font-weight-bold text-white"><i class="fas fa-id-card mr-2 text-primary"></i> Seleccionar Plan</h6>
                 <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
             </div>
@@ -195,10 +195,10 @@
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <div>
                                     <h6 class="font-weight-bold mb-1" style="color:#1E293B;">{{ $tipo->nombre }}</h6>
-                                    <span class="badge badge-pill" style="background:#EFF6FF;color:#2563EB;font-size:.7rem;">{{ $tipo->duracion_dias }} días</span>
+                                    <span class="badge badge-pill" style="background:color-mix(in srgb, var(--primary) 10%, white);color:var(--primary);font-size:.7rem;">{{ $tipo->duracion_dias }} días</span>
                                 </div>
                                 <div class="text-right">
-                                    <div class="h5 font-weight-bold mb-0" style="color:#2563EB;">{{ $gymConfig->simbolo_moneda }} {{ number_format($tipo->precio, 2) }}</div>
+                                    <div class="h5 font-weight-bold mb-0" style="color:var(--primary);">{{ $gymConfig->simbolo_moneda }} {{ number_format($tipo->precio, 2) }}</div>
                                 </div>
                             </div>
                             <div class="mt-2 text-right check-icon d-none">
@@ -264,7 +264,7 @@
             c.style.borderColor = '#E2E8F0'; c.style.background = '#fff';
             c.querySelector('.check-icon').classList.add('d-none');
         });
-        el.style.borderColor = '#2563EB'; el.style.background = '#EFF6FF';
+        el.style.borderColor = 'var(--primary)'; el.style.background = 'color-mix(in srgb, var(--primary) 10%, white)';
         el.querySelector('.check-icon').classList.remove('d-none');
         selectedMembresiaId = el.dataset.id; selectedMembresiaCard = el;
         document.getElementById('btnConfirmarMembresia').disabled = false;

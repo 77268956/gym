@@ -30,7 +30,7 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        background: linear-gradient(135deg, #1E293B, #0F172A);
+        background: var(--sidebar-bg);
         height: 100%;
     }
     .kpi-icon { font-size: 1.6rem; opacity: 0.4; } /* Icono más pequeño */
@@ -46,7 +46,7 @@
         flex-direction: column;
         margin-bottom: 0 !important;
     }
-    .ic-card-title { font-weight: 700; font-size: 0.8rem; color: #1E293B; margin-bottom: 0.5rem; text-transform: uppercase; }
+    .ic-card-title { font-weight: 700; font-size: 0.8rem; color: var(--sidebar-bg); margin-bottom: 0.5rem; text-transform: uppercase; }
     
     /* Panel scrollable para la tabla */
     .table-panel { flex: 1; min-height: 0; overflow-y: auto; padding-right: 5px; }
@@ -71,11 +71,16 @@
     
     .client-result { display: flex; align-items: center; }
     .client-result img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-right: 15px; }
-    .client-result .avatar-placeholder { width: 40px; height: 40px; border-radius: 50%; background: #2563EB; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 15px; font-size: 14px; }
+    .client-result .avatar-placeholder { width: 40px; height: 40px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 15px; font-size: 14px; }
     .client-result .info { display: flex; flex-direction: column; }
     .client-result .name { font-weight: bold; color: #1e293b; }
     .client-result .cedula { font-size: 0.85em; color: #64748b; }
     .client-result .badges { margin-top: 4px; }
+
+    .badge-cobro { padding: .3rem .6rem; border-radius: 50px; font-size: .72rem; font-weight: 600; color: #fff; }
+    .badge-cobro-membresia { background: var(--primary); }
+    .badge-cobro-pase { background: var(--primary-hover); }
+    .badge-cobro-otro { background: var(--sidebar-hover); }
 
     .row.tight { margin-bottom: 0.75rem; }
 </style>
@@ -146,18 +151,22 @@
                                     <small class="text-muted">{{ \Carbon\Carbon::parse($pago->fecha_pago)->format('h:i A') }}</small>
                                 </td>
                                 <td>
-                                    <a href="{{ route('clientes.show', $pago->cliente) }}" class="font-weight-bold text-dark">
-                                        {{ $pago->cliente->nombre }}
-                                    </a>
+                                    @if($pago->cliente)
+                                        <a href="{{ route('clientes.show', $pago->cliente) }}" class="font-weight-bold text-dark">
+                                            {{ $pago->cliente->nombre }}
+                                        </a>
+                                    @else
+                                        <span class="text-muted font-weight-bold">Cliente no disponible</span>
+                                    @endif
                                 </td>
                                 <td>
                                     @if($pago->tipo_pago === 'membresia')
-                                        <span class="badge badge-primary px-2 py-1"><i class="fas fa-id-card mr-1"></i> Membresía</span><br>
+                                        <span class="badge-cobro badge-cobro-membresia"><i class="fas fa-id-card mr-1"></i> Membresía</span><br>
                                         <small class="text-muted">{{ $pago->membresia->tipoMembresia->nombre ?? 'N/A' }}</small>
                                     @elseif($pago->tipo_pago === 'pase_diario')
-                                        <span class="badge badge-warning px-2 py-1 text-dark"><i class="fas fa-ticket-alt mr-1"></i> Pase Diario</span>
+                                        <span class="badge-cobro badge-cobro-pase"><i class="fas fa-ticket-alt mr-1"></i> Pase Diario</span>
                                     @else
-                                        <span class="badge badge-secondary px-2 py-1">{{ strtoupper($pago->tipo_pago) }}</span>
+                                        <span class="badge-cobro badge-cobro-otro">{{ strtoupper($pago->tipo_pago) }}</span>
                                     @endif
                                 </td>
                                 <td>

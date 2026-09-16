@@ -56,4 +56,23 @@ class ConfiguracionTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('PowerGym Elite');
     }
+
+    public function test_can_update_system_colors(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->post(route('configuracion.update'), [
+            'nombre_gimnasio' => 'Color Gym',
+            'color_primario' => '#16A34A',
+            'color_primario_hover' => '#15803D',
+            'color_sidebar' => '#14532D',
+            'color_sidebar_hover' => '#166534',
+        ]);
+
+        $response->assertRedirect(route('configuracion.index'));
+        $this->assertDatabaseHas('configuraciones_generales', [
+            'color_primario' => '#16A34A',
+            'color_sidebar' => '#14532D',
+        ]);
+    }
 }

@@ -28,7 +28,7 @@
         font-size: 0.8rem; font-weight: 700; text-transform: uppercase;
         color: #1E293B; margin-bottom: 1rem; letter-spacing: 0.05em;
     }
-    .config-section-title i { color: #2563EB; }
+    .config-section-title i { color: var(--primary); }
 
     .config-label { font-weight: 600; font-size: 0.85rem; color: #334155; margin-bottom: 0.3rem; }
 </style>
@@ -219,7 +219,7 @@
 <div class="modal fade" id="modalWebcam" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content border-0 shadow-lg">
-            <div class="modal-header text-white" style="background: linear-gradient(135deg, #1E293B, #0F172A);">
+            <div class="modal-header text-white">
                 <h6 class="modal-title font-weight-bold"><i class="fas fa-camera mr-2 text-info"></i> Capturar Foto</h6>
                 <button type="button" class="close text-white" onclick="closeWebcamModal()"><span>&times;</span></button>
             </div>

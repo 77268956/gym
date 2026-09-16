@@ -39,6 +39,8 @@
         display: flex; align-items: center; justify-content: center;
         min-height: 120px;
     }
+    .color-preview { min-height: 92px; border-radius: 10px; padding: 1rem; color: #fff; display: flex; align-items: flex-end; justify-content: space-between; }
+    .color-input { width: 100%; height: 38px; padding: 3px; cursor: pointer; }
 </style>
 @endpush
 
@@ -152,6 +154,41 @@
                             </div>
                         </div>
 
+                        {{-- SECCIÓN 4: Apariencia --}}
+                        <div class="config-section">
+                            <div class="config-section-title"><i class="fas fa-palette mr-2"></i> Colores del sistema</div>
+                            <div class="form-group mb-3">
+                                <label for="tema_predefinido" class="config-label">Combinación rápida</label>
+                                <select id="tema_predefinido" class="form-control form-control-sm">
+                                    <option value="">Elegir una combinación...</option>
+                                    <option value="azul">Azul profesional</option>
+                                    <option value="verde">Verde energía</option>
+                                    <option value="rojo">Rojo intenso</option>
+                                    <option value="naranja">Naranja vital</option>
+                                </select>
+                                <div class="config-hint">Puedes elegir una combinación o ajustar cada color manualmente.</div>
+                            </div>
+                            <div class="row">
+                                @foreach([
+                                    ['color_primario', 'Color principal', 'Botones, enlaces y acentos'],
+                                    ['color_primario_hover', 'Color al pasar el cursor', 'Estado hover de botones'],
+                                    ['color_sidebar', 'Barra lateral y modales', 'Menú lateral y encabezados de modal'],
+                                    ['color_sidebar_hover', 'Barra lateral activa', 'Elemento seleccionado del menú'],
+                                ] as [$name, $label, $hint])
+                                    <div class="col-md-3 form-group mb-2">
+                                        <label for="{{ $name }}" class="config-label">{{ $label }}</label>
+                                        <input type="color" id="{{ $name }}" name="{{ $name }}" class="form-control color-input"
+                                               value="{{ old($name, $configuracion->{$name} ?? '#2563EB') }}">
+                                        <div class="config-hint">{{ $hint }}</div>
+                                    </div>
+                                @endforeach
+                            </div>
+                            <div class="color-preview mt-2" id="colorPreview">
+                                <span><i class="fas fa-eye mr-2"></i> Vista previa</span>
+                                <button type="button" class="btn btn-sm text-white font-weight-bold" id="previewButton">Botón principal</button>
+                            </div>
+                        </div>
+
                         {{-- Botón Guardar --}}
                         <div class="d-flex justify-content-end mt-2">
                             <button type="submit" class="btn btn-primary px-4 py-2 font-weight-bold" style="font-size:0.85rem; border-radius:8px;">
@@ -184,5 +221,33 @@
             if (label && label.classList.contains('custom-file-label')) label.textContent = file.name;
         }
     }
+
+    (function () {
+        var themes = {
+            azul: ['#2563EB', '#1D4ED8', '#1E293B', '#334155'],
+            verde: ['#059669', '#047857', '#064E3B', '#065F46'],
+            rojo: ['#DC2626', '#B91C1C', '#450A0A', '#7F1D1D'],
+            naranja: ['#EA580C', '#C2410C', '#431407', '#7C2D12']
+        };
+        var fields = ['color_primario', 'color_primario_hover', 'color_sidebar', 'color_sidebar_hover'];
+        var preset = document.getElementById('tema_predefinido');
+        var preview = document.getElementById('colorPreview');
+        var previewButton = document.getElementById('previewButton');
+
+        function updatePreview() {
+            preview.style.background = 'linear-gradient(135deg, ' + document.getElementById('color_sidebar').value + ', ' + document.getElementById('color_sidebar_hover').value + ')';
+            previewButton.style.backgroundColor = document.getElementById('color_primario').value;
+        }
+
+        preset.addEventListener('change', function () {
+            if (!themes[this.value]) return;
+            themes[this.value].forEach(function (color, index) {
+                document.getElementById(fields[index]).value = color;
+            });
+            updatePreview();
+        });
+        fields.forEach(function (field) { document.getElementById(field).addEventListener('input', updatePreview); });
+        updatePreview();
+    }());
 </script>
 @endpush

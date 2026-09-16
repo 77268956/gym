@@ -18,7 +18,7 @@
         border-radius: 8px; border: none; padding: 0.5rem 1rem;
         color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         display: flex; justify-content: space-between; align-items: center;
-        background: linear-gradient(135deg, #1E293B, #0F172A); height: 100%;
+        background: var(--sidebar-bg); height: 100%;
     }
     .kpi-icon { font-size: 1.6rem; opacity: 0.4; }
     .kpi-value { font-size: 1.3rem; font-weight: 800; margin: 0; line-height: 1; }
@@ -29,7 +29,7 @@
         box-shadow: 0 2px 5px rgba(0,0,0,0.04); padding: 0.85rem;
         display: flex; flex-direction: column; margin-bottom: 0 !important;
     }
-    .ic-card-title { font-weight: 700; font-size: 0.8rem; color: #1E293B; text-transform: uppercase; }
+    .ic-card-title { font-weight: 700; font-size: 0.8rem; color: var(--sidebar-bg); text-transform: uppercase; }
 
     .table-panel { flex: 1; min-height: 0; overflow-y: auto; padding-right: 5px; }
     .dataTables_wrapper { display: flex; flex-direction: column; height: 100%; }
@@ -45,16 +45,16 @@
 
     .ic-list-item { display: flex; justify-content: space-between; align-items: center; padding: 0.4rem 0; border-bottom: 1px solid #F1F5F9; }
     .ic-list-item:last-child { border-bottom: none; }
-    .ic-list-title { font-size: 0.8rem; font-weight: 600; color: #1E293B; }
+    .ic-list-title { font-size: 0.8rem; font-weight: 600; color: var(--sidebar-bg); }
     .ic-list-sub { font-size: 0.7rem; color: #64748B; }
 
     .row.tight { margin-bottom: 0.75rem; }
 
-    .custom-tab-btn.active { background-color: #2563EB !important; color: #fff !important; border-color: #2563EB !important; }
+    .custom-tab-btn.active { background-color: var(--primary) !important; color: #fff !important; border-color: var(--primary) !important; }
     
     /* Plan Pricing Card */
     .plan-card { border: 1px solid #E2E8F0; border-radius: .75rem; transition: transform .2s; background: #fff; height: 100%; display: flex; flex-direction: column; }
-    .plan-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,.06); border-color: #2563EB; }
+    .plan-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,.06); border-color: var(--primary); }
     .plan-card-header { padding: 1rem; border-bottom: 1px solid #f1f1ef; }
     .plan-price { font-size: 1.6rem; font-weight: 800; color: #1c1c1a; }
     .plan-card-body { padding: 1rem; flex: 1; }
@@ -148,7 +148,7 @@
                             <tr>
                                 <td>
                                     <div class="d-flex align-items-center">
-                                        <div class="rounded-circle d-flex align-items-center justify-content-center mr-2 text-white font-weight-bold" style="width:30px;height:30px;font-size:0.7rem;background:linear-gradient(135deg,#1E293B,#0F172A);">
+                                        <div class="rounded-circle d-flex align-items-center justify-content-center mr-2 text-white font-weight-bold" style="width:30px;height:30px;font-size:0.7rem;background:var(--sidebar-bg);">
                                             <i class="fas fa-dumbbell"></i>
                                         </div>
                                         <div>
