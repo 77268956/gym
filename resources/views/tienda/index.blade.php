@@ -9,15 +9,35 @@
     .store-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 1.25rem; }
     .product-card { background:#fff; border-radius:14px; box-shadow:0 2px 8px rgba(0,0,0,.06); overflow:hidden; transition:transform .2s,box-shadow .2s; display:flex; flex-direction:column; }
     .product-card:hover { transform:translateY(-3px); box-shadow:0 8px 20px rgba(0,0,0,.1); }
-    .product-img { width:100%; height:160px; background:#F1F5F9; display:flex; align-items:center; justify-content:center; color:#CBD5E1; font-size:3rem; overflow:hidden; }
-    .product-img img { width:100%; height:100%; object-fit:cover; }
-    .product-body { padding:1rem; flex:1; display:flex; flex-direction:column; }
+    .product-img { position:relative; width:100%; height:160px; background:#F1F5F9; display:flex; align-items:center; justify-content:center; color:#CBD5E1; font-size:3rem; overflow:hidden; }
+    .product-img::after { content:""; position:absolute; inset:0; background:linear-gradient(180deg,rgba(15,23,42,.08) 20%,rgba(15,23,42,.88) 100%); pointer-events:none; }
+    .product-img img { width:100%; height:100%; object-fit:cover; filter:saturate(.78) brightness(.9); }
+    .product-img img.product-click-image { cursor:zoom-in; }
+    .product-overlay { position:absolute; inset:0; padding:.45rem; display:flex; align-items:flex-start; justify-content:flex-start; pointer-events:none; z-index:2; }
     .product-category { font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--primary); margin-bottom:.3rem; }
-    .product-name { font-weight:700; font-size:.95rem; color:#1E293B; margin-bottom:.35rem; }
+    .product-category-badge { background:rgba(255,255,255,.92); border-radius:50px; padding:.3rem .65rem; box-shadow:0 2px 8px rgba(15,23,42,.12); }
+    .product-points-badge { background:linear-gradient(135deg,var(--primary),#1E293B); color:#fff; border-radius:50px; padding:.35rem .7rem; font-size:.78rem; font-weight:800; box-shadow:0 2px 8px rgba(15,23,42,.28); }
+    .product-image-info { position:absolute; left:.75rem; right:.75rem; bottom:.7rem; z-index:2; color:#fff; }
+    .product-image-name { display:block; font-size:1.1rem; line-height:1.15; font-weight:800; color:#fff; text-shadow:0 1px 4px rgba(15,23,42,.85); }
+    .product-body { padding:1rem; flex:1; display:flex; flex-direction:column; }
+    .product-name { font-weight:800; font-size:1.12rem; line-height:1.15; color:#1E293B; margin:0; }
     .product-desc { font-size:.78rem; color:#64748B; flex:1; margin-bottom:.75rem; }
-    .product-points { font-size:1.1rem; font-weight:800; color:var(--primary); }
-    .stock-ok { font-size:.72rem; color:#64748B; }
-    .stock-low { font-size:.72rem; color:#F59E0B; font-weight:600; }
+    .canje-product-summary { display:flex; align-items:center; gap:.85rem; padding:.75rem; background:#F8FAFC; border-radius:12px; margin-bottom:1rem; }
+    .canje-product-summary img { width:76px; height:76px; border-radius:10px; object-fit:cover; flex-shrink:0; }
+    .canje-product-summary .placeholder { width:76px; height:76px; border-radius:10px; background:#E2E8F0; color:#94A3B8; display:flex; align-items:center; justify-content:center; font-size:1.8rem; flex-shrink:0; }
+    .canje-product-summary-name { font-weight:800; color:#1E293B; font-size:1rem; }
+    .canje-product-summary-category { color:#64748B; font-size:.7rem; font-weight:700; text-transform:uppercase; }
+    .canje-product-summary-description { color:#64748B; font-size:.78rem; line-height:1.3; margin-top:.25rem; }
+    .canje-product-summary-points { color:var(--primary); font-size:.8rem; font-weight:800; margin-top:.35rem; }
+    .product-footer { margin-top:auto; }
+    .product-footer .btn { display:block; width:100%; }
+    .store-search { position:relative; flex:1 1 420px; max-width:560px; }
+    .store-search input { width:100%; border:1px solid #E2E8F0; border-radius:50px; padding:.55rem 1rem .55rem 2.35rem; font-size:.82rem; color:#1E293B; outline:none; }
+    .store-search input:focus { border-color:var(--primary); box-shadow:0 0 0 .15rem rgba(78,115,223,.12); }
+    .store-search i { position:absolute; left:.9rem; top:50%; transform:translateY(-50%); color:#94A3B8; }
+    .points-filter { flex:0 1 190px; }
+    .points-filter select { width:100%; border:1px solid #E2E8F0; border-radius:50px; padding:.55rem 2rem .55rem 1rem; font-size:.82rem; color:#475569; background:#fff; outline:none; cursor:pointer; }
+    .points-filter select:focus { border-color:var(--primary); box-shadow:0 0 0 .15rem rgba(78,115,223,.12); }
     .filter-btn { border-radius:50px; font-size:.8rem; padding:.3rem .9rem; font-weight:600; border:1px solid #E2E8F0; background:#fff; color:#475569; cursor:pointer; transition:all .15s; }
     .filter-btn.active { background:var(--primary); color:#fff; border-color:var(--primary); }
     .pts-badge { background:linear-gradient(135deg,var(--primary),var(--primary-hover)); color:#fff; border-radius:50px; padding:.2rem .65rem; font-size:.75rem; font-weight:700; }
@@ -42,10 +62,18 @@
 @section('content')
 <div class="container-fluid py-2">
 
-    <div class="d-flex flex-wrap align-items-center justify-content-between mb-3">
-        <div>
-            <h4 class="font-weight-bold mb-0 text-dark"><i class="fas fa-shopping-bag text-primary mr-2"></i>Tienda EcoGim</h4>
-            <small class="text-muted">Canjea puntos por productos exclusivos</small>
+    <div class="d-flex flex-wrap align-items-center justify-content-between mb-3" style="gap:.75rem;">
+        <div class="store-search">
+            <i class="fas fa-search"></i>
+            <input type="search" id="buscadorProductos" placeholder="Buscar productos..." aria-label="Buscar productos">
+        </div>
+        <div class="points-filter">
+            <select id="filtroPuntos" aria-label="Filtrar por puntos">
+                <option value="todos">Todos los puntos</option>
+                @foreach($productos->pluck('puntos_valor')->unique()->sort() as $puntos)
+                    <option value="{{ $puntos }}">{{ number_format($puntos) }} puntos</option>
+                @endforeach
+            </select>
         </div>
         <div class="d-flex flex-wrap" style="gap:.5rem;" id="filtros">
             <button class="filter-btn active" data-cat="todos">Todos</button>
@@ -64,32 +92,28 @@
     @else
         <div class="store-grid" id="productoGrid">
             @foreach($productos as $producto)
-            <div class="product-card" data-cat="{{ $producto->categoria }}">
+            <div class="product-card" data-cat="{{ $producto->categoria }}" data-points="{{ $producto->puntos_valor }}" data-search="{{ $producto->nombre }} {{ $producto->descripcion }} {{ $producto->categoria }}">
                 <div class="product-img">
                     @if($producto->imagen)
-                        <img src="{{ asset('storage/' . $producto->imagen) }}" alt="{{ $producto->nombre }}">
+                        <img src="{{ asset('storage/' . $producto->imagen) }}" alt="{{ $producto->nombre }}" class="product-click-image" data-image="{{ asset('storage/' . $producto->imagen) }}" data-description="{{ $producto->descripcion }}">
                     @else
                         <i class="fas fa-box"></i>
                     @endif
+                    <div class="product-overlay">
+                        <span class="product-points-badge"><i class="fas fa-star mr-1"></i>{{ number_format($producto->puntos_valor) }} pts</span>
+                    </div>
+                    <div class="product-image-info">
+                        <div class="product-image-name">{{ $producto->nombre }}</div>
+                    </div>
                 </div>
                 <div class="product-body">
-                    @if($producto->categoria)
-                        <div class="product-category">{{ $producto->categoria }}</div>
-                    @endif
-                    <div class="product-name">{{ $producto->nombre }}</div>
-                    @if($producto->descripcion)
-                        <div class="product-desc">{{ $producto->descripcion }}</div>
-                    @endif
-                    <div class="d-flex align-items-center justify-content-between mt-auto pt-2">
-                        <div>
-                            <div class="product-points"><i class="fas fa-star mr-1" style="font-size:.8rem;"></i>{{ number_format($producto->puntos_valor) }} pts</div>
-                            <div class="{{ $producto->stock <= 5 ? 'stock-low' : 'stock-ok' }}">
-                                <i class="fas fa-cubes mr-1" style="font-size:.7rem;"></i>
-                                {{ $producto->stock <= 5 ? '¡Solo '.$producto->stock.' disponibles!' : $producto->stock.' en stock' }}
-                            </div>
-                        </div>
+                    <div class="product-footer pt-2">
                         <button class="btn btn-primary btn-sm font-weight-bold px-3"
-                            onclick="abrirModalCanje({{ $producto->id }}, '{{ addslashes($producto->nombre) }}', {{ $producto->puntos_valor }}, {{ $producto->stock }})">
+                            data-product-name="{{ $producto->nombre }}"
+                            data-product-image="{{ $producto->imagen ? asset('storage/' . $producto->imagen) : '' }}"
+                            data-product-description="{{ $producto->descripcion }}"
+                            data-product-category="{{ $producto->categoria }}"
+                            onclick="abrirModalCanje(this, {{ $producto->id }}, {{ $producto->puntos_valor }}, {{ $producto->stock }})">
                             <i class="fas fa-exchange-alt mr-1"></i>Canjear
                         </button>
                     </div>
@@ -98,6 +122,21 @@
             @endforeach
         </div>
     @endif
+</div>
+
+{{-- MODAL IMAGEN DEL PRODUCTO --}}
+<div class="modal fade" id="modalImagenProducto" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content border-0 shadow-lg" style="border-radius:16px;overflow:hidden;">
+            <div class="modal-header border-0 bg-dark py-2">
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar"><span>&times;</span></button>
+            </div>
+            <div class="modal-body p-0 bg-dark text-center">
+                <img id="imagenProductoModal" src="" alt="" style="width:100%;max-height:65vh;object-fit:contain;">
+                <div id="descripcionProductoModal" class="text-white text-left px-4 py-3"></div>
+            </div>
+        </div>
+    </div>
 </div>
 
 {{-- MODAL CANJE --}}
@@ -111,6 +150,15 @@
                 <small class="text-muted" id="modalCanjePts"></small>
             </div>
             <div class="modal-body p-4 bg-white">
+                <div class="canje-product-summary">
+                    <div id="canjeProductoImagenContenedor"></div>
+                    <div class="min-width-0">
+                        <div id="canjeProductoNombre" class="canje-product-summary-name"></div>
+                        <div id="canjeProductoCategoria" class="canje-product-summary-category"></div>
+                        <div id="canjeProductoDescripcion" class="canje-product-summary-description"></div>
+                        <div id="canjeProductoPuntos" class="canje-product-summary-points"></div>
+                    </div>
+                </div>
                 <div class="form-group mb-3">
                     <label class="font-weight-bold small text-uppercase text-muted mb-1">Buscar Cliente</label>
                     <select id="selectCliente" style="width:100%;"></select>
@@ -154,21 +202,63 @@
 <script>
 var canjeProductoId = null, canjeProductoPuntos = 0, canjeClienteId = null;
 
+document.querySelectorAll('.product-click-image').forEach(function(image) {
+    image.addEventListener('click', function() {
+        document.getElementById('imagenProductoModal').src = this.dataset.image;
+        document.getElementById('imagenProductoModal').alt = this.alt;
+        $('#modalImagenProducto').modal('show');
+    });
+});
+
+function filtrarProductos() {
+    var categoriaActiva = document.querySelector('.filter-btn.active').dataset.cat;
+    var busqueda = document.getElementById('buscadorProductos').value.trim().toLowerCase();
+    var puntosSeleccionados = document.getElementById('filtroPuntos').value;
+
+    document.querySelectorAll('.product-card').forEach(function(card) {
+        var coincideCategoria = categoriaActiva === 'todos' || card.dataset.cat === categoriaActiva;
+        var coincideBusqueda = !busqueda || card.dataset.search.toLowerCase().includes(busqueda);
+        var coincidePuntos = puntosSeleccionados === 'todos' || card.dataset.points === puntosSeleccionados;
+        card.style.display = coincideCategoria && coincideBusqueda && coincidePuntos ? '' : 'none';
+    });
+}
+
+document.getElementById('buscadorProductos').addEventListener('input', filtrarProductos);
+document.getElementById('filtroPuntos').addEventListener('change', filtrarProductos);
+
 document.querySelectorAll('.filter-btn').forEach(function(btn) {
     btn.addEventListener('click', function() {
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
         this.classList.add('active');
-        var cat = this.dataset.cat;
-        document.querySelectorAll('.product-card').forEach(function(card) {
-            card.style.display = (cat === 'todos' || card.dataset.cat === cat) ? '' : 'none';
-        });
+        filtrarProductos();
     });
 });
 
-function abrirModalCanje(productoId, nombre, puntos, stock) {
+function abrirModalCanje(button, productoId, puntos, stock) {
+    var nombre = button.dataset.productName;
+    var imagen = button.dataset.productImage;
+    var descripcion = button.dataset.productDescription;
+    var categoria = button.dataset.productCategory;
     canjeProductoId = productoId; canjeProductoPuntos = puntos; canjeClienteId = null;
     document.getElementById('modalCanjeTitle').textContent = nombre;
     document.getElementById('modalCanjePts').textContent = puntos + ' puntos requeridos · ' + stock + ' en stock';
+    document.getElementById('canjeProductoNombre').textContent = nombre;
+    document.getElementById('canjeProductoCategoria').textContent = categoria || 'Sin categoría';
+    document.getElementById('canjeProductoDescripcion').textContent = descripcion || 'Sin descripción disponible.';
+    document.getElementById('canjeProductoPuntos').textContent = puntos + ' puntos';
+    var imagenContenedor = document.getElementById('canjeProductoImagenContenedor');
+    imagenContenedor.replaceChildren();
+    if (imagen) {
+        var imagenProducto = document.createElement('img');
+        imagenProducto.src = imagen;
+        imagenProducto.alt = nombre;
+        imagenContenedor.appendChild(imagenProducto);
+    } else {
+        var imagenPlaceholder = document.createElement('div');
+        imagenPlaceholder.className = 'placeholder';
+        imagenPlaceholder.innerHTML = '<i class="fas fa-box"></i>';
+        imagenContenedor.appendChild(imagenPlaceholder);
+    }
     document.getElementById('clienteInfoBox').classList.add('d-none');
     document.getElementById('btnConfirmarCanje').disabled = true;
     $('#selectCliente').val(null).trigger('change');
