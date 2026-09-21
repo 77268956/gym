@@ -21,8 +21,8 @@ class PagoController extends Controller
         $totalIngresos = $pagos->sum('monto');
         $pagosHoy = Pago::whereDate('fecha_pago', Carbon::today())->sum('monto');
         $pagosMes = Pago::whereYear('fecha_pago', Carbon::now()->year)
-                        ->whereMonth('fecha_pago', Carbon::now()->month)
-                        ->sum('monto');
+            ->whereMonth('fecha_pago', Carbon::now()->month)
+            ->sum('monto');
 
         // Para el modal de selección de clientes
         $clientes = Cliente::with(['membresias' => function ($q) {
@@ -60,13 +60,30 @@ class PagoController extends Controller
 
         if ($request->tipo_pago === 'membresia') {
             $tipoMembresia = TipoMembresia::findOrFail($request->tipo_membresia_id);
-            $fechaInicio = Carbon::today();
-            $fechaVencimiento = $fechaInicio->copy()->addDays($tipoMembresia->duracion_dias ?? 30);
+            $diasNuevoPlan = $tipoMembresia->duracion_dias ?? 30;
 
-            // Marcar las membresías anteriores como vencidas
-            Membresia::where('cliente_id', $request->cliente_id)
+            // Si tiene membresía activa vigente, sumar los días al vencimiento actual
+            $membresiaActiva = Membresia::where('cliente_id', $request->cliente_id)
                 ->where('estado', 'activa')
-                ->update(['estado' => 'vencida']);
+                ->where('fecha_vencimiento', '>=', Carbon::today())
+                ->latest('fecha_vencimiento')
+                ->first();
+
+            if ($membresiaActiva) {
+                // Sumar días al vencimiento actual
+                $fechaInicio = Carbon::parse($membresiaActiva->fecha_vencimiento)->addDay();
+                $fechaVencimiento = Carbon::parse($membresiaActiva->fecha_vencimiento)->addDays($diasNuevoPlan);
+                // Marcar la membresía anterior como vencida
+                $membresiaActiva->update(['estado' => 'vencida']);
+            } else {
+                // Sin membresía activa: empezar desde hoy
+                $fechaInicio = Carbon::today();
+                $fechaVencimiento = $fechaInicio->copy()->addDays($diasNuevoPlan);
+                // Marcar cualquier membresía anterior como vencida
+                Membresia::where('cliente_id', $request->cliente_id)
+                    ->where('estado', 'activa')
+                    ->update(['estado' => 'vencida']);
+            }
 
             // Crear nueva membresía
             $membresia = Membresia::create([
@@ -117,8 +134,10 @@ class PagoController extends Controller
                 'plan' => $membresia->tipoMembresia->nombre ?? 'Desconocido',
                 'estado' => $membresia->estado,
                 'fecha_vencimiento' => Carbon::parse($membresia->fecha_vencimiento)->format('d/m/Y'),
+                'fecha_vencimiento_raw' => $membresia->fecha_vencimiento,
                 'dias_restantes' => (int) $diasRestantes,
                 'vencida' => $vencida,
+                'tiene_activa' => ! $vencida && $membresia->estado === 'activa',
             ];
         }
 
@@ -129,38 +148,38 @@ class PagoController extends Controller
     public function buscarClientes(Request $request)
     {
         $term = $request->input('q');
-        
+
         $query = Cliente::with(['membresias' => function ($q) {
             $q->where('estado', 'activa')->where('fecha_vencimiento', '>=', Carbon::today())->latest();
         }]);
 
         if ($term) {
-            $query->where(function($q) use ($term) {
-                $q->where('nombre', 'LIKE', '%' . $term . '%')
-                  ->orWhere('cedula', 'LIKE', '%' . $term . '%');
+            $query->where(function ($q) use ($term) {
+                $q->where('nombre', 'LIKE', '%'.$term.'%')
+                    ->orWhere('cedula', 'LIKE', '%'.$term.'%');
             });
         }
 
         $clientes = $query->limit(20)->get();
-        
+
         $resultados = [];
         foreach ($clientes as $c) {
             $membActiva = $c->membresias->first();
-            
+
             if ($membActiva) {
                 $membStatus = 'ACTIVA';
             } else {
                 $tieneVencida = $c->membresias()->where('estado', 'vencida')->exists();
                 $membStatus = $tieneVencida ? 'VENCIDA' : 'SIN MEMBRESÍA';
             }
-            
+
             $resultados[] = [
                 'id' => $c->id,
                 'text' => $c->nombre,
                 'cedula' => $c->cedula,
                 'estado' => $c->estado,
                 'membresia_status' => $membStatus,
-                'foto' => $c->foto_referencia ? asset('storage/' . $c->foto_referencia) : null
+                'foto' => $c->foto_referencia ? asset('storage/'.$c->foto_referencia) : null,
             ];
         }
 

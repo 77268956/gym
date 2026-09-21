@@ -20,6 +20,7 @@ class ProductoEcogim extends Model
         'categoria',
         'puntos_valor',
         'stock',
+        'imagen',
         'estado',
     ];
 

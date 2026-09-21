@@ -101,6 +101,13 @@
                             <button type="button" id="btn_abrir_planes" class="btn btn-outline-primary btn-block py-2 {{ old('tipo_membresia_id') ? 'd-none' : '' }}" onclick="$('#modalPlanesPago').modal('show')">
                                 <i class="fas fa-list mr-1"></i> Seleccionar Plan de Membresía
                             </button>
+
+                            <div id="proyeccionBox" class="d-none mt-3 p-3 rounded" style="background:#EFF6FF; border:1px solid #BFDBFE;">
+                                <i class="fas fa-calendar-plus text-primary mr-2"></i>
+                                <strong class="text-primary">Nueva fecha de vencimiento:</strong>
+                                <span id="proyeccionFecha" class="font-weight-bold text-dark ml-1"></span>
+                                <small class="d-block text-muted mt-1"><i class="fas fa-info-circle mr-1"></i>Los días del nuevo plan se suman al vencimiento actual.</small>
+                            </div>
                         </div>
 
                         <div class="form-group mb-4">
@@ -160,7 +167,7 @@
                 <div class="row">
                     @foreach($tiposMembresia as $tipo)
                     <div class="col-md-6 mb-4">
-                        <div class="membresia-card h-100" data-id="{{ $tipo->id }}" data-nombre="{{ $tipo->nombre }}" data-precio="{{ $tipo->precio }}" data-duracion="{{ $tipo->duracion_dias }} días" onclick="pagoSeleccionarMembresia(this)" style="cursor:pointer;background:#fff;border-radius:12px;padding:1.5rem;border:2px solid #E2E8F0;transition:all .2s;">
+                        <div class="membresia-card h-100" data-id="{{ $tipo->id }}" data-nombre="{{ $tipo->nombre }}" data-precio="{{ $tipo->precio }}" data-duracion="{{ $tipo->duracion_dias }} días" data-dias-num="{{ $tipo->duracion_dias }}" onclick="pagoSeleccionarMembresia(this)" style="cursor:pointer;background:#fff;border-radius:12px;padding:1.5rem;border:2px solid #E2E8F0;transition:all .2s;">
                             <div class="d-flex justify-content-between align-items-start mb-3">
                                 <div>
                                     <h5 class="font-weight-bold mb-1" style="color:#1E293B;">{{ $tipo->nombre }}</h5>
@@ -219,13 +226,18 @@
         @endif
     });
 
+    // Guarda datos de membresía para calcular proyección
+    var clienteMembresiaRaw = null;
+
     function cargarInfoCliente(clienteId) {
         if (!clienteId) {
             $('#clienteInfoPanel').addClass('d-none');
+            clienteMembresiaRaw = null;
             return;
         }
 
         $.getJSON('/pagos/cliente/' + clienteId + '/info', function(data) {
+            clienteMembresiaRaw = data.membresia;
             var html = '';
             if (!data.membresia) {
                 html = '<div class="alert alert-warning py-2 mb-0"><i class="fas fa-exclamation-circle mr-2"></i><strong>Sin membresía registrada.</strong> Este cliente no tiene historial de membresías.</div>';
@@ -239,10 +251,12 @@
                 html = '<div class="alert alert-' + color + ' py-2 mb-0"><i class="fas fa-check-circle mr-2"></i>' +
                     '<strong>Membresía ACTIVA</strong> — Plan: ' + data.membresia.plan +
                     ' · Vence: ' + data.membresia.fecha_vencimiento +
-                    ' (<strong>' + data.membresia.dias_restantes + ' días restantes</strong>)</div>';
+                    ' (<strong>' + data.membresia.dias_restantes + ' días restantes</strong>)' +
+                    '<br><small class="text-dark"><i class="fas fa-info-circle mr-1"></i>Si contratas un nuevo plan, los días se <strong>acumularán</strong> al vencimiento actual.</small></div>';
             }
             $('#clienteInfoContenido').html(html);
             $('#clienteInfoPanel').removeClass('d-none');
+            actualizarProyeccion();
         });
     }
 
@@ -259,6 +273,22 @@
             document.getElementById('tipo_membresia_id').removeAttribute('required');
             document.getElementById('monto').value = '100.00'; 
         }
+    }
+
+    function actualizarProyeccion() {
+        var planId = document.getElementById('tipo_membresia_id').value;
+        var card = pagoSelectedPlanCard;
+        if (!planId || !card || !clienteMembresiaRaw || !clienteMembresiaRaw.tiene_activa) {
+            $('#proyeccionBox').addClass('d-none');
+            return;
+        }
+        var dias = parseInt(card.dataset.diasNum);
+        var fechaVenc = new Date(clienteMembresiaRaw.fecha_vencimiento_raw);
+        fechaVenc.setDate(fechaVenc.getDate() + dias);
+        var opts = { day: '2-digit', month: '2-digit', year: 'numeric' };
+        var fechaFmt = fechaVenc.toLocaleDateString('es-HN', opts);
+        $('#proyeccionFecha').text(fechaFmt);
+        $('#proyeccionBox').removeClass('d-none');
     }
 
     var pagoSelectedPlanId = null;
@@ -293,6 +323,7 @@
         document.getElementById('monto').value = parseFloat(el.dataset.precio).toFixed(2);
         
         $('#modalPlanesPago').modal('hide');
+        actualizarProyeccion();
     }
 
     function selectMetodo(element) {

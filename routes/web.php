@@ -6,6 +6,8 @@ use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\ConfiguracionController;
 use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\PagoController;
+use App\Http\Controllers\ProductoEcogimController;
+use App\Http\Controllers\TiendaController;
 use App\Http\Controllers\TipoMembresiaController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -74,4 +76,17 @@ Route::middleware('auth')->group(function () {
     // Módulo de Asistencias (Escáner Facial)
     Route::get('/escanear', [AsistenciaController::class, 'escanear'])->name('asistencias.escanear');
     Route::post('/escanear/registrar', [AsistenciaController::class, 'registrarEscaneo'])->name('asistencias.registrar');
+
+    // Tienda EcoGim
+    Route::get('/tienda', [TiendaController::class, 'index'])->name('tienda.index');
+    Route::post('/tienda/canjear', [TiendaController::class, 'canjear'])->name('tienda.canjear');
+    Route::get('/tienda/cliente/{cliente}/info', [TiendaController::class, 'clienteInfo'])->name('tienda.clienteInfo');
+    Route::get('/tienda/buscar-clientes', [TiendaController::class, 'buscarClientes'])->name('tienda.buscarClientes');
+
+    // Administración: Gestión de Tienda / Productos
+    Route::get('/admin/productos', [ProductoEcogimController::class, 'index'])->name('admin.productos.index');
+    Route::post('/admin/productos', [ProductoEcogimController::class, 'store'])->name('admin.productos.store');
+    Route::put('/admin/productos/{producto}', [ProductoEcogimController::class, 'update'])->name('admin.productos.update');
+    Route::delete('/admin/productos/{producto}', [ProductoEcogimController::class, 'destroy'])->name('admin.productos.destroy');
+    Route::patch('/admin/productos/{producto}/toggle', [ProductoEcogimController::class, 'toggleStatus'])->name('admin.productos.toggleStatus');
 });

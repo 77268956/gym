@@ -423,7 +423,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#" title="Tienda EcoGim">
+                    <a class="nav-link {{ request()->routeIs('tienda.*') ? 'active' : '' }}" href="{{ route('tienda.index') }}" title="Tienda EcoGim">
                         <i class="fas fa-shopping-bag"></i>
                         <span class="sidebar-label">Tienda EcoGim</span>
                     </a>
@@ -436,6 +436,12 @@
                         <a class="nav-link {{ request()->routeIs('empleados*') ? 'active' : '' }}" href="{{ route('empleados') }}" title="Empleados">
                             <i class="fas fa-user-shield"></i>
                             <span class="sidebar-label">Empleados</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('admin.productos.*') ? 'active' : '' }}" href="{{ route('admin.productos.index') }}" title="Gestión de Tienda">
+                            <i class="fas fa-store"></i>
+                            <span class="sidebar-label">Gestión de Tienda</span>
                         </a>
                     </li>
                     <li class="nav-item">
