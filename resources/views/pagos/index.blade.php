@@ -2,6 +2,17 @@
 
 @section('title', 'Pagos y Cobros')
 
+@section('skeleton')
+    <div class="skel-box" style="height: 32px; width: 220px; margin-bottom: 1.5rem;"></div>
+    <div class="skel-row">
+        <div class="skel-box" style="height: 90px; flex: 1;"></div>
+        <div class="skel-box" style="height: 90px; flex: 1;"></div>
+        <div class="skel-box" style="height: 90px; flex: 1;"></div>
+    </div>
+    <div class="skel-box" style="height: 42px; width: 100%; margin-bottom: 0.5rem; border-radius: 8px 8px 0 0;"></div>
+    <div class="skel-box" style="flex: 1; width: 100%; border-radius: 0 0 8px 8px;"></div>
+@endsection
+
 @push('styles')
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css">
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />

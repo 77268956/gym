@@ -2,6 +2,15 @@
 
 @section('title', 'Dashboard Principal')
 
+@section('skeleton')
+    <div class="skel-box" style="height: 32px; width: 250px; margin-bottom: 1.5rem;"></div>
+    <div class="skel-box" style="height: 100px; width: 100%; margin-bottom: 1.5rem;"></div>
+    <div class="skel-row">
+        <div class="skel-box" style="height: 220px; flex: 1;"></div>
+        <div class="skel-box" style="height: 220px; flex: 1;"></div>
+    </div>
+@endsection
+
 @section('content')
 <div class="row">
     <div class="col-md-12">

@@ -2,6 +2,12 @@
 
 @section('title', 'Empleados / Staff')
 
+@section('skeleton')
+    <div class="skel-box" style="height: 32px; width: 220px; margin-bottom: 1.5rem;"></div>
+    <div class="skel-box" style="height: 42px; width: 100%; margin-bottom: 0.5rem; border-radius: 8px 8px 0 0;"></div>
+    <div class="skel-box" style="flex: 1; width: 100%; border-radius: 0 0 8px 8px;"></div>
+@endsection
+
 @push('styles')
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css">
 <style>

@@ -2,6 +2,16 @@
 
 @section('title', 'Expediente del Cliente - ' . $cliente->nombre)
 
+@section('skeleton')
+    <div class="skel-box" style="height: 32px; width: 300px; margin-bottom: 1.5rem;"></div>
+    <div class="skel-box" style="height: 140px; width: 100%; margin-bottom: 1.5rem;"></div>
+    <div class="skel-row">
+        <div class="skel-box" style="height: 200px; flex: 2;"></div>
+        <div class="skel-box" style="height: 200px; flex: 1;"></div>
+    </div>
+    <div class="skel-box" style="height: 250px; width: 100%;"></div>
+@endsection
+
 @push('styles')
 <style>
     .ic-profile-header { background: var(--primary); color: white; border-radius: 12px; padding: 2rem; position: relative; overflow: hidden; }

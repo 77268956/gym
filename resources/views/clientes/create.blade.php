@@ -2,6 +2,24 @@
 
 @section('title', 'Nuevo Socio / Cliente')
 
+@section('skeleton')
+    <div class="skel-box" style="height: 32px; width: 250px; margin-bottom: 1.5rem;"></div>
+    <div class="skel-box" style="height: 50px; width: 100%; margin-bottom: 1rem;"></div>
+    <div class="skel-row">
+        <div class="skel-box" style="height: 45px; flex: 1;"></div>
+        <div class="skel-box" style="height: 45px; flex: 1;"></div>
+    </div>
+    <div class="skel-row">
+        <div class="skel-box" style="height: 45px; flex: 1;"></div>
+        <div class="skel-box" style="height: 45px; flex: 1;"></div>
+    </div>
+    <div class="skel-row">
+        <div class="skel-box" style="height: 45px; flex: 1;"></div>
+        <div class="skel-box" style="height: 45px; flex: 1;"></div>
+    </div>
+    <div class="skel-box" style="height: 45px; width: 180px; margin-top: 1rem;"></div>
+@endsection
+
 @push('styles')
 <style>
     body, html { overflow: hidden; height: 100%; }

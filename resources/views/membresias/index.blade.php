@@ -2,6 +2,20 @@
 
 @section('title', 'Tipos de Membresía')
 
+@section('skeleton')
+    <div class="skel-box" style="height: 32px; width: 250px; margin-bottom: 1.5rem;"></div>
+    <div class="skel-row">
+        <div class="skel-box" style="height: 200px; flex: 1;"></div>
+        <div class="skel-box" style="height: 200px; flex: 1;"></div>
+        <div class="skel-box" style="height: 200px; flex: 1;"></div>
+    </div>
+    <div class="skel-row">
+        <div class="skel-box" style="height: 200px; flex: 1;"></div>
+        <div class="skel-box" style="height: 200px; flex: 1;"></div>
+        <div class="skel-box" style="height: 200px; flex: 1;"></div>
+    </div>
+@endsection
+
 @push('styles')
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css">
 <style>

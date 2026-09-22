@@ -2,6 +2,20 @@
 
 @section('title', 'Procesar Cobro')
 
+@section('skeleton')
+    <div class="skel-box" style="height: 32px; width: 220px; margin-bottom: 1.5rem;"></div>
+    <div class="skel-box" style="height: 50px; width: 100%; margin-bottom: 1rem;"></div>
+    <div class="skel-row">
+        <div class="skel-box" style="height: 45px; flex: 1;"></div>
+        <div class="skel-box" style="height: 45px; flex: 1;"></div>
+    </div>
+    <div class="skel-row">
+        <div class="skel-box" style="height: 45px; flex: 1;"></div>
+        <div class="skel-box" style="height: 45px; flex: 1;"></div>
+    </div>
+    <div class="skel-box" style="height: 45px; width: 180px; margin-top: 1rem;"></div>
+@endsection
+
 @push('styles')
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <style>

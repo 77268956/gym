@@ -2,6 +2,19 @@
 
 @section('title', 'Nuevo Empleado / Recepcionista')
 
+@section('skeleton')
+    <div class="skel-box" style="height: 32px; width: 300px; margin-bottom: 1.5rem;"></div>
+    <div class="skel-row">
+        <div class="skel-box" style="height: 45px; flex: 1;"></div>
+        <div class="skel-box" style="height: 45px; flex: 1;"></div>
+    </div>
+    <div class="skel-row">
+        <div class="skel-box" style="height: 45px; flex: 1;"></div>
+        <div class="skel-box" style="height: 45px; flex: 1;"></div>
+    </div>
+    <div class="skel-box" style="height: 45px; width: 180px; margin-top: 1rem;"></div>
+@endsection
+
 @push('styles')
 <style>
     body, html { overflow: hidden; height: 100%; }

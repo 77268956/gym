@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $gymConfig->nombre_gimnasio ?? 'EcoGim' }} - @yield('title', 'Admin')</title>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <!-- Modern Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -40,6 +41,39 @@
             background-color: var(--background-light);
             color: var(--text-main);
             letter-spacing: -0.01em;
+            overflow-x: hidden;
+        }
+
+        /* =========================================================
+           SCROLLBARS
+        ========================================================= */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F1F5F9; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #CBD5E1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94A3B8; 
+        }
+
+        .sidebar-inner::-webkit-scrollbar {
+            width: 5px;
+        }
+        .sidebar-inner::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .sidebar-inner::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+        .sidebar-inner::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
         }
 
         .btn-primary {
@@ -62,49 +96,16 @@
         ========================================================= */
         .topbar {
             position: fixed;
-            top: 0; left: 0; right: 0;
+            top: 0; left: var(--sidebar-w); right: 0;
             height: var(--navbar-h);
-            z-index: 200;
+            z-index: 150;
             background: var(--topbar-bg);
             display: flex;
             align-items: center;
             box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03);
             border-bottom: 1px solid #E2E8F0;
+            transition: left var(--trans);
         }
-        .topbar-brand {
-            width: var(--sidebar-w);
-            flex-shrink: 0;
-            padding: 0 1.5rem;
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--sidebar-bg);
-            white-space: nowrap;
-            overflow: hidden;
-            transition: width var(--trans);
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-        }
-        .topbar-brand:hover { color: var(--primary); text-decoration: none; }
-        .topbar-actions {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            padding: 0 1rem;
-        }
-        .topbar-toggle {
-            background: #F8FAFC;
-            border: 1px solid #E2E8F0;
-            color: var(--text-main);
-            font-size: 1rem;
-            cursor: pointer;
-            padding: 8px 12px;
-            border-radius: 6px;
-            line-height: 1;
-            transition: all 0.2s;
-        }
-        .topbar-toggle:hover { background: #F1F5F9; color: var(--primary); }
-        .topbar-toggle i { transition: transform var(--trans); display: block; }
         
         .topbar-right {
             margin-left: auto;
@@ -129,11 +130,11 @@
         ========================================================= */
         .sidebar {
             position: fixed;
-            top: var(--navbar-h);
+            top: 0;
             left: 0;
             bottom: 0;
             width: var(--sidebar-w);
-            z-index: 150;
+            z-index: 200;
             background: var(--sidebar-bg);
             overflow: hidden;
             transition: width var(--trans);
@@ -141,6 +142,43 @@
             flex-direction: column;
             box-shadow: 2px 0 8px rgba(0,0,0,.05);
         }
+        .sidebar-header {
+            height: var(--navbar-h);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1.2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(0, 0, 0, 0.1);
+            flex-shrink: 0;
+        }
+        .sidebar-brand {
+            color: #F8FAFC;
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        .sidebar-brand:hover { color: #fff; text-decoration: none; }
+        
+        .sidebar-toggle {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #F8FAFC;
+            font-size: 1rem;
+            cursor: pointer;
+            padding: 6px 10px;
+            border-radius: 6px;
+            line-height: 1;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .sidebar-toggle:hover { background: rgba(255, 255, 255, 0.2); color: #fff; }
+        .sidebar-toggle i { transition: transform var(--trans); display: block; }
+
         .sidebar-inner {
             flex: 1;
             width: 100%;
@@ -276,9 +314,11 @@
            COLLAPSED STATE (desktop)
         ========================================================= */
         body.sidebar-collapsed .sidebar          { width: var(--sidebar-cw); }
+        body.sidebar-collapsed .topbar           { left: var(--sidebar-cw); }
         body.sidebar-collapsed #page-wrapper     { margin-left: var(--sidebar-cw); }
-        body.sidebar-collapsed .topbar-brand     { width: var(--sidebar-cw); padding: 0; justify-content: center; }
-        body.sidebar-collapsed .topbar-brand span { display: none; } /* Hide text */
+        
+        body.sidebar-collapsed .sidebar-header   { padding: 0; justify-content: center; }
+        body.sidebar-collapsed .sidebar-brand    { display: none; }
         
         body.sidebar-collapsed .sidebar .nav-link {
             justify-content: center;
@@ -287,7 +327,7 @@
         body.sidebar-collapsed .sidebar .nav-link i  { margin-right: 0; font-size: 1.25rem; }
         body.sidebar-collapsed .sidebar-label,
         body.sidebar-collapsed .sidebar-heading      { display: none; }
-        body.sidebar-collapsed .topbar-toggle i      { transform: rotate(180deg); }
+        body.sidebar-collapsed .sidebar-toggle i      { transform: rotate(180deg); }
 
         /* Sidebar Footer Collapsed */
         body.sidebar-collapsed .sidebar-footer { padding: 1rem 0; text-align: center; }
@@ -314,8 +354,7 @@
            MOBILE  (<768px)
         ========================================================= */
         @media (max-width: 767.98px) {
-            .topbar-brand        { display: none; }
-            .topbar-actions      { display: none; }
+            .topbar { left: 0 !important; }
             .topbar-mobile-toggle {
                 display: flex;
                 align-items: center;
@@ -326,7 +365,7 @@
             .sidebar {
                 transform: translateX(-100%);
                 width: 280px !important;
-                z-index: 150;
+                z-index: 200;
             }
             body.mobile-sidebar-open .sidebar { transform: translateX(0); }
             #page-wrapper { margin-left: 0 !important; }
@@ -334,6 +373,8 @@
 
             body.sidebar-collapsed .sidebar     { width: 280px !important; transform: translateX(-100%); }
             body.sidebar-collapsed #page-wrapper { margin-left: 0 !important; }
+            body.sidebar-collapsed .sidebar-header { justify-content: space-between; padding: 0 1.2rem; }
+            body.sidebar-collapsed .sidebar-brand { display: flex; }
             body.sidebar-collapsed .sidebar .nav-link { justify-content: flex-start; padding: 12px 24px; }
             body.sidebar-collapsed .sidebar .nav-link i { margin-right: 12px; }
             body.sidebar-collapsed .sidebar-label,
@@ -358,25 +399,6 @@
             <i class="fas fa-bars"></i>
         </button>
 
-        <!-- Brand / Logo -->
-        <a class="topbar-brand" href="{{ route('dashboard') }}">
-            @if(isset($gymConfig) && $gymConfig->logo_path)
-                <img src="{{ asset('storage/' . $gymConfig->logo_path) }}" alt="Logo" style="height: 32px; max-height: 36px; max-width: 140px; object-fit: contain;" class="mr-3">
-            @else
-                <div class="d-flex align-items-center justify-content-center bg-primary text-white rounded mr-2" style="width: 32px; height: 32px;">
-                    <i class="fas fa-dumbbell font-weight-bold" style="font-size: 0.9rem;"></i>
-                </div>
-            @endif
-            <span>{{ $gymConfig->nombre_gimnasio ?? 'EcoGim' }}</span>
-        </a>
-
-        <!-- Desktop Toggle -->
-        <div class="topbar-actions">
-            <button id="sidebarToggle" class="topbar-toggle" title="Colapsar menu">
-                <i class="fas fa-bars"></i>
-            </button>
-        </div>
-
         <div class="topbar-right">
             <!-- Empty for now, can add notifications or clock here later -->
         </div>
@@ -387,6 +409,24 @@
 
     <!-- ===== SIDEBAR ===== -->
     <aside id="sidebar" class="sidebar">
+        <!-- Sidebar Header (Brand & Toggle) -->
+        <div class="sidebar-header">
+            <a class="sidebar-brand" href="{{ route('dashboard') }}">
+                @if(isset($gymConfig) && $gymConfig->logo_path)
+                    <img src="{{ asset('storage/' . $gymConfig->logo_path) }}" alt="Logo" style="height: 32px; max-height: 36px; max-width: 140px; object-fit: contain;" class="mr-2">
+                @else
+                    <div class="d-flex align-items-center justify-content-center bg-primary text-white rounded mr-2 flex-shrink-0" style="width: 32px; height: 32px;">
+                        <i class="fas fa-dumbbell font-weight-bold" style="font-size: 0.9rem;"></i>
+                    </div>
+                @endif
+                <span>{{ $gymConfig->nombre_gimnasio ?? 'EcoGim' }}</span>
+            </a>
+            
+            <button id="sidebarToggle" class="sidebar-toggle" title="Colapsar menu">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+
         <div class="sidebar-inner">
             <ul class="nav flex-column mt-2">
                 <li class="nav-item">
@@ -575,6 +615,205 @@
                 if (result.isConfirmed) {
                     form.submit();
                 }
+            });
+        });
+    </script>
+
+    <!-- ===== ANIME.JS (Animaciones Globales y Skeleton) ===== -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
+    
+    <!-- Skeleton Overlay Styles -->
+    <style>
+        .global-skeleton-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--background-light);
+            z-index: 9999;
+            display: flex;
+        }
+        .skel-sidebar {
+            width: var(--sidebar-w);
+            background: var(--sidebar-bg);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+        .skel-sidebar-header {
+            height: var(--navbar-h);
+            display: flex;
+            align-items: center;
+            padding: 0 1.2rem;
+            margin: -1.5rem -1.5rem 1rem -1.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            background: rgba(0,0,0,0.1);
+        }
+        .skel-main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .skel-topbar {
+            height: var(--navbar-h);
+            background: #fff;
+            border-bottom: 1px solid #E2E8F0;
+            flex-shrink: 0;
+        }
+        .skel-main {
+            flex: 1;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .skel-box {
+            background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+            background-size: 400% 100%;
+            animation: skel-loading 1.5s infinite;
+            border-radius: 8px;
+        }
+        .skel-sidebar .skel-box {
+            background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
+            background-size: 400% 100%;
+            animation: skel-loading 1.5s infinite;
+        }
+        .skel-row {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        @keyframes skel-loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        @media (max-width: 767.98px) {
+            .skel-sidebar { display: none; }
+        }
+    </style>
+
+    <!-- Skeleton HTML -->
+    <div id="globalSkeleton" class="global-skeleton-overlay">
+        {{-- Sidebar skeleton --}}
+        <div class="skel-sidebar">
+            <div class="skel-sidebar-header">
+                <div class="skel-box" style="height: 28px; width: 70%;"></div>
+            </div>
+            <div class="skel-box" style="height: 18px; width: 50%; margin-bottom: 2rem;"></div>
+            <div class="skel-box" style="height: 16px; width: 85%; margin-bottom: 1rem;"></div>
+            <div class="skel-box" style="height: 16px; width: 75%; margin-bottom: 1rem;"></div>
+            <div class="skel-box" style="height: 16px; width: 90%; margin-bottom: 1rem;"></div>
+            <div class="skel-box" style="height: 16px; width: 70%; margin-bottom: 1rem;"></div>
+            <div class="skel-box" style="height: 16px; width: 80%; margin-bottom: 1rem;"></div>
+            <div class="skel-box" style="height: 16px; width: 65%; margin-bottom: 1rem;"></div>
+        </div>
+
+        {{-- Main area skeleton --}}
+        <div class="skel-main-wrapper">
+            <div class="skel-topbar"></div>
+            <div class="skel-main">
+                @hasSection('skeleton')
+                    @yield('skeleton')
+                @else
+                    {{-- Default skeleton: título + 4 stat cards + tabla --}}
+                    <div class="skel-box" style="height: 32px; width: 220px; margin-bottom: 1.5rem;"></div>
+                    <div class="skel-row">
+                        <div class="skel-box" style="height: 90px; flex: 1;"></div>
+                        <div class="skel-box" style="height: 90px; flex: 1;"></div>
+                        <div class="skel-box" style="height: 90px; flex: 1;"></div>
+                        <div class="skel-box" style="height: 90px; flex: 1;"></div>
+                    </div>
+                    <div class="skel-box" style="height: 42px; width: 100%; margin-bottom: 0.5rem; border-radius: 8px 8px 0 0;"></div>
+                    <div class="skel-box" style="flex: 1; width: 100%; border-radius: 0 0 8px 8px;"></div>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var skeleton = document.getElementById('globalSkeleton');
+            
+            // Ocultar contenido real inicialmente
+            var mainContent = document.querySelectorAll('main .page-header, .ic-card, .card, .ic-table-container, .table-panel, form, .content-section');
+            var sidebarItems = document.querySelectorAll('.sidebar .nav-item, .sidebar-heading, .sidebar-brand');
+            
+            mainContent.forEach(function(el) { el.style.opacity = '0'; });
+            sidebarItems.forEach(function(el) { el.style.opacity = '0'; });
+
+            setTimeout(function() {
+                anime({
+                    targets: skeleton,
+                    opacity: 0,
+                    duration: 400,
+                    easing: 'linear',
+                    complete: function() {
+                        skeleton.style.display = 'none';
+                        
+                        // 1. Page header
+                        anime({
+                            targets: 'main .page-header',
+                            opacity: [0, 1],
+                            translateY: [-20, 0],
+                            duration: 800,
+                            easing: 'easeOutExpo'
+                        });
+
+                        // 2. Cards y tablas escalonadas
+                        anime({
+                            targets: '.ic-card, .card, .ic-table-container, .content-section',
+                            translateY: [20, 0],
+                            opacity: [0, 1],
+                            delay: anime.stagger(100),
+                            duration: 800,
+                            easing: 'easeOutExpo'
+                        });
+
+                        // 3. Formularios
+                        anime({
+                            targets: 'main form',
+                            opacity: [0, 1],
+                            translateY: [15, 0],
+                            duration: 700,
+                            easing: 'easeOutExpo'
+                        });
+
+                        // 4. Sidebar items
+                        anime({
+                            targets: '.sidebar .nav-item, .sidebar-heading',
+                            translateX: [-20, 0],
+                            opacity: [0, 1],
+                            delay: anime.stagger(40),
+                            duration: 600,
+                            easing: 'easeOutExpo'
+                        });
+
+                        // 5. Logo pop
+                        anime({
+                            targets: '.sidebar-brand',
+                            scale: [0.9, 1],
+                            opacity: [0, 1],
+                            duration: 1000,
+                            easing: 'easeOutElastic(1, .5)'
+                        });
+                    }
+                });
+            }, 300);
+
+            // Interacción hover en botones
+            var buttons = document.querySelectorAll('.btn-primary, .ic-action-btn-primary');
+            buttons.forEach(function(btn) {
+                btn.addEventListener('mouseenter', function() {
+                    anime.remove(btn);
+                    anime({ targets: btn, scale: 1.05, duration: 300, easing: 'easeOutQuad' });
+                });
+                btn.addEventListener('mouseleave', function() {
+                    anime.remove(btn);
+                    anime({ targets: btn, scale: 1, duration: 300, easing: 'easeOutQuad' });
+                });
+                btn.addEventListener('mousedown', function() {
+                    anime.remove(btn);
+                    anime({ targets: btn, scale: 0.95, duration: 100, easing: 'easeOutQuad' });
+                });
             });
         });
     </script>
