@@ -14,10 +14,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return redirect()->route('login');
-
-    // Módulo de Asistencias (Escáner Facial)
-    Route::get('/escanear', [AsistenciaController::class, 'escanear'])->name('asistencias.escanear');
-    Route::post('/escanear/registrar', [AsistenciaController::class, 'registrarEscaneo'])->name('asistencias.registrar');
 });
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -28,6 +24,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/escanear-publico', [AsistenciaController::class, 'escanear'])->name('asistencias.publico');
 Route::post('/escanear-publico/registrar', [AsistenciaController::class, 'registrarEscaneo'])->name('asistencias.publico.registrar');
 
+// Rutas autenticadas (Accesibles para Recepcionista y Administrador)
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
         return view('dashboard');
@@ -37,56 +34,63 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/user', [UserController::class, 'userget'])->name('user');
 
-    // Módulo de Clientes
+    // Módulo de Clientes (Recepción)
     Route::get('/clientes/crear', [ClienteController::class, 'create'])->name('clientes.create');
     Route::post('/clientes', [ClienteController::class, 'store'])->name('clientes.store');
     Route::get('/clientes/{cliente}', [ClienteController::class, 'show'])->name('clientes.show');
     Route::get('/clientes/{cliente}/editar', [ClienteController::class, 'edit'])->name('clientes.edit');
     Route::put('/clientes/{cliente}', [ClienteController::class, 'update'])->name('clientes.update');
-    Route::delete('/clientes/{cliente}', [ClienteController::class, 'destroy'])->name('clientes.destroy');
-    Route::patch('/clientes/{cliente}/toggle', [ClienteController::class, 'toggleStatus'])->name('clientes.toggleStatus');
 
-    // Módulo de Empleados
-    Route::get('/empleados', [EmpleadoController::class, 'index'])->name('empleados');
-    Route::get('/empleados/crear', [EmpleadoController::class, 'create'])->name('empleados.create');
-    Route::post('/empleados', [EmpleadoController::class, 'store'])->name('empleados.store');
-    Route::get('/empleados/{empleado}/editar', [EmpleadoController::class, 'edit'])->name('empleados.edit');
-    Route::put('/empleados/{empleado}', [EmpleadoController::class, 'update'])->name('empleados.update');
-    Route::delete('/empleados/{empleado}', [EmpleadoController::class, 'destroy'])->name('empleados.destroy');
-    Route::patch('/empleados/{empleado}/toggle', [EmpleadoController::class, 'toggleStatus'])->name('empleados.toggleStatus');
-
-    // Módulo de Pagos
+    // Módulo de Pagos (Recepción)
     Route::get('/pagos', [PagoController::class, 'index'])->name('pagos.index');
     Route::get('/pagos/nuevo', [PagoController::class, 'create'])->name('pagos.create');
     Route::post('/pagos', [PagoController::class, 'store'])->name('pagos.store');
     Route::get('/pagos/cliente/{cliente}/info', [PagoController::class, 'clienteInfo'])->name('pagos.clienteInfo');
     Route::get('/pagos/buscar-clientes', [PagoController::class, 'buscarClientes'])->name('pagos.buscarClientes');
 
-    // configuracion del sistema
-    Route::get('/configuracion', [ConfiguracionController::class, 'index'])->name('configuracion.index');
-    Route::post('/configuracion', [ConfiguracionController::class, 'update'])->name('configuracion.update');
-
-    // Módulo Tipos de Membresía / Planes y Servicios
+    // Consulta de Tipos de Membresía / Planes
     Route::get('/membresias', [TipoMembresiaController::class, 'index'])->name('membresias.index');
-    Route::post('/membresias', [TipoMembresiaController::class, 'store'])->name('membresias.store');
-    Route::put('/membresias/{tipoMembresia}', [TipoMembresiaController::class, 'update'])->name('membresias.update');
-    Route::delete('/membresias/{tipoMembresia}', [TipoMembresiaController::class, 'destroy'])->name('membresias.destroy');
-    Route::patch('/membresias/{tipoMembresia}/toggle', [TipoMembresiaController::class, 'toggleStatus'])->name('membresias.toggleStatus');
 
     // Módulo de Asistencias (Escáner Facial)
     Route::get('/escanear', [AsistenciaController::class, 'escanear'])->name('asistencias.escanear');
     Route::post('/escanear/registrar', [AsistenciaController::class, 'registrarEscaneo'])->name('asistencias.registrar');
 
-    // Tienda EcoGim
+    // Tienda EcoGim (Canjes por Recepción)
     Route::get('/tienda', [TiendaController::class, 'index'])->name('tienda.index');
     Route::post('/tienda/canjear', [TiendaController::class, 'canjear'])->name('tienda.canjear');
     Route::get('/tienda/cliente/{cliente}/info', [TiendaController::class, 'clienteInfo'])->name('tienda.clienteInfo');
     Route::get('/tienda/buscar-clientes', [TiendaController::class, 'buscarClientes'])->name('tienda.buscarClientes');
 
-    // Administración: Gestión de Tienda / Productos
-    Route::get('/admin/productos', [ProductoEcogimController::class, 'index'])->name('admin.productos.index');
-    Route::post('/admin/productos', [ProductoEcogimController::class, 'store'])->name('admin.productos.store');
-    Route::put('/admin/productos/{producto}', [ProductoEcogimController::class, 'update'])->name('admin.productos.update');
-    Route::delete('/admin/productos/{producto}', [ProductoEcogimController::class, 'destroy'])->name('admin.productos.destroy');
-    Route::patch('/admin/productos/{producto}/toggle', [ProductoEcogimController::class, 'toggleStatus'])->name('admin.productos.toggleStatus');
+    // Rutas Exclusivas de Administrador
+    Route::middleware('admin')->group(function () {
+        // Acciones destructivas o administrativas sobre Clientes
+        Route::delete('/clientes/{cliente}', [ClienteController::class, 'destroy'])->name('clientes.destroy');
+        Route::patch('/clientes/{cliente}/toggle', [ClienteController::class, 'toggleStatus'])->name('clientes.toggleStatus');
+
+        // Módulo de Empleados / Staff
+        Route::get('/empleados', [EmpleadoController::class, 'index'])->name('empleados');
+        Route::get('/empleados/crear', [EmpleadoController::class, 'create'])->name('empleados.create');
+        Route::post('/empleados', [EmpleadoController::class, 'store'])->name('empleados.store');
+        Route::get('/empleados/{empleado}/editar', [EmpleadoController::class, 'edit'])->name('empleados.edit');
+        Route::put('/empleados/{empleado}', [EmpleadoController::class, 'update'])->name('empleados.update');
+        Route::delete('/empleados/{empleado}', [EmpleadoController::class, 'destroy'])->name('empleados.destroy');
+        Route::patch('/empleados/{empleado}/toggle', [EmpleadoController::class, 'toggleStatus'])->name('empleados.toggleStatus');
+
+        // Configuración del Sistema
+        Route::get('/configuracion', [ConfiguracionController::class, 'index'])->name('configuracion.index');
+        Route::post('/configuracion', [ConfiguracionController::class, 'update'])->name('configuracion.update');
+
+        // Edición de Planes de Membresía
+        Route::post('/membresias', [TipoMembresiaController::class, 'store'])->name('membresias.store');
+        Route::put('/membresias/{tipoMembresia}', [TipoMembresiaController::class, 'update'])->name('membresias.update');
+        Route::delete('/membresias/{tipoMembresia}', [TipoMembresiaController::class, 'destroy'])->name('membresias.destroy');
+        Route::patch('/membresias/{tipoMembresia}/toggle', [TipoMembresiaController::class, 'toggleStatus'])->name('membresias.toggleStatus');
+
+        // Administración: Gestión de Tienda / Productos
+        Route::get('/admin/productos', [ProductoEcogimController::class, 'index'])->name('admin.productos.index');
+        Route::post('/admin/productos', [ProductoEcogimController::class, 'store'])->name('admin.productos.store');
+        Route::put('/admin/productos/{producto}', [ProductoEcogimController::class, 'update'])->name('admin.productos.update');
+        Route::delete('/admin/productos/{producto}', [ProductoEcogimController::class, 'destroy'])->name('admin.productos.destroy');
+        Route::patch('/admin/productos/{producto}/toggle', [ProductoEcogimController::class, 'toggleStatus'])->name('admin.productos.toggleStatus');
+    });
 });

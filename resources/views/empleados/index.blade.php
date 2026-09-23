@@ -28,6 +28,7 @@
     
     :root {
         --ic-accent: var(--primary);
+        --card-color: var(--sidebar-bg);
         --ic-green: #10B981;
         --ic-red: #EF4444;
         --ic-muted: #64748B;
@@ -43,7 +44,7 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        background: var(--sidebar-bg);
+        background: var(--card-color);
         height: 100%;
     }
     .kpi-icon { font-size: 1.8rem; opacity: 0.4; }
@@ -72,14 +73,12 @@
     
     .ic-table thead th { font-size: 0.7rem; color: var(--ic-muted); background: #F8FAFC; border-bottom: 2px solid #E2E8F0; padding: 0.4rem 0.5rem; }
     .ic-table td { font-size: 0.8rem; vertical-align: middle; white-space: nowrap; border-top: 1px solid #F1F5F9; padding: 0.4rem 0.5rem; }
-    .ic-avatar { width: 30px; height: 30px; background: #E0E7FF; color: #3730A3; font-weight: bold; font-size:0.7rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .ic-avatar { width: 30px; height: 30px; background: var(--card-color); color: white; font-weight: bold; font-size:0.7rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
     
     /* Badges */
-    .ic-badge-active { background: #D1FAE5; color: #059669; padding: 3px 8px; border-radius: 50px; font-weight: 600; font-size: 0.7rem; }
-    .ic-badge-inactive { background: #F1F5F9; color: #475569; padding: 3px 8px; border-radius: 50px; font-weight: 600; font-size: 0.7rem; }
-    .ic-badge-warn { background: #FEF3C7; color: #D97706; padding: 3px 8px; border-radius: 50px; font-weight: 600; font-size: 0.7rem; }
-    .ic-badge-critical { background: #FEE2E2; color: #EF4444; padding: 3px 8px; border-radius: 50px; font-weight: 600; font-size: 0.7rem; }
-    .ic-badge-role { background: var(--sidebar-bg); color: white; padding: 3px 10px; border-radius: 50px; font-weight: 600; font-size: 0.7rem; letter-spacing: 0.05em; }
+    .ic-badge-active, .ic-badge-inactive, .ic-badge-warn, .ic-badge-critical { background: var(--card-color); color: white; padding: 3px 8px; border-radius: 50px; font-weight: 600; font-size: 0.7rem; }
+    .ic-badge-role { background: var(--card-color); color: white; padding: 3px 10px; border-radius: 50px; font-weight: 600; font-size: 0.7rem; letter-spacing: 0.05em; }
+    .ic-card-icon { color: var(--card-color); }
     
     /* List item */
     .ic-list-item { display: flex; justify-content: space-between; align-items: center; padding: 0.4rem 0; border-bottom: 1px solid #F1F5F9; }
@@ -230,7 +229,7 @@
             {{-- Panel Asistencias (Pendientes) --}}
             <div class="ic-card flex-grow-1" style="min-height:0;">
                 <div class="d-flex justify-content-between align-items-center mb-2 flex-shrink-0">
-                    <span class="ic-card-title mb-0"><i class="fas fa-clock text-warning mr-1"></i> Faltan por llegar</span>
+                    <span class="ic-card-title mb-0"><i class="fas fa-clock ic-card-icon mr-1"></i> Faltan por llegar</span>
                     <span class="ic-badge-warn">HOY</span>
                 </div>
                 <div style="overflow-y:auto; padding-right:4px;">

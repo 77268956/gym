@@ -12,6 +12,8 @@ class MovimientoPunto extends Model
     /** @use HasFactory<MovimientoPuntoFactory> */
     use HasFactory, SoftDeletes;
 
+    protected $table = 'movimientos_puntos';
+
     protected $fillable = [
         'cliente_id',
         'tipo_movimiento',

@@ -2,6 +2,31 @@
 
 @section('title', 'Mi perfil')
 
+@section('skeleton')
+    <div style="max-width: 980px; margin: 0 auto;">
+        {{-- Hero banner --}}
+        <div class="skel-box" style="height: 100px; width: 100%; margin-bottom: 1.25rem; background: linear-gradient(90deg, rgba(30,41,59,0.3) 25%, rgba(30,41,59,0.4) 50%, rgba(30,41,59,0.3) 75%); background-size: 400% 100%;"></div>
+        {{-- 3 summary stats --}}
+        <div class="skel-row">
+            <div class="skel-box" style="height: 70px; flex: 1;"></div>
+            <div class="skel-box" style="height: 70px; flex: 1;"></div>
+            <div class="skel-box" style="height: 70px; flex: 1;"></div>
+        </div>
+        {{-- Details card --}}
+        <div class="skel-box" style="height: 16px; width: 140px; margin-bottom: 0.75rem;"></div>
+        <div class="skel-row">
+            <div class="skel-box" style="height: 55px; flex: 1;"></div>
+            <div class="skel-box" style="height: 55px; flex: 1;"></div>
+            <div class="skel-box" style="height: 55px; flex: 1;"></div>
+        </div>
+        <div class="skel-row">
+            <div class="skel-box" style="height: 55px; flex: 1;"></div>
+            <div class="skel-box" style="height: 55px; flex: 1;"></div>
+            <div class="skel-box" style="height: 55px; flex: 1;"></div>
+        </div>
+    </div>
+@endsection
+
 @push('styles')
 <style>
     #page-wrapper main { overflow: hidden; }

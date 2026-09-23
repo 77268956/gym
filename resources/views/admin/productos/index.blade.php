@@ -3,15 +3,29 @@
 
 @section('title', 'Gestión de Tienda')
 
+@section('skeleton')
+    <div class="skel-box" style="height: 32px; width: 220px; margin-bottom: 1.5rem;"></div>
+    {{-- 3 KPI cards --}}
+    <div class="skel-row">
+        <div class="skel-box" style="height: 70px; flex: 1;"></div>
+        <div class="skel-box" style="height: 70px; flex: 1;"></div>
+        <div class="skel-box" style="height: 70px; flex: 1;"></div>
+    </div>
+    {{-- Table --}}
+    <div class="skel-box" style="height: 42px; width: 100%; margin-bottom: 0.5rem; border-radius: 8px 8px 0 0;"></div>
+    <div class="skel-box" style="flex: 1; width: 100%; border-radius: 0 0 8px 8px;"></div>
+@endsection
+
 @push('styles')
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css">
 <style>
+    :root { --card-color: var(--sidebar-bg); }
     .ic-card { border:none; border-radius:12px; box-shadow:0 4px 6px rgba(0,0,0,.04); }
-    .ic-table th { background:#f8f9fc; color:#4e73df; text-transform:uppercase; font-size:.75rem; }
-    .ic-status-active { background:#D1FAE5; color:#059669; padding:.35rem .75rem; border-radius:50px; font-size:.75rem; font-weight:600; }
-    .ic-status-inactive { background:#F1F5F9; color:#475569; padding:.35rem .75rem; border-radius:50px; font-size:.75rem; font-weight:600; }
-    .product-thumb { width:45px; height:45px; border-radius:8px; object-fit:cover; background:#F1F5F9; }
-    .stock-badge { font-size:.72rem; font-weight:600; padding:.2rem .6rem; border-radius:50px; }
+    .ic-table th { background:#f8f9fc; color:var(--card-color); text-transform:uppercase; font-size:.75rem; }
+    .ic-status-active, .ic-status-inactive, .ic-category-badge, .stock-badge { background:var(--card-color); color:#fff; padding:.35rem .75rem; border-radius:50px; font-size:.75rem; font-weight:600; }
+    .product-thumb { width:45px; height:45px; border-radius:8px; object-fit:cover; background:var(--card-color); }
+    .stock-badge { font-size:.72rem; padding:.2rem .6rem; }
+    .ic-card-icon { color:var(--card-color); }
 
     .kpi-card {
         border-radius: 10px;
@@ -22,7 +36,7 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        background: var(--sidebar-bg);
+        background: var(--card-color);
         height: 100%;
     }
     .kpi-icon { font-size: 1.8rem; opacity: 0.4; }
@@ -76,7 +90,7 @@
     {{-- Tabla --}}
     <div class="ic-card card">
         <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
-            <h6 class="font-weight-bold mb-0"><i class="fas fa-shopping-bag text-primary mr-2"></i>Productos de la Tienda</h6>
+            <h6 class="font-weight-bold mb-0"><i class="fas fa-shopping-bag ic-card-icon mr-2"></i>Productos de la Tienda</h6>
             <button class="btn btn-primary btn-sm font-weight-bold px-3" onclick="abrirModalCrear()">
                 <i class="fas fa-plus mr-1"></i>Nuevo Producto
             </button>
@@ -103,7 +117,7 @@
                                     @if($producto->imagen)
                                         <img src="{{ asset('storage/' . $producto->imagen) }}" class="product-thumb mr-3" alt="{{ $producto->nombre }}">
                                     @else
-                                        <div class="product-thumb mr-3 d-flex align-items-center justify-content-center text-muted"><i class="fas fa-box"></i></div>
+                                        <div class="product-thumb mr-3 d-flex align-items-center justify-content-center text-white"><i class="fas fa-box"></i></div>
                                     @endif
                                     <div>
                                         <div class="font-weight-bold text-dark">{{ $producto->nombre }}</div>
@@ -113,10 +127,10 @@
                                     </div>
                                 </div>
                             </td>
-                            <td><span class="badge badge-pill badge-light px-3">{{ $producto->categoria ?? '—' }}</span></td>
+                            <td><span class="ic-category-badge">{{ $producto->categoria ?? '—' }}</span></td>
                             <td><strong class="text-primary">{{ number_format($producto->puntos_valor) }}</strong> pts</td>
                             <td>
-                                <span class="stock-badge {{ $producto->stock == 0 ? 'bg-danger text-white' : ($producto->stock <= 5 ? 'bg-warning text-dark' : 'bg-light text-dark') }}">
+                                <span class="stock-badge">
                                     {{ $producto->stock }}
                                 </span>
                             </td>

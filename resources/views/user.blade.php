@@ -2,6 +2,27 @@
 
 @section('title', 'Clientes')
 
+@section('skeleton')
+    {{-- 4 KPI cards --}}
+    <div class="skel-row">
+        <div class="skel-box" style="height: 70px; flex: 1;"></div>
+        <div class="skel-box" style="height: 70px; flex: 1;"></div>
+        <div class="skel-box" style="height: 70px; flex: 1;"></div>
+        <div class="skel-box" style="height: 70px; flex: 1;"></div>
+    </div>
+    {{-- 2-column: tabla izquierda + panel derecho --}}
+    <div style="display: flex; gap: 1rem; flex: 1; min-height: 0;">
+        <div style="flex: 3; display: flex; flex-direction: column; gap: 0.5rem;">
+            <div class="skel-box" style="height: 36px; border-radius: 8px 8px 0 0;"></div>
+            <div class="skel-box" style="flex: 1; border-radius: 0 0 8px 8px;"></div>
+        </div>
+        <div style="flex: 1; display: flex; flex-direction: column; gap: 0.75rem;">
+            <div class="skel-box" style="height: 35%;"></div>
+            <div class="skel-box" style="flex: 1;"></div>
+        </div>
+    </div>
+@endsection
+
 @push('styles')
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css">
 <style>
@@ -22,6 +43,7 @@
     
     :root {
         --ic-accent: var(--primary);
+        --card-color: var(--sidebar-bg);
         --ic-green: #10B981;
         --ic-red: #EF4444;
         --ic-muted: #64748B;
@@ -37,7 +59,7 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        background: var(--sidebar-bg);
+        background: var(--card-color);
         height: 100%;
     }
     .kpi-icon { font-size: 1.8rem; opacity: 0.4; }
@@ -66,13 +88,11 @@
     
     .ic-table thead th { font-size: 0.7rem; color: var(--ic-muted); background: #F8FAFC; border-bottom: 2px solid #E2E8F0; padding: 0.4rem 0.5rem; }
     .ic-table td { font-size: 0.8rem; vertical-align: middle; white-space: nowrap; border-top: 1px solid #F1F5F9; padding: 0.4rem 0.5rem; }
-    .ic-avatar { width: 30px; height: 30px; background: #E0E7FF; color: #3730A3; font-weight: bold; font-size:0.7rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .ic-avatar { width: 30px; height: 30px; background: var(--card-color); color: white; font-weight: bold; font-size:0.7rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .ic-card-icon { color: var(--card-color); }
     
     /* Badges */
-    .ic-badge-active { background: #D1FAE5; color: #059669; padding: 3px 8px; border-radius: 50px; font-weight: 600; font-size: 0.7rem; }
-    .ic-badge-inactive { background: #F1F5F9; color: #475569; padding: 3px 8px; border-radius: 50px; font-weight: 600; font-size: 0.7rem; }
-    .ic-badge-warn { background: #FEF3C7; color: #D97706; padding: 3px 8px; border-radius: 50px; font-weight: 600; font-size: 0.7rem; }
-    .ic-badge-critical { background: #FEE2E2; color: #EF4444; padding: 3px 8px; border-radius: 50px; font-weight: 600; font-size: 0.7rem; }
+    .ic-badge-active, .ic-badge-inactive, .ic-badge-warn, .ic-badge-critical { background: var(--card-color); color: white; padding: 3px 8px; border-radius: 50px; font-weight: 600; font-size: 0.7rem; }
     
     /* List item */
     .ic-list-item { display: flex; justify-content: space-between; align-items: center; padding: 0.4rem 0; border-bottom: 1px solid #F1F5F9; }
@@ -198,10 +218,12 @@
                                         <div class="dropdown-menu dropdown-menu-right" style="font-size:0.8rem;">
                                             <a class="dropdown-item py-1" href="{{ route('clientes.show', $cliente) }}"><i class="fas fa-eye text-info mr-2"></i> Ver</a>
                                             <a class="dropdown-item py-1" href="{{ route('clientes.edit', $cliente) }}"><i class="fas fa-pen text-primary mr-2"></i> Editar</a>
-                                            <form action="{{ route('clientes.destroy', $cliente) }}" method="POST" class="d-inline form-delete">
-                                                @csrf @method('DELETE')
-                                                <button type="submit" class="dropdown-item py-1 text-danger"><i class="fas fa-trash text-danger mr-2"></i> Eliminar</button>
-                                            </form>
+                                            @if(Auth::user() && Auth::user()->rol === 'admin')
+                                                <form action="{{ route('clientes.destroy', $cliente) }}" method="POST" class="d-inline form-delete">
+                                                    @csrf @method('DELETE')
+                                                    <button type="submit" class="dropdown-item py-1 text-danger"><i class="fas fa-trash text-danger mr-2"></i> Eliminar</button>
+                                                </form>
+                                            @endif
                                         </div>
                                     </div>
                                 </td>
@@ -231,7 +253,7 @@
             {{-- Panel Membresías por Vencer --}}
             <div class="ic-card flex-grow-1" style="min-height:0;">
                 <div class="d-flex justify-content-between align-items-center mb-2 flex-shrink-0">
-                    <span class="ic-card-title mb-0"><i class="fas fa-clock text-warning mr-1"></i> Por Vencer</span>
+                    <span class="ic-card-title mb-0"><i class="fas fa-clock ic-card-icon mr-1"></i> Por Vencer</span>
                     <span class="ic-badge-warn">TOP</span>
                 </div>
                 <div style="overflow-y:auto; padding-right:4px;">

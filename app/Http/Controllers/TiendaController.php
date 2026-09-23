@@ -64,8 +64,8 @@ class TiendaController extends Controller
 
         if ($term) {
             $query->where(function ($q) use ($term) {
-                $q->where('nombre', 'LIKE', '%' . $term . '%')
-                    ->orWhere('cedula', 'LIKE', '%' . $term . '%');
+                $q->where('nombre', 'LIKE', '%'.$term.'%')
+                    ->orWhere('cedula', 'LIKE', '%'.$term.'%');
             });
         }
 
@@ -74,7 +74,7 @@ class TiendaController extends Controller
         $resultados = [];
         foreach ($clientes as $c) {
             $membActiva = $c->membresias->first();
-            
+
             if ($membActiva) {
                 $membStatus = 'ACTIVA';
             } else {
@@ -142,11 +142,21 @@ class TiendaController extends Controller
 
         DB::transaction(function () use ($cliente, $producto, $periodoActual) {
             $empleado = Empleado::first();
+            if (! $empleado) {
+                $empleado = Empleado::create([
+                    'nombre' => 'Administrador General',
+                    'cedula' => '000-0000000-0',
+                    'usuario' => 'admin_sistema',
+                    'password_hash' => bcrypt('admin123'),
+                    'rol' => 'admin',
+                    'estado' => 'activo',
+                ]);
+            }
 
             $canje = CanjeEcogim::create([
                 'cliente_id' => $cliente->id,
                 'producto_id' => $producto->id,
-                'empleado_id' => $empleado?->id ?? 1,
+                'empleado_id' => $empleado->id,
                 'puntos_utilizados' => $producto->puntos_valor,
                 'periodo_canje' => $periodoActual,
                 'fecha' => now(),

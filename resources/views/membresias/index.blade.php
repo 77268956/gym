@@ -28,11 +28,13 @@
     .page-header { flex-shrink: 0; margin-bottom: 0.75rem !important; }
     .main-container { flex: 1; overflow: hidden; display: flex; flex-direction: column; padding: 0 !important; }
 
+    :root { --card-color: var(--sidebar-bg); }
+
     .kpi-card {
         border-radius: 8px; border: none; padding: 0.5rem 1rem;
         color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         display: flex; justify-content: space-between; align-items: center;
-        background: var(--sidebar-bg); height: 100%;
+        background: var(--card-color); height: 100%;
     }
     .kpi-icon { font-size: 1.6rem; opacity: 0.4; }
     .kpi-value { font-size: 1.3rem; font-weight: 800; margin: 0; line-height: 1; }
@@ -54,8 +56,9 @@
     .ic-table thead th { font-size: 0.7rem; color: #64748B; background: #F8FAFC; border-bottom: 2px solid #E2E8F0; padding: 0.5rem; white-space: nowrap; }
     .ic-table td { font-size: 0.85rem; vertical-align: middle; white-space: nowrap; border-top: 1px solid #F1F5F9; padding: 0.5rem; }
 
-    .ic-badge-active { background: #D1FAE5; color: #059669; padding: 3px 8px; border-radius: 50px; font-weight: 600; font-size: 0.7rem; }
-    .ic-badge-inactive { background: #F1F5F9; color: #475569; padding: 3px 8px; border-radius: 50px; font-weight: 600; font-size: 0.7rem; }
+    .ic-badge-active, .ic-badge-inactive, .ic-status-badge { background: var(--card-color); color: white; padding: 3px 8px; border-radius: 50px; font-weight: 600; font-size: 0.7rem; }
+    .ic-card-icon { color: var(--card-color); }
+    .ic-status-badge .ic-card-icon { color: white; }
 
     .ic-list-item { display: flex; justify-content: space-between; align-items: center; padding: 0.4rem 0; border-bottom: 1px solid #F1F5F9; }
     .ic-list-item:last-child { border-bottom: none; }
@@ -64,15 +67,17 @@
 
     .row.tight { margin-bottom: 0.75rem; }
 
-    .custom-tab-btn.active { background-color: var(--primary) !important; color: #fff !important; border-color: var(--primary) !important; }
+    .ic-color-btn { color: var(--card-color) !important; border-color: var(--card-color) !important; }
+    .ic-color-btn:hover, .ic-color-btn.active { background-color: var(--card-color) !important; color: #fff !important; border-color: var(--card-color) !important; }
     
     /* Plan Pricing Card */
     .plan-card { border: 1px solid #E2E8F0; border-radius: .75rem; transition: transform .2s; background: #fff; height: 100%; display: flex; flex-direction: column; }
     .plan-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,.06); border-color: var(--primary); }
     .plan-card-header { padding: 1rem; border-bottom: 1px solid #f1f1ef; }
-    .plan-price { font-size: 1.6rem; font-weight: 800; color: #1c1c1a; }
+    .plan-price { font-size: 1.6rem; font-weight: 800; color: var(--card-color); }
     .plan-card-body { padding: 1rem; flex: 1; }
     .plan-card-footer { padding: 0.75rem 1rem; background: #fafaf8; border-top: 1px solid #f1f1ef; border-radius: 0 0 .75rem .75rem; }
+    .plan-card h6, .plan-card .plan-card-body, .plan-card .plan-card-body p, .plan-card .plan-card-body li, .plan-card .plan-card-body small { color: var(--card-color) !important; }
 </style>
 @endpush
 
@@ -111,7 +116,7 @@
         <div class="col-md-3">
             <div class="kpi-card">
                 <div>
-                    <h3 class="kpi-value text-info">${{ number_format($precioPromedio, 2) }}</h3>
+                    <h3 class="kpi-value">${{ number_format($precioPromedio, 2) }}</h3>
                     <div class="kpi-label">Precio Promedio</div>
                 </div>
                 <i class="fas fa-tag kpi-icon"></i>
@@ -131,16 +136,18 @@
                     </h5>
                     <div class="d-flex align-items-center mt-2 mt-md-0">
                         <div class="btn-group btn-group-sm mr-2" role="group">
-                            <button type="button" class="btn btn-outline-primary custom-tab-btn active" id="btnViewTable" onclick="switchView('table')">
+                            <button type="button" class="btn btn-outline-primary ic-color-btn custom-tab-btn active" id="btnViewTable" onclick="switchView('table')">
                                 <i class="fas fa-list mr-1"></i> Tabla
                             </button>
-                            <button type="button" class="btn btn-outline-primary custom-tab-btn" id="btnViewCards" onclick="switchView('cards')">
+                            <button type="button" class="btn btn-outline-primary ic-color-btn custom-tab-btn" id="btnViewCards" onclick="switchView('cards')">
                                 <i class="fas fa-th-large mr-1"></i> Tarjetas
                             </button>
                         </div>
-                        <button type="button" class="btn btn-primary btn-sm py-1 px-2 font-weight-bold" data-toggle="modal" data-target="#modalCrearPlan" style="font-size:0.75rem;">
-                            <i class="fas fa-plus mr-1"></i> Nuevo Plan
-                        </button>
+                        @if(Auth::user() && Auth::user()->rol === 'admin')
+                            <button type="button" class="btn btn-primary btn-sm py-1 px-2 font-weight-bold" data-toggle="modal" data-target="#modalCrearPlan" style="font-size:0.75rem;">
+                                <i class="fas fa-plus mr-1"></i> Nuevo Plan
+                            </button>
+                        @endif
                     </div>
                 </div>
 
@@ -162,7 +169,7 @@
                             <tr>
                                 <td>
                                     <div class="d-flex align-items-center">
-                                        <div class="rounded-circle d-flex align-items-center justify-content-center mr-2 text-white font-weight-bold" style="width:30px;height:30px;font-size:0.7rem;background:var(--sidebar-bg);">
+                                        <div class="rounded-circle d-flex align-items-center justify-content-center mr-2 text-white font-weight-bold" style="width:30px;height:30px;font-size:0.7rem;background:var(--card-color);">
                                             <i class="fas fa-dumbbell"></i>
                                         </div>
                                         <div>
@@ -172,8 +179,8 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <span class="badge badge-light border px-2 py-1 text-dark" style="font-size:.78rem;">
-                                        <i class="far fa-clock mr-1 text-muted"></i> {{ $plan->duracion_dias }} {{ $plan->duracion_dias == 1 ? 'Día' : 'Días' }}
+                                    <span class="ic-status-badge px-2 py-1" style="font-size:.78rem;">
+                                        <i class="far fa-clock ic-card-icon mr-1"></i> {{ $plan->duracion_dias }} {{ $plan->duracion_dias == 1 ? 'Día' : 'Días' }}
                                     </span>
                                 </td>
                                 <td class="font-weight-bold text-success">${{ number_format($plan->precio, 2) }}</td>
@@ -188,27 +195,31 @@
                                     </span>
                                 </td>
                                 <td class="text-center py-1">
-                                    <div class="dropdown">
-                                        <button class="btn btn-sm btn-light py-0 px-2" type="button" data-toggle="dropdown"><i class="fas fa-ellipsis-v"></i></button>
-                                        <div class="dropdown-menu dropdown-menu-right" style="font-size:0.8rem;">
-                                            <button class="dropdown-item py-1" onclick="openEditModal({{ json_encode($plan) }})">
-                                                <i class="fas fa-pen text-primary mr-2"></i> Editar
-                                            </button>
-                                            <form action="{{ route('membresias.toggleStatus', $plan) }}" method="POST" class="d-inline">
-                                                @csrf @method('PATCH')
-                                                <button type="submit" class="dropdown-item py-1 text-warning">
-                                                    <i class="fas fa-exchange-alt text-warning mr-2"></i> Estado
+                                    @if(Auth::user() && Auth::user()->rol === 'admin')
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-light py-0 px-2" type="button" data-toggle="dropdown"><i class="fas fa-ellipsis-v"></i></button>
+                                            <div class="dropdown-menu dropdown-menu-right" style="font-size:0.8rem;">
+                                                <button class="dropdown-item py-1" onclick="openEditModal({{ json_encode($plan) }})">
+                                                    <i class="fas fa-pen text-primary mr-2"></i> Editar
                                                 </button>
-                                            </form>
-                                            <div class="dropdown-divider"></div>
-                                            <form action="{{ route('membresias.destroy', $plan) }}" method="POST" class="d-inline form-delete">
-                                                @csrf @method('DELETE')
-                                                <button type="submit" class="dropdown-item py-1 text-danger">
-                                                    <i class="fas fa-trash text-danger mr-2"></i> Eliminar
-                                                </button>
-                                            </form>
+                                                <form action="{{ route('membresias.toggleStatus', $plan) }}" method="POST" class="d-inline">
+                                                    @csrf @method('PATCH')
+                                                    <button type="submit" class="dropdown-item py-1 text-warning">
+                                                        <i class="fas fa-exchange-alt text-warning mr-2"></i> Estado
+                                                    </button>
+                                                </form>
+                                                <div class="dropdown-divider"></div>
+                                                <form action="{{ route('membresias.destroy', $plan) }}" method="POST" class="d-inline form-delete">
+                                                    @csrf @method('DELETE')
+                                                    <button type="submit" class="dropdown-item py-1 text-danger">
+                                                        <i class="fas fa-trash text-danger mr-2"></i> Eliminar
+                                                    </button>
+                                                </form>
+                                            </div>
                                         </div>
-                                    </div>
+                                    @else
+                                        <span class="text-muted small">—</span>
+                                    @endif
                                 </td>
                             </tr>
                             @empty
@@ -222,11 +233,11 @@
                 <div id="viewCards" class="d-none" style="overflow-y:auto; flex:1; min-height:0;">
                     <div class="row">
                         @forelse($planes as $plan)
-                        <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="col-md-6 col-lg-3 mb-3">
                             <div class="plan-card">
                                 <div class="plan-card-header d-flex justify-content-between align-items-start">
                                     <div>
-                                        <span class="badge {{ $plan->estado === 'activo' ? 'badge-primary' : 'badge-secondary' }} px-2 py-1 mb-2">
+                                        <span class="ic-status-badge px-2 py-1 mb-2">
                                             {{ strtoupper($plan->estado) }}
                                         </span>
                                         <h6 class="font-weight-bold text-dark mb-0">{{ $plan->nombre }}</h6>
@@ -247,12 +258,12 @@
                                     </ul>
                                 </div>
                                 <div class="plan-card-footer d-flex justify-content-between align-items-center">
-                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="openEditModal({{ json_encode($plan) }})">
+                                    <button type="button" class="btn btn-sm btn-outline-primary ic-color-btn" onclick="openEditModal({{ json_encode($plan) }})">
                                         <i class="fas fa-edit mr-1"></i> Editar
                                     </button>
                                     <form action="{{ route('membresias.toggleStatus', $plan) }}" method="POST" class="d-inline">
                                         @csrf @method('PATCH')
-                                        <button type="submit" class="btn btn-sm {{ $plan->estado === 'activo' ? 'btn-outline-warning' : 'btn-outline-success' }}">
+                                        <button type="submit" class="btn btn-sm btn-outline-primary ic-color-btn">
                                             {{ $plan->estado === 'activo' ? 'Desactivar' : 'Activar' }}
                                         </button>
                                     </form>

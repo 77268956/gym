@@ -2,8 +2,39 @@
 
 @section('title', 'Configuración General')
 
+@section('skeleton')
+    {{-- Centered config card --}}
+    <div style="max-width: 85%; margin: 0 auto;">
+        <div class="skel-box" style="height: 32px; width: 280px; margin-bottom: 1.5rem;"></div>
+        {{-- Section: Identidad --}}
+        <div class="skel-box" style="height: 16px; width: 120px; margin-bottom: 0.75rem;"></div>
+        <div class="skel-row">
+            <div style="flex: 2; display: flex; flex-direction: column; gap: 1rem;">
+                <div class="skel-box" style="height: 40px;"></div>
+                <div class="skel-box" style="height: 40px;"></div>
+            </div>
+            <div class="skel-box" style="flex: 1; height: 120px;"></div>
+        </div>
+        {{-- Section: Moneda --}}
+        <div class="skel-box" style="height: 16px; width: 100px; margin-bottom: 0.75rem;"></div>
+        <div class="skel-row">
+            <div class="skel-box" style="height: 40px; flex: 1;"></div>
+            <div class="skel-box" style="height: 40px; flex: 1;"></div>
+            <div class="skel-box" style="height: 40px; flex: 1;"></div>
+        </div>
+        {{-- Section: Apariencia --}}
+        <div class="skel-box" style="height: 16px; width: 110px; margin-bottom: 0.75rem;"></div>
+        <div class="skel-row">
+            <div class="skel-box" style="height: 90px; flex: 1;"></div>
+            <div class="skel-box" style="height: 90px; flex: 1;"></div>
+        </div>
+        <div class="skel-box" style="height: 42px; width: 160px; margin-top: 1rem;"></div>
+    </div>
+@endsection
+
 @push('styles')
 <style>
+    :root { --card-color: var(--sidebar-bg); }
     body, html { overflow: hidden; height: 100%; }
     #page-wrapper main { 
         padding: 1rem 1.5rem !important; 
@@ -26,15 +57,15 @@
     }
     .config-section-title {
         font-size: 0.8rem; font-weight: 700; text-transform: uppercase;
-        color: #1E293B; margin-bottom: 1rem; letter-spacing: 0.05em;
+        color: var(--card-color); margin-bottom: 1rem; letter-spacing: 0.05em;
     }
-    .config-section-title i { color: #2563EB; }
+    .config-section-title i, .config-card-icon { color: var(--card-color); }
 
     .config-label { font-weight: 600; font-size: 0.85rem; color: #334155; margin-bottom: 0.3rem; }
     .config-hint { font-size: 0.72rem; color: #94A3B8; margin-top: 0.2rem; }
 
     .logo-preview-box {
-        background: linear-gradient(135deg, #1E293B, #0F172A);
+        background: linear-gradient(135deg, var(--sidebar-bg), var(--sidebar-hover));
         border-radius: 10px; padding: 1.5rem;
         display: flex; align-items: center; justify-content: center;
         min-height: 120px;
@@ -52,7 +83,7 @@
                 
                 <div class="d-flex justify-content-between align-items-center mb-3 flex-shrink-0">
                     <h5 class="mb-0 font-weight-bold text-dark" style="font-size:0.95rem;">
-                        <i class="fas fa-cogs text-primary mr-2"></i> Configuración del Gimnasio
+                        <i class="fas fa-cogs config-card-icon mr-2"></i> Configuración del Gimnasio
                     </h5>
                 </div>
 
@@ -69,7 +100,7 @@
                                     <div class="form-group mb-3">
                                         <label for="nombre_gimnasio" class="config-label">Nombre del Gimnasio <span class="text-danger">*</span></label>
                                         <div class="input-group input-group-sm">
-                                            <div class="input-group-prepend"><span class="input-group-text"><i class="fas fa-dumbbell"></i></span></div>
+                                            <div class="input-group-prepend"><span class="input-group-text"><i class="fas fa-dumbbell config-card-icon"></i></span></div>
                                             <input type="text" name="nombre_gimnasio" id="nombre_gimnasio"
                                                    class="form-control @error('nombre_gimnasio') is-invalid @enderror"
                                                    value="{{ old('nombre_gimnasio', $configuracion->nombre_gimnasio) }}"
@@ -141,7 +172,7 @@
                                     <div class="form-group mb-0">
                                         <label for="puntos_por_visita" class="config-label">Puntos por visita diaria</label>
                                         <div class="input-group input-group-sm">
-                                            <div class="input-group-prepend"><span class="input-group-text"><i class="fas fa-star text-warning"></i></span></div>
+                                            <div class="input-group-prepend"><span class="input-group-text"><i class="fas fa-star config-card-icon"></i></span></div>
                                             <input type="number" name="puntos_por_visita" id="puntos_por_visita"
                                                    class="form-control" min="0" max="1000"
                                                    value="{{ old('puntos_por_visita', $configuracionPuntos->puntos_por_visita ?? 10) }}" required>

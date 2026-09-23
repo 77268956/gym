@@ -445,15 +445,9 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('pagos.*') ? 'active' : '' }}" href="{{ route('pagos.index') }}" title="Pagos y Cobros">
-                        <i class="fas fa-wallet"></i>
-                        <span class="sidebar-label">Pagos y Cobros</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('membresias.*') ? 'active' : '' }}" href="{{ route('membresias.index') }}" title="Membresías y Pagos">
+                    <a class="nav-link {{ request()->routeIs('membresias.*') ? 'active' : '' }}" href="{{ route('membresias.index') }}" title="Membresías">
                         <i class="fas fa-id-card"></i>
-                        <span class="sidebar-label">Membresías y Pagos</span>
+                        <span class="sidebar-label">Membresías</span>
                     </a>
                 </li>
                 <li class="nav-item">
@@ -733,12 +727,21 @@
         document.addEventListener("DOMContentLoaded", function() {
             var skeleton = document.getElementById('globalSkeleton');
             
-            // Ocultar contenido real inicialmente
-            var mainContent = document.querySelectorAll('main .page-header, .ic-card, .card, .ic-table-container, .table-panel, form, .content-section');
+            // Solo ocultar elementos DENTRO de main (nunca modales ni formularios de modal)
+            var mainCards = document.querySelectorAll('main > .row, main > .page-header, main > .card, main > .ic-card');
             var sidebarItems = document.querySelectorAll('.sidebar .nav-item, .sidebar-heading, .sidebar-brand');
             
-            mainContent.forEach(function(el) { el.style.opacity = '0'; });
+            mainCards.forEach(function(el) { el.style.opacity = '0'; });
             sidebarItems.forEach(function(el) { el.style.opacity = '0'; });
+
+            // Fallback de seguridad: si algo falla, remover skeleton a los 3s
+            var safetyTimer = setTimeout(function() {
+                if (skeleton) {
+                    skeleton.style.display = 'none';
+                    mainCards.forEach(function(el) { el.style.opacity = '1'; });
+                    sidebarItems.forEach(function(el) { el.style.opacity = '1'; });
+                }
+            }, 3000);
 
             setTimeout(function() {
                 anime({
@@ -747,20 +750,21 @@
                     duration: 400,
                     easing: 'linear',
                     complete: function() {
+                        clearTimeout(safetyTimer);
                         skeleton.style.display = 'none';
                         
                         // 1. Page header
                         anime({
-                            targets: 'main .page-header',
+                            targets: 'main > .page-header',
                             opacity: [0, 1],
                             translateY: [-20, 0],
                             duration: 800,
                             easing: 'easeOutExpo'
                         });
 
-                        // 2. Cards y tablas escalonadas
+                        // 2. Cards y contenido escalonados (solo hijos directos de main)
                         anime({
-                            targets: '.ic-card, .card, .ic-table-container, .content-section',
+                            targets: 'main > .row, main > .card, main > .ic-card',
                             translateY: [20, 0],
                             opacity: [0, 1],
                             delay: anime.stagger(100),
@@ -768,16 +772,7 @@
                             easing: 'easeOutExpo'
                         });
 
-                        // 3. Formularios
-                        anime({
-                            targets: 'main form',
-                            opacity: [0, 1],
-                            translateY: [15, 0],
-                            duration: 700,
-                            easing: 'easeOutExpo'
-                        });
-
-                        // 4. Sidebar items
+                        // 3. Sidebar items
                         anime({
                             targets: '.sidebar .nav-item, .sidebar-heading',
                             translateX: [-20, 0],
@@ -787,7 +782,7 @@
                             easing: 'easeOutExpo'
                         });
 
-                        // 5. Logo pop
+                        // 4. Logo pop
                         anime({
                             targets: '.sidebar-brand',
                             scale: [0.9, 1],

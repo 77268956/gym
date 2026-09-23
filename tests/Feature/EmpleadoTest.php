@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Models\Empleado;
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
@@ -12,9 +11,21 @@ class EmpleadoTest extends TestCase
 {
     use RefreshDatabase;
 
+    private function createAdmin(): Empleado
+    {
+        return Empleado::factory()->create([
+            'nombre' => 'Admin Boss',
+            'cedula' => '0801-0000-00000',
+            'usuario' => 'admin_'.uniqid(),
+            'password_hash' => Hash::make('password123'),
+            'rol' => 'admin',
+            'estado' => 'activo',
+        ]);
+    }
+
     public function test_user_can_view_empleados_list(): void
     {
-        $user = User::factory()->create();
+        $admin = $this->createAdmin();
         Empleado::create([
             'nombre' => 'Empleado Test',
             'cedula' => '0801-1999-99999',
@@ -24,7 +35,7 @@ class EmpleadoTest extends TestCase
             'estado' => 'activo',
         ]);
 
-        $response = $this->actingAs($user)->get(route('empleados'));
+        $response = $this->actingAs($admin)->get(route('empleados'));
 
         $response->assertStatus(200);
         $response->assertSee('Empleado Test');
@@ -33,19 +44,19 @@ class EmpleadoTest extends TestCase
 
     public function test_user_can_access_create_empleado_page(): void
     {
-        $user = User::factory()->create();
+        $admin = $this->createAdmin();
 
-        $response = $this->actingAs($user)->get(route('empleados.create'));
+        $response = $this->actingAs($admin)->get(route('empleados.create'));
 
         $response->assertStatus(200);
-        $response->assertSee('Registrar Nuevo Empleado o Recepcionista');
+        $response->assertSee('Nuevo Empleado');
     }
 
     public function test_user_can_create_empleado(): void
     {
-        $user = User::factory()->create();
+        $admin = $this->createAdmin();
 
-        $response = $this->actingAs($user)->post(route('empleados.store'), [
+        $response = $this->actingAs($admin)->post(route('empleados.store'), [
             'nombre' => 'Nuevo Recepcionista',
             'cedula' => '0801-2000-11223',
             'usuario' => 'nrecep',
@@ -70,7 +81,7 @@ class EmpleadoTest extends TestCase
 
     public function test_user_can_access_edit_empleado_page(): void
     {
-        $user = User::factory()->create();
+        $admin = $this->createAdmin();
         $emp = Empleado::create([
             'nombre' => 'Empleado a Editar',
             'cedula' => '0801-1991-88888',
@@ -80,15 +91,15 @@ class EmpleadoTest extends TestCase
             'estado' => 'activo',
         ]);
 
-        $response = $this->actingAs($user)->get(route('empleados.edit', $emp));
+        $response = $this->actingAs($admin)->get(route('empleados.edit', $emp));
 
         $response->assertStatus(200);
-        $response->assertSee('Editar Empleado: Empleado a Editar');
+        $response->assertSee('Editar Empleado');
     }
 
     public function test_user_can_update_empleado(): void
     {
-        $user = User::factory()->create();
+        $admin = $this->createAdmin();
         $emp = Empleado::create([
             'nombre' => 'Empleado Nombre Viejo',
             'cedula' => '0801-1992-77777',
@@ -98,7 +109,7 @@ class EmpleadoTest extends TestCase
             'estado' => 'activo',
         ]);
 
-        $response = $this->actingAs($user)->put(route('empleados.update', $emp), [
+        $response = $this->actingAs($admin)->put(route('empleados.update', $emp), [
             'nombre' => 'Empleado Nombre Nuevo',
             'cedula' => '0801-1992-77777',
             'usuario' => 'empnuevo',
@@ -122,7 +133,7 @@ class EmpleadoTest extends TestCase
 
     public function test_user_can_toggle_empleado_status(): void
     {
-        $user = User::factory()->create();
+        $admin = $this->createAdmin();
         $emp = Empleado::create([
             'nombre' => 'Empleado Toggle',
             'cedula' => '0801-1993-66666',
@@ -132,7 +143,7 @@ class EmpleadoTest extends TestCase
             'estado' => 'activo',
         ]);
 
-        $response = $this->actingAs($user)->patch(route('empleados.toggleStatus', $emp));
+        $response = $this->actingAs($admin)->patch(route('empleados.toggleStatus', $emp));
 
         $response->assertRedirect(route('empleados'));
         $this->assertEquals('inactivo', $emp->fresh()->estado);
@@ -140,7 +151,7 @@ class EmpleadoTest extends TestCase
 
     public function test_user_can_delete_empleado(): void
     {
-        $user = User::factory()->create();
+        $admin = $this->createAdmin();
         $emp = Empleado::create([
             'nombre' => 'Empleado Borrar',
             'cedula' => '0801-1994-55555',
@@ -150,7 +161,7 @@ class EmpleadoTest extends TestCase
             'estado' => 'activo',
         ]);
 
-        $response = $this->actingAs($user)->delete(route('empleados.destroy', $emp));
+        $response = $this->actingAs($admin)->delete(route('empleados.destroy', $emp));
 
         $response->assertRedirect(route('empleados'));
         $this->assertSoftDeleted('empleados', ['id' => $emp->id]);

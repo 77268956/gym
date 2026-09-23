@@ -3,6 +3,28 @@
 
 @section('title', 'Tienda EcoGim')
 
+@section('skeleton')
+    {{-- Search bar + filters --}}
+    <div class="skel-row" style="align-items: center;">
+        <div class="skel-box" style="height: 40px; flex: 2;"></div>
+        <div class="skel-box" style="height: 40px; flex: 1;"></div>
+        <div class="skel-box" style="height: 32px; width: 60px;"></div>
+        <div class="skel-box" style="height: 32px; width: 60px;"></div>
+        <div class="skel-box" style="height: 32px; width: 60px;"></div>
+    </div>
+    {{-- Product grid 4 columns --}}
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem;">
+        <div class="skel-box" style="height: 260px;"></div>
+        <div class="skel-box" style="height: 260px;"></div>
+        <div class="skel-box" style="height: 260px;"></div>
+        <div class="skel-box" style="height: 260px;"></div>
+        <div class="skel-box" style="height: 260px;"></div>
+        <div class="skel-box" style="height: 260px;"></div>
+        <div class="skel-box" style="height: 260px;"></div>
+        <div class="skel-box" style="height: 260px;"></div>
+    </div>
+@endsection
+
 @push('styles')
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
 <style>

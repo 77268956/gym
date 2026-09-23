@@ -2,29 +2,41 @@
 
 @section('title', 'Escanear Asistencia Facial')
 
+@section('skeleton')
+    <div style="max-width: 760px; margin: 0 auto;">
+        <div class="skel-box" style="height: 32px; width: 300px; margin: 0 auto 1.5rem auto;"></div>
+        <div class="skel-box" style="height: 480px; width: 100%; border-radius: 12px; margin-bottom: 1rem;"></div>
+    </div>
+@endsection
+
 @push('styles')
 <style>
     .scanner-container {
         position: relative;
         width: 100%;
-        max-width: 640px;
+        max-width: 560px;
+        aspect-ratio: 4 / 3;
         margin: 0 auto;
-        border-radius: 12px;
+        border-radius: 6px;
         overflow: hidden;
         background: #000;
         box-shadow: 0 10px 25px rgba(0,0,0,0.2);
     }
-    .scanner-page { max-width: 760px; margin: 0 auto; }
-    .scanner-card, .result-card { background: #fff; border: 0; border-radius: 12px; box-shadow: 0 6px 18px rgba(15, 23, 42, .08); overflow: hidden; }
+    .scanner-page { max-width: 640px; margin: 0 auto; padding-top: 1rem !important; padding-bottom: 1rem !important; }
+    .scanner-card, .result-card { background: #fff; border: 0; border-radius: 6px; box-shadow: 0 6px 18px rgba(15, 23, 42, .08); overflow: hidden; }
     .scanner-card .card-header, .scanner-card .card-footer { background: #fff; border: 0; }
     .scan-clock { color: var(--sidebar-bg); font-size: 1.35rem; font-weight: 700; text-align: center; letter-spacing: .02em; }
     .scan-date { color: #64748B; font-size: .85rem; text-align: center; text-transform: capitalize; }
-    .result-card { max-width: 560px; margin: 0 auto; padding: 2rem; text-align: center; }
-    .result-icon { width: 76px; height: 76px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 2rem; margin-bottom: 1rem; }
+    .result-card { max-width: 480px; margin: 0 auto; padding: 1.5rem; text-align: center; border-top: 4px solid var(--primary); }
+    .result-visual { min-height: 96px; display: flex; align-items: center; justify-content: center; gap: .75rem; margin-bottom: .75rem; }
+    .result-icon { width: 64px; height: 64px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-size: 1.75rem; margin-bottom: .75rem; }
     .result-icon.success { background: #D1FAE5; color: #059669; }
     .result-icon.error { background: #FEE2E2; color: #DC2626; }
-    .result-photo { width: 112px; height: 112px; object-fit: cover; border-radius: 50%; border: 4px solid var(--primary); margin-bottom: .75rem; }
-    .result-info { background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: .85rem; }
+    .result-photo { width: 96px; height: 96px; object-fit: cover; border-radius: 6px; border: 3px solid var(--primary); margin-bottom: .75rem; }
+    .result-visual .result-icon, .result-visual .result-photo { margin-bottom: 0; }
+    .result-info { background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 6px; padding: .7rem; }
+    .result-card #clientDetails { margin-left: 0; margin-right: 0; }
+    .result-card #clientDetails > [class*="col-"] { padding-left: .4rem; padding-right: .4rem; }
     .result-info-label { color: #64748B; font-size: .72rem; text-transform: uppercase; font-weight: 600; }
     .result-info-value { color: var(--sidebar-bg); font-size: 1rem; font-weight: 700; }
     @media (max-width: 767.98px) { .scanner-page { padding: 0 .5rem; } .result-card { padding: 1.5rem 1rem; } }
@@ -93,8 +105,10 @@
 
     <div id="resultScreen" class="d-none">
         <div class="result-card">
-            <div id="resultIcon" class="result-icon success"><i class="fas fa-check"></i></div>
-            <img id="clientFoto" src="" class="result-photo d-none" alt="Foto del cliente">
+            <div class="result-visual">
+                <div id="resultIcon" class="result-icon success"><i class="fas fa-check"></i></div>
+                <img id="clientFoto" src="" class="result-photo d-none" alt="Foto del cliente">
+            </div>
             <h3 id="resultTitle" class="font-weight-bold mb-2">Cliente reconocido</h3>
             <p id="resultMessage" class="text-muted mb-4">Asistencia registrada correctamente.</p>
 
@@ -109,7 +123,7 @@
                 </div>
                 <div class="col-12">
                     <div class="result-info text-center">
-                        <span class="result-info-label d-block">Puntos recompensa</span>
+                        <span class="result-info-label d-block">Puntos</span>
                         <span id="clientPuntos" class="result-info-value">0</span>
                     </div>
                 </div>
@@ -173,7 +187,7 @@ async function loadModelsAndData() {
             }
 
             document.getElementById('modelLoader').className = 'badge badge-success p-2';
-            document.getElementById('modelLoader').innerHTML = '<i class="fas fa-check-circle mr-1"></i> Listo (' + labeledDescriptors.length + ' rostros)';
+            document.getElementById('modelLoader').innerHTML = '<i class="fas fa-check-circle mr-1"></i> Listo';
             document.getElementById('btnStart').disabled = false;
             
         } catch (e) {
@@ -285,6 +299,7 @@ video.addEventListener('play', () => {
         document.getElementById('scannerScreen').classList.add('d-none');
         document.getElementById('resultScreen').classList.remove('d-none');
         resultIcon.className = 'result-icon ' + (esValido ? 'success' : 'error');
+        resultIcon.classList.toggle('d-none', esValido);
         resultIcon.innerHTML = '<i class="fas fa-' + (esValido ? 'check' : 'times') + '"></i>';
         document.getElementById('resultTitle').textContent = esValido ? '¡Bienvenido, ' + data.cliente + '!' : 'Acceso no válido';
         document.getElementById('resultMessage').textContent = data.message || 'No se pudo validar la asistencia.';
