@@ -166,6 +166,138 @@
             margin-bottom: 0;
         }
 
+        /* carta Section */
+
+
+        .reward-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+            justify-items: center;
+            gap: 1.5rem;
+        }
+        .reward-card {
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            max-width: 310px;
+            aspect-ratio: 1 / 1;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,.16);
+            border-radius: 6px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, .1);
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+        .reward-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 14px 30px rgba(0, 0, 0, .18);
+        }
+        .reward-image {
+            position: absolute;
+            z-index: 0;
+            inset: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            color: #e5e5e5;
+            font-size: 2.5rem;
+        }
+        .reward-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: none;
+        }
+        .reward-image img.reward-click-image {
+            cursor: zoom-in;
+        }
+        .reward-body {
+            position: absolute;
+            z-index: 2;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 1rem;
+            background: transparent;
+            color: #fff;
+            pointer-events: none;
+        }
+        .reward-name {
+            overflow: hidden;
+            margin: 0 0 .35rem;
+            color: #fff;
+            font-size: 1.08rem;
+            font-weight: 800;
+            line-height: 1.2;
+            text-overflow: ellipsis;
+            text-shadow: 0 1px 3px #000, 0 0 8px rgba(0,0,0,.95);
+            white-space: nowrap;
+        }
+        .reward-description {
+            display: -webkit-box;
+            overflow: hidden;
+            margin: 0 0 .65rem;
+            color: #fff;
+            font-size: .76rem;
+            line-height: 1.35;
+            text-shadow: 0 1px 3px #000, 0 0 8px rgba(0,0,0,.95);
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+        }
+        .reward-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .35rem;
+            margin-bottom: .55rem;
+        }
+        .reward-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: .35rem;
+            max-width: 100%;
+            padding: .25rem .5rem;
+            border: 1px solid rgba(255,255,255,.38);
+            border-radius: 50px;
+            background: transparent;
+            text-shadow: 0 1px 3px #000, 0 0 6px rgba(0,0,0,.95);
+            color: #fff;
+            font-size: .66rem;
+            font-weight: 700;
+        }
+        .reward-tag-points {
+            color: #fff;
+        }
+        .reward-tag-points i {
+            color: #d97706;
+        }
+        .reward-action {
+            display: inline-flex;
+            align-items: center;
+            align-self: flex-end;
+            gap: .4rem;
+            min-height: 30px;
+            margin-top: auto;
+            padding: .3rem .55rem;
+            border-radius: 7px;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,.72);
+            color: #fff;
+            font-size: .72rem;
+            font-weight: 800;
+            text-decoration: none;
+            pointer-events: auto;
+            text-shadow: 0 1px 3px #000, 0 0 6px rgba(0,0,0,.95);
+            transition: border-color .2s ease, opacity .2s ease;
+        }
+        .reward-action:hover,
+        .reward-action:focus-visible {
+            border-color: #fff;
+            color: #fff;
+            opacity: .82;
+            text-decoration: none;
+        }
         /* Contact Section */
         .contact {
             background-color: var(--text-dark);
@@ -343,23 +475,32 @@
                 <h2>Gana Puntos y Recompensas</h2>
                 <p class="text-muted mt-3">¡Por cada asistencia ganas puntos EcoGim que puedes canjear por productos en nuestra tienda!</p>
             </div>
-            <div class="row g-4 justify-content-center mt-2">
+            <div class="reward-grid mt-2">
                 @forelse($recompensas as $prod)
-                    <div class="col-lg-3 col-md-6">
-                        <div class="service-card p-4">
-                            @if($prod->imagen)
-                                <img src="{{ asset('storage/'.$prod->imagen) }}" alt="{{ $prod->nombre }}" class="img-fluid rounded mb-3" style="max-height: 120px; object-fit: contain; cursor: pointer; transition: transform 0.2s;" data-bs-toggle="modal" data-bs-target="#imageModal" onclick="document.getElementById('modalImage').src=this.src" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'" title="Haz clic para ampliar">
-                            @else
-                                <i class="fas fa-gift service-icon mb-3"></i>
-                            @endif
-                            <h5 class="fw-bold">{{ $prod->nombre }}</h5>
-                            <p class="text-warning fw-bold mb-0" style="font-size: 1.2rem;">
-                                <i class="fas fa-star"></i> {{ $prod->costo_puntos }} pts
-                            </p>
+                    <article class="reward-card">
+                        <div class="reward-body">
+                            <h3 class="reward-name">{{ $prod->nombre }}</h3>
+                            <p class="reward-description">{{ $prod->descripcion ?: 'Canjea este producto con tus puntos EcoGim.' }}</p>
+                            <div class="reward-meta">
+                                <span class="reward-tag reward-tag-points"><i class="fas fa-star" aria-hidden="true"></i>{{ number_format($prod->puntos_valor) }} pts</span>
+                                @if($prod->categoria)
+                                    <span class="reward-tag">{{ ucfirst($prod->categoria) }}</span>
+                                @endif
+                            </div>
+                            <a href="{{ route('login') }}" class="reward-action">
+                                Canjear ahora <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                            </a>
                         </div>
-                    </div>
+                        <div class="reward-image">
+                            @if($prod->imagen)
+                                <img src="{{ asset('storage/'.$prod->imagen) }}" alt="{{ $prod->nombre }}" class="reward-click-image" data-bs-toggle="modal" data-bs-target="#modalImagenRecompensa" data-image="{{ asset('storage/'.$prod->imagen) }}">
+                            @else
+                                <i class="fas fa-box" aria-hidden="true"></i>
+                            @endif
+                        </div>
+                    </article>
                 @empty
-                    <div class="col-12 text-center text-muted">
+                    <div class="text-center text-muted">
                         <p>Próximamente más recompensas.</p>
                     </div>
                 @endforelse
@@ -369,6 +510,20 @@
             </div>
         </div>
     </section>
+
+    <div class="modal fade" id="modalImagenRecompensa" tabindex="-1" aria-labelledby="modalImagenRecompensaTitulo" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 bg-dark">
+                <div class="modal-header border-0 py-2">
+                    <h2 class="visually-hidden" id="modalImagenRecompensaTitulo">Imagen del producto</h2>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body p-0 text-center">
+                    <img id="imagenRecompensaModal" src="" alt="" style="width:100%;max-height:75vh;object-fit:contain;">
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Contact Section -->
     <section id="contacto" class="contact">
@@ -427,5 +582,13 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('modalImagenRecompensa').addEventListener('show.bs.modal', function (event) {
+            var image = event.relatedTarget;
+            var modalImage = document.getElementById('imagenRecompensaModal');
+            modalImage.src = image.dataset.image;
+            modalImage.alt = image.alt;
+        });
+    </script>
 </body>
 </html>
