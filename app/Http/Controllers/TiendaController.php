@@ -26,11 +26,11 @@ class TiendaController extends Controller
         return view('tienda.index', compact('productos', 'categorias'));
     }
 
-    /** AJAX: info del cliente para el modal de canje */
     public function clienteInfo(Cliente $cliente)
     {
         $membresiaActiva = $cliente->membresias()
             ->where('estado', 'activa')
+            ->where('fecha_inicio', '<=', Carbon::today())
             ->where('fecha_vencimiento', '>=', Carbon::today())
             ->latest()
             ->first();
@@ -53,13 +53,15 @@ class TiendaController extends Controller
         ]);
     }
 
-    /** AJAX: buscar clientes para Select2 */
     public function buscarClientes(Request $request)
     {
         $term = $request->input('q', '');
 
         $query = Cliente::where('estado', 'activo')->with(['membresias' => function ($q) {
-            $q->where('estado', 'activa')->where('fecha_vencimiento', '>=', Carbon::today())->latest();
+            $q->where('estado', 'activa')
+                ->where('fecha_inicio', '<=', Carbon::today())
+                ->where('fecha_vencimiento', '>=', Carbon::today())
+                ->latest();
         }]);
 
         if ($term) {
@@ -78,7 +80,10 @@ class TiendaController extends Controller
             if ($membActiva) {
                 $membStatus = 'ACTIVA';
             } else {
-                $tieneVencida = $c->membresias()->where('estado', 'vencida')->exists();
+                $tieneVencida = $c->membresias()->where(function ($q) {
+                    $q->where('estado', 'vencida')
+                        ->orWhere('fecha_vencimiento', '<', Carbon::today());
+                })->exists();
                 $membStatus = $tieneVencida ? 'VENCIDA' : 'SIN MEMBRESÍA';
             }
 

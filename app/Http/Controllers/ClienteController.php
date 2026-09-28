@@ -101,7 +101,7 @@ class ClienteController extends Controller
             $q->orderBy('fecha', 'desc')->orderBy('hora', 'desc')->take(30);
         }, 'canjes.producto']);
 
-        $membresiaActiva = $cliente->membresias()->where('estado', 'activa')->latest()->first();
+        $membresiaActiva = $cliente->membresias()->latest('fecha_vencimiento')->first();
 
         // Calculate attendance stats
         $mesActual = now()->month;
@@ -137,7 +137,12 @@ class ClienteController extends Controller
     public function edit(Cliente $cliente)
     {
         $tiposMembresia = TipoMembresia::where('estado', 'activo')->orderBy('precio')->get();
-        $membresiaActiva = $cliente->membresias()->where('estado', 'activa')->latest()->first();
+        $membresiaActiva = $cliente->membresias()
+            ->where('estado', 'activa')
+            ->where('fecha_inicio', '<=', Carbon::today())
+            ->where('fecha_vencimiento', '>=', Carbon::today())
+            ->latest()
+            ->first();
 
         return view('clientes.edit', compact('cliente', 'tiposMembresia', 'membresiaActiva'));
     }

@@ -11,6 +11,30 @@ use Illuminate\Http\Request;
 
 class AsistenciaController extends Controller
 {
+    public function index(Request $request)
+    {
+        // KPIs (Hoy)
+        $hoy = Carbon::today();
+        $accesosHoy = AsistenciaCliente::whereDate('fecha', $hoy)->count();
+        $exitososHoy = AsistenciaCliente::whereDate('fecha', $hoy)->where('exitoso', true)->count();
+        $fallidosHoy = $accesosHoy - $exitososHoy;
+
+        // Obtener todos los registros (DataTables se encarga de paginar)
+        $asistencias = AsistenciaCliente::with(['cliente' => function ($q) {
+            $q->withTrashed();
+        }])
+            ->orderBy('fecha', 'desc')
+            ->orderBy('hora', 'desc')
+            ->get();
+
+        return view('asistencias.index', compact(
+            'asistencias',
+            'accesosHoy',
+            'exitososHoy',
+            'fallidosHoy'
+        ));
+    }
+
     public function escanear()
     {
         // Cargar todos los clientes que tengan descriptor facial grabado
@@ -28,11 +52,25 @@ class AsistenciaController extends Controller
 
         $cliente = Cliente::with([
             'membresias' => function ($q) {
-                $q->where('estado', 'activa')->latest();
+                $q->where('estado', 'activa')
+                    ->where('fecha_inicio', '<=', Carbon::today())
+                    ->where('fecha_vencimiento', '>=', Carbon::today())
+                    ->latest();
             },
         ])->findOrFail($request->cliente_id);
 
         if ($cliente->estado !== 'activo') {
+            AsistenciaCliente::create([
+                'cliente_id' => $cliente->id,
+                'empleado_valida_id' => auth()->id() ?? null,
+                'fecha' => date('Y-m-d'),
+                'hora' => date('H:i:s'),
+                'metodo_registro' => 'facial',
+                'exitoso' => false,
+                'motivo_rechazo' => 'Cliente inactivo',
+                'puntos_otorgados' => false,
+            ]);
+
             return response()->json([
                 'status' => 'warning',
                 'message' => 'El cliente está inactivo.',
@@ -44,6 +82,17 @@ class AsistenciaController extends Controller
 
         $membresiaActiva = $cliente->membresias->first();
         if (! $membresiaActiva) {
+            AsistenciaCliente::create([
+                'cliente_id' => $cliente->id,
+                'empleado_valida_id' => auth()->id() ?? null,
+                'fecha' => date('Y-m-d'),
+                'hora' => date('H:i:s'),
+                'metodo_registro' => 'facial',
+                'exitoso' => false,
+                'motivo_rechazo' => 'Sin membresía activa',
+                'puntos_otorgados' => false,
+            ]);
+
             return response()->json([
                 'status' => 'warning',
                 'message' => 'El cliente no tiene una membresía activa.',
@@ -53,9 +102,10 @@ class AsistenciaController extends Controller
             ]);
         }
 
-        // Evitar duplicar asistencias durante el mismo día.
+        // Evitar duplicar asistencias exitosas durante el mismo día.
         $ultimaAsistencia = AsistenciaCliente::where('cliente_id', $cliente->id)
             ->where('fecha', date('Y-m-d'))
+            ->where('exitoso', true)
             ->first();
 
         if ($ultimaAsistencia) {
@@ -87,6 +137,7 @@ class AsistenciaController extends Controller
             'fecha' => date('Y-m-d'),
             'hora' => date('H:i:s'),
             'metodo_registro' => 'facial',
+            'exitoso' => true,
             'puntos_otorgados' => $otorgarPuntos,
         ]);
 

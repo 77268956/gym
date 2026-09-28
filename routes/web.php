@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\ConfiguracionController;
 use App\Http\Controllers\EmpleadoController;
+use App\Http\Controllers\LandingController;
 use App\Http\Controllers\PagoController;
 use App\Http\Controllers\ProductoEcogimController;
 use App\Http\Controllers\TiendaController;
@@ -12,9 +13,7 @@ use App\Http\Controllers\TipoMembresiaController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return redirect()->route('login');
-});
+Route::get('/', [LandingController::class, 'index'])->name('home');
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
@@ -52,6 +51,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/membresias', [TipoMembresiaController::class, 'index'])->name('membresias.index');
 
     // Módulo de Asistencias (Escáner Facial)
+    Route::get('/asistencias', [AsistenciaController::class, 'index'])->name('asistencias.index');
     Route::get('/escanear', [AsistenciaController::class, 'escanear'])->name('asistencias.escanear');
     Route::post('/escanear/registrar', [AsistenciaController::class, 'registrarEscaneo'])->name('asistencias.registrar');
 
@@ -91,6 +91,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/admin/productos', [ProductoEcogimController::class, 'store'])->name('admin.productos.store');
         Route::put('/admin/productos/{producto}', [ProductoEcogimController::class, 'update'])->name('admin.productos.update');
         Route::delete('/admin/productos/{producto}', [ProductoEcogimController::class, 'destroy'])->name('admin.productos.destroy');
-        Route::patch('/admin/productos/{producto}/toggle', [ProductoEcogimController::class, 'toggleStatus'])->name('admin.productos.toggleStatus');
+        Route::get('/admin/landing', [LandingController::class, 'edit'])->name('admin.landing');
+        Route::post('/admin/landing', [LandingController::class, 'update'])->name('admin.landing.update');
     });
 });

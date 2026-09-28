@@ -451,9 +451,21 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('asistencias.*') ? 'active' : '' }}" href="{{ route('asistencias.escanear') }}" title="Escanear Facial">
+                    <a class="nav-link {{ request()->routeIs('pagos.*') ? 'active' : '' }}" href="{{ route('pagos.index') }}" title="Pagos y Cobros">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <span class="sidebar-label">Pagos y Cobros</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('asistencias.escanear') ? 'active' : '' }}" href="{{ route('asistencias.escanear') }}" title="Escanear Facial">
                         <i class="fas fa-camera"></i>
                         <span class="sidebar-label">Recepción Facial</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('asistencias.index') ? 'active' : '' }}" href="{{ route('asistencias.index') }}" title="Bitácora de Accesos">
+                        <i class="fas fa-clipboard-list"></i>
+                        <span class="sidebar-label">Bitácora de Accesos</span>
                     </a>
                 </li>
                 <li class="nav-item">
@@ -482,6 +494,12 @@
                         <a class="nav-link {{ request()->routeIs('configuracion.*') ? 'active' : '' }}" href="{{ route('configuracion.index') }}" title="Configuración">
                             <i class="fas fa-cog"></i>
                             <span class="sidebar-label">Configuración</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('admin.landing*') ? 'active' : '' }}" href="{{ route('admin.landing') }}" title="Editar Landing Page">
+                            <i class="fas fa-desktop"></i>
+                            <span class="sidebar-label">Página Web</span>
                         </a>
                     </li>
                 @endif

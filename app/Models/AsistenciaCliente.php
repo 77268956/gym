@@ -21,11 +21,14 @@ class AsistenciaCliente extends Model
         'hora',
         'metodo_registro',
         'puntos_otorgados',
+        'exitoso',
+        'motivo_rechazo',
     ];
 
     protected $casts = [
         'fecha' => 'date',
         'puntos_otorgados' => 'boolean',
+        'exitoso' => 'boolean',
     ];
 
     public function cliente()

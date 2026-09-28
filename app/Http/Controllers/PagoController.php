@@ -26,7 +26,10 @@ class PagoController extends Controller
 
         // Para el modal de selección de clientes
         $clientes = Cliente::with(['membresias' => function ($q) {
-            $q->where('estado', 'activa')->where('fecha_vencimiento', '>=', Carbon::today())->latest();
+            $q->where('estado', 'activa')
+                ->where('fecha_inicio', '<=', Carbon::today())
+                ->where('fecha_vencimiento', '>=', Carbon::today())
+                ->latest();
         }])->orderBy('nombre')->get();
 
         $tiposMembresia = TipoMembresia::where('estado', 'activo')->orderBy('precio')->get();
@@ -65,6 +68,7 @@ class PagoController extends Controller
             // Si tiene membresía activa vigente, sumar los días al vencimiento actual
             $membresiaActiva = Membresia::where('cliente_id', $request->cliente_id)
                 ->where('estado', 'activa')
+                ->where('fecha_inicio', '<=', Carbon::today())
                 ->where('fecha_vencimiento', '>=', Carbon::today())
                 ->latest('fecha_vencimiento')
                 ->first();
@@ -73,8 +77,7 @@ class PagoController extends Controller
                 // Sumar días al vencimiento actual
                 $fechaInicio = Carbon::parse($membresiaActiva->fecha_vencimiento)->addDay();
                 $fechaVencimiento = Carbon::parse($membresiaActiva->fecha_vencimiento)->addDays($diasNuevoPlan);
-                // Marcar la membresía anterior como vencida
-                $membresiaActiva->update(['estado' => 'vencida']);
+                // NO marcamos la anterior como vencida porque aún puede estar vigente (tiene días restantes)
             } else {
                 // Sin membresía activa: empezar desde hoy
                 $fechaInicio = Carbon::today();
@@ -150,7 +153,10 @@ class PagoController extends Controller
         $term = $request->input('q');
 
         $query = Cliente::with(['membresias' => function ($q) {
-            $q->where('estado', 'activa')->where('fecha_vencimiento', '>=', Carbon::today())->latest();
+            $q->where('estado', 'activa')
+                ->where('fecha_inicio', '<=', Carbon::today())
+                ->where('fecha_vencimiento', '>=', Carbon::today())
+                ->latest();
         }]);
 
         if ($term) {
