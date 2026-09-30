@@ -413,7 +413,7 @@
         <div class="sidebar-header">
             <a class="sidebar-brand" href="{{ route('dashboard') }}">
                 @if(isset($gymConfig) && $gymConfig->logo_path)
-                    <img src="{{ asset('storage/' . $gymConfig->logo_path) }}" alt="Logo" style="height: 32px; max-height: 36px; max-width: 140px; object-fit: contain;" class="mr-2">
+                    <img src="{{ asset('storage/' . $gymConfig->logo_path) }}" alt="Logo" style="height: 44px; max-height: 48px; max-width: 180px; object-fit: contain;" class="mr-2">
                 @else
                     <div class="d-flex align-items-center justify-content-center bg-primary text-white rounded mr-2 flex-shrink-0" style="width: 32px; height: 32px;">
                         <i class="fas fa-dumbbell font-weight-bold" style="font-size: 0.9rem;"></i>
