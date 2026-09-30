@@ -4,40 +4,86 @@
 
 @push('styles')
 <style>
-    .ic-card { border: none; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.04); background: #fff; margin-bottom: 1.5rem; }
-    .ic-card-header { background: #fff; border-bottom: 1px solid #f0f2f5; border-radius: 12px 12px 0 0 !important; padding: 1.25rem 1.5rem; font-weight: 700; color: #4e73df; }
-    .ic-table-container { background: #fff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.04); overflow: hidden; margin-bottom: 1.5rem; }
-    .ic-table { margin-bottom: 0; }
-    .ic-table th { background: #f8f9fc; color: #4e73df; text-transform: uppercase; font-size: 0.75rem; border-top: none; }
-    .ic-table td { vertical-align: middle; font-size: 0.85rem; }
-    
-    .kpi-card {
-        border-radius: 12px; padding: 1.5rem; color: white;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.08); display: flex; justify-content: space-between; align-items: center; height: 100%;
+    :root { --card-color: var(--sidebar-bg); }
+    html, body { height: 100%; overflow: hidden; }
+    #page-wrapper main {
+        height: calc(100vh - var(--navbar-h));
+        display: flex; flex-direction: column; overflow: hidden;
+        padding: 0.5rem 1.25rem !important;
     }
-    .kpi-card .kpi-value { font-size: 1.8rem; font-weight: 800; margin: 0; line-height: 1.2; }
-    .kpi-card .kpi-label { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; opacity: 0.9; }
-    .kpi-card .kpi-icon { font-size: 2.5rem; opacity: 0.3; }
-    
-    .bg-gradient-primary { background: linear-gradient(45deg, #4e73df, #224abe); }
-    .bg-gradient-success { background: linear-gradient(45deg, #1cc88a, #13855c); }
-    .bg-gradient-info { background: linear-gradient(45deg, #36b9cc, #258391); }
-    .bg-gradient-warning { background: linear-gradient(45deg, #f6c23e, #dda20a); }
-    
-    .ic-status-active { background-color: #D1FAE5; color: #059669; padding: 0.35rem 0.75rem; border-radius: 50px; font-size: 0.75rem; font-weight: 600; }
-    .ic-status-inactive { background-color: #F1F5F9; color: #475569; padding: 0.35rem 0.75rem; border-radius: 50px; font-size: 0.75rem; font-weight: 600; }
-    
-    .chart-container { position: relative; height: 300px; width: 100%; }
+    .page-header { margin-bottom: 0.5rem !important; }
+    .dashboard-container {
+        flex: 1; min-height: 0; display: flex; flex-direction: column;
+        padding: 0 !important;
+    }
+    .dashboard-toolbar { flex-shrink: 0; margin-bottom: 0.25rem !important; }
+
+    .kpi-card {
+        border-radius: 10px; border: none; padding: 0.6rem 1rem; color: white;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: flex;
+        justify-content: space-between; align-items: center; height: 100%;
+        background: var(--card-color);
+    }
+    .kpi-value { font-size: 1.4rem; font-weight: 800; margin: 0; line-height: 1; }
+    .kpi-label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; opacity: 0.8; margin-top: 2px; }
+    .kpi-icon { font-size: 1.8rem; opacity: 0.4; }
+
+    .ic-card, .ic-table-container {
+        background: #fff; border: none; border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04); overflow: hidden;
+    }
+    .ic-card-header {
+        background: #fff; border-bottom: 1px solid #f0f2f5;
+        padding: 0.85rem; font-weight: 700; font-size: 0.8rem;
+        color: var(--card-color); text-transform: uppercase;
+    }
+    .ic-table { margin-bottom: 0; }
+    .ic-table th {
+        background: #F8FAFC; color: #64748B; text-transform: uppercase;
+        font-size: 0.7rem; border-top: none; border-bottom: 2px solid #E2E8F0;
+        padding: 0.5rem;
+    }
+    .ic-table td { vertical-align: middle; font-size: 0.8rem; padding: 0.5rem; border-top: 1px solid #F1F5F9; }
+    .card-footer { padding: 0.5rem; }
+    .chart-container { position: relative; height: 175px; width: 100%; }
+    .dashboard-row { margin-bottom: 0.5rem; }
+    .dashboard-kpis { flex-shrink: 0; }
+    .dashboard-charts { height: 235px; flex-shrink: 0; }
+    .dashboard-charts > [class*="col-"] { height: 100%; }
+    .dashboard-charts .card-body { padding: 0.6rem 0.75rem; }
+    .dashboard-tables { flex: 1; min-height: 0; }
+    .dashboard-tables > [class*="col-"] { height: 100%; }
+    .dashboard-tables .table-responsive { overflow-y: auto; min-height: 0; }
+    .dashboard-tables .card-footer { flex-shrink: 0; }
+    .payment-badge {
+        color: #fff; padding: 0.3rem 0.6rem; border-radius: 50px;
+        font-size: 0.72rem; font-weight: 600;
+    }
+    .payment-badge-membership { background: var(--primary); }
+    .payment-badge-daily-pass { background: var(--primary-hover); }
+    .payment-badge-other { background: var(--sidebar-hover); }
+    .payment-method-icon { color: var(--primary); }
+    .payment-section-icon { color: var(--primary); }
+    .expiration-section-icon { color: var(--primary); }
+
+    @media (max-width: 991.98px) {
+        html, body { overflow: auto; }
+        #page-wrapper main { height: auto; min-height: calc(100vh - var(--navbar-h)); overflow: visible; }
+        .dashboard-container { display: block; }
+        .dashboard-charts { height: auto; }
+        .dashboard-charts > [class*="col-"], .dashboard-tables > [class*="col-"] { height: auto; }
+        .chart-container { height: 220px; }
+        .dashboard-tables .table-responsive { overflow: auto; }
+    }
 </style>
 @endpush
 
 @section('content')
-<div class="container-fluid py-2">
+<div class="container-fluid dashboard-container">
     
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center dashboard-toolbar">
         <div>
-            <h4 class="mb-0 text-gray-800 font-weight-bold">Dashboard Admin</h4>
-            <span class="text-muted">{{ \Carbon\Carbon::today()->isoFormat('dddd D \d\e MMMM, YYYY') }}</span>
+            <span class="text-muted">{{ \Carbon\Carbon::today()->locale('es')->isoFormat('dddd D [de] MMMM [de] YYYY') }}</span>
         </div>
         
         <form method="GET" action="{{ route('dashboard') }}" class="form-inline">
@@ -52,9 +98,9 @@
     </div>
 
     <!-- KPI Cards -->
-    <div class="row mb-4">
-        <div class="col-xl-4 col-md-4 mb-4 mb-xl-0">
-            <div class="kpi-card bg-gradient-success">
+    <div class="row dashboard-row dashboard-kpis">
+        <div class="col-xl-4 col-md-4 mb-3 mb-xl-0">
+            <div class="kpi-card">
                 <div>
                     <div class="kpi-value">${{ number_format($ingresosPeriodo, 2) }}</div>
                     <div class="kpi-label">Ingresos ({{ $labelPeriodo }})</div>
@@ -62,8 +108,8 @@
                 <i class="fas fa-dollar-sign kpi-icon"></i>
             </div>
         </div>
-        <div class="col-xl-4 col-md-4 mb-4 mb-xl-0">
-            <div class="kpi-card bg-gradient-info">
+        <div class="col-xl-4 col-md-4 mb-3 mb-xl-0">
+            <div class="kpi-card">
                 <div>
                     <div class="kpi-value">{{ $clientesActivos }}</div>
                     <div class="kpi-label">Clientes Activos Hoy</div>
@@ -71,8 +117,8 @@
                 <i class="fas fa-users kpi-icon"></i>
             </div>
         </div>
-        <div class="col-xl-4 col-md-4 mb-4 mb-xl-0">
-            <div class="kpi-card bg-gradient-warning">
+        <div class="col-xl-4 col-md-4 mb-3 mb-xl-0">
+            <div class="kpi-card">
                 <div>
                     <div class="kpi-value">{{ $asistenciasPeriodo }}</div>
                     <div class="kpi-label">Asistencias ({{ $labelPeriodo }})</div>
@@ -83,7 +129,7 @@
     </div>
 
     <!-- Charts -->
-    <div class="row mb-4">
+    <div class="row dashboard-row dashboard-charts">
         <div class="col-lg-8">
             <div class="ic-card h-100">
                 <div class="ic-card-header d-flex justify-content-between align-items-center">
@@ -112,12 +158,12 @@
     </div>
 
     <!-- Tables -->
-    <div class="row">
+    <div class="row dashboard-tables">
         <!-- Vencimientos Próximos -->
-        <div class="col-lg-6 mb-4">
+        <div class="col-lg-6 mb-3">
             <div class="ic-table-container h-100 d-flex flex-column">
                 <div class="ic-card-header">
-                    <i class="fas fa-exclamation-triangle text-warning mr-2"></i>Vencimientos Próximos (7 días)
+                    <i class="fas fa-exclamation-triangle expiration-section-icon mr-2"></i>Vencimientos Próximos (7 días)
                 </div>
                 <div class="table-responsive flex-grow-1">
                     <table class="table ic-table table-hover">
@@ -155,15 +201,16 @@
         </div>
 
         <!-- Pagos Recientes -->
-        <div class="col-lg-6 mb-4">
+        <div class="col-lg-6 mb-3">
             <div class="ic-table-container h-100 d-flex flex-column">
                 <div class="ic-card-header">
-                    <i class="fas fa-receipt text-success mr-2"></i>Pagos Recientes
+                    <i class="fas fa-receipt payment-section-icon mr-2"></i>Pagos Recientes
                 </div>
                 <div class="table-responsive flex-grow-1">
                     <table class="table ic-table table-hover">
                         <thead>
                             <tr>
+                                <th>Fecha / Hora</th>
                                 <th>Cliente</th>
                                 <th>Concepto</th>
                                 <th>Monto</th>
@@ -172,24 +219,38 @@
                         <tbody>
                             @forelse($pagosRecientes as $pago)
                             <tr>
+                                <td>
+                                    <span class="d-block font-weight-bold text-dark">{{ $pago->fecha_pago->format('d/m/Y') }}</span>
+                                    <small class="text-muted">{{ $pago->fecha_pago->format('h:i A') }}</small>
+                                </td>
                                 <td class="font-weight-bold">{{ $pago->cliente->nombre }}</td>
                                 <td>
                                     @if($pago->tipo_pago === 'membresia')
-                                        <span class="badge badge-primary">Membresía</span>
+                                        <span class="payment-badge payment-badge-membership"><i class="fas fa-id-card mr-1"></i>Membresía</span>
                                     @elseif($pago->tipo_pago === 'pase_diario')
-                                        <span class="badge badge-info">Pase Diario</span>
+                                        <span class="payment-badge payment-badge-daily-pass"><i class="fas fa-ticket-alt mr-1"></i>Pase Diario</span>
                                     @else
-                                        <span class="badge badge-secondary">{{ $pago->tipo_pago }}</span>
+                                        <span class="payment-badge payment-badge-other"><i class="fas fa-receipt mr-1"></i>{{ $pago->tipo_pago }}</span>
                                     @endif
                                 </td>
                                 <td>
                                     <span class="font-weight-bold text-success">${{ number_format($pago->monto, 2) }}</span>
-                                    <div class="small text-muted">{{ strtoupper($pago->metodo_pago) }}</div>
+                                    @php
+                                        $metodoPagoIcon = 'fas fa-money-bill';
+                                        if ($pago->metodo_pago === 'tarjeta') {
+                                            $metodoPagoIcon = 'fas fa-credit-card';
+                                        } elseif ($pago->metodo_pago === 'transferencia') {
+                                            $metodoPagoIcon = 'fas fa-exchange-alt';
+                                        }
+                                    @endphp
+                                    <div class="small text-muted">
+                                        <i class="{{ $metodoPagoIcon }} payment-method-icon mr-1"></i>{{ ucfirst($pago->metodo_pago) }}
+                                    </div>
                                 </td>
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="3" class="text-center text-muted py-4">No hay pagos registrados recientemente.</td>
+                                <td colspan="4" class="text-center text-muted py-4">No hay pagos registrados recientemente.</td>
                             </tr>
                             @endforelse
                         </tbody>
@@ -208,6 +269,9 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    const primaryColor = getComputedStyle(document.documentElement)
+        .getPropertyValue('--primary').trim() || '#2563EB';
+
     // Afluencia por hora (Bar Chart)
     const ctxAfluencia = document.getElementById('afluenciaChart');
     if (ctxAfluencia) {
@@ -218,7 +282,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 datasets: [{
                     label: 'Asistencias',
                     data: {!! json_encode($chartHorasData) !!},
-                    backgroundColor: '#4e73df',
+                    backgroundColor: primaryColor,
                     borderRadius: 4
                 }]
             },
