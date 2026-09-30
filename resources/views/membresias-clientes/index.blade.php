@@ -27,9 +27,14 @@
     :root {
         --ic-accent: var(--primary);
         --card-color: var(--sidebar-bg);
-        --ic-green: #10B981;
-        --ic-red: #EF4444;
-        --ic-yellow: #F59E0B;
+        --ic-green: var(--primary);
+        --ic-red: var(--sidebar-hover);
+        --ic-yellow: var(--primary-hover);
+        --duration-purple: #8B5CF6;
+        --duration-blue: #2563EB;
+        --duration-good: #10B981;
+        --duration-warning: #F59E0B;
+        --duration-critical: #EF4444;
         --ic-muted: #64748B;
     }
 
@@ -56,6 +61,21 @@
     .dataTables_wrapper > .row:first-child,
     .dataTables_wrapper > .row:last-child { flex-shrink: 0; }
     .dataTables_wrapper > .row:nth-child(2) { flex: 1; min-height: 0; overflow-y: auto; }
+    .dataTables_wrapper .dataTables_length select,
+    .dataTables_wrapper .dataTables_filter input {
+        border: 1px solid var(--card-color); border-radius: 6px;
+        color: var(--card-color); font-size: 0.8rem;
+    }
+    .dataTables_wrapper .dataTables_paginate .page-link {
+        color: var(--card-color); border-color: #E2E8F0; font-size: 0.8rem;
+    }
+    .dataTables_wrapper .dataTables_paginate .page-item.active .page-link,
+    .dataTables_wrapper .dataTables_paginate .page-link:hover {
+        background-color: var(--card-color); border-color: var(--card-color); color: #fff;
+    }
+    .dataTables_wrapper .dataTables_paginate .page-item.disabled .page-link {
+        color: #94A3B8; background-color: #F8FAFC;
+    }
 
     .ic-table thead th { font-size: 0.7rem; color: var(--ic-muted); background: #F8FAFC; border-bottom: 2px solid #E2E8F0; padding: 0.4rem 0.5rem; position: sticky; top: 0; z-index: 10; }
     .ic-table td { font-size: 0.8rem; vertical-align: middle; white-space: nowrap; border-top: 1px solid #F1F5F9; padding: 0.4rem 0.5rem; }
@@ -67,7 +87,11 @@
     .ic-badge-expired { background: var(--ic-red); color: white; padding: 3px 8px; border-radius: 50px; font-weight: 600; font-size: 0.7rem; }
     .ic-badge-plan { background: var(--card-color); color: white; padding: 3px 10px; border-radius: 50px; font-weight: 600; font-size: 0.7rem; letter-spacing: 0.05em; }
 
-    .bg-purple { background-color: #8B5CF6 !important; }
+    .progress-bar.bg-purple { background-color: var(--duration-purple) !important; }
+    .progress-bar.bg-info { background-color: var(--duration-blue) !important; }
+    .progress-bar.bg-success { background-color: var(--duration-good) !important; }
+    .progress-bar.bg-warning { background-color: var(--duration-warning) !important; }
+    .progress-bar.bg-danger { background-color: var(--duration-critical) !important; }
     
     .progress-sm { height: 6px; border-radius: 3px; background-color: #E2E8F0; overflow: hidden; margin-top: 4px; }
     .progress-sm .progress-bar { transition: width 0.4s ease; }
@@ -84,35 +108,51 @@
     }
 
     /* Card View */
-    .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; overflow-y: auto; padding-right: 5px; }
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 0.75rem; overflow-y: auto; padding: 2px 5px 2px 2px; }
     .member-card {
-        background: #fff; border-radius: 12px; padding: 1.25rem;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-left: 4px solid var(--ic-green);
+        background: #fff; border-radius: 10px; padding: 0.85rem;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.04); border-left: 4px solid var(--ic-green);
+        display: flex; flex-direction: column; min-height: 235px;
         transition: transform 0.2s, box-shadow 0.2s;
     }
-    .member-card:hover { transform: translateY(-3px); box-shadow: 0 6px 16px rgba(0,0,0,0.1); }
+    .member-card:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
     .member-card.status-warn { border-left-color: var(--ic-yellow); }
     .member-card.status-expired { border-left-color: var(--ic-red); }
-    .member-card-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; }
+    .member-card-header { display: flex; align-items: center; gap: 0.75rem; min-height: 48px; margin-bottom: 0.75rem; }
     .member-card-avatar { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; }
     .member-card-avatar-placeholder {
         width: 48px; height: 48px; border-radius: 50%; background: var(--card-color);
         color: white; font-weight: bold; display: flex; align-items: center;
         justify-content: center; font-size: 1rem; flex-shrink: 0;
     }
-    .member-card-info { flex: 1; }
+    .member-card-info { flex: 1; min-width: 0; }
     .member-card-name { font-weight: 700; font-size: 0.95rem; color: var(--sidebar-bg); margin-bottom: 0; }
-    .member-card-detail { font-size: 0.75rem; color: var(--ic-muted); }
-    .member-card-body { display: flex; flex-direction: column; gap: 0.5rem; }
-    .member-card-row { display: flex; justify-content: space-between; font-size: 0.8rem; }
+    .member-card-detail { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.75rem; color: var(--ic-muted); }
+    .member-card-header > .ic-badge-active,
+    .member-card-header > .ic-badge-warn,
+    .member-card-header > .ic-badge-expired { flex-shrink: 0; }
+    .member-card-body { display: flex; flex: 1; flex-direction: column; gap: 0.4rem; }
+    .member-card-row { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; font-size: 0.8rem; }
     .member-card-label { color: var(--ic-muted); }
-    .member-card-value { font-weight: 600; }
+    .member-card-value { font-weight: 600; text-align: right; }
     .member-card-actions { display: flex; gap: 0.5rem; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #F1F5F9; }
-    .member-card-actions .btn { flex: 1; font-size: 0.75rem; padding: 0.3rem 0.5rem; border-radius: 6px; }
+    .member-card-actions .btn { flex: 1; min-width: 0; font-size: 0.75rem; padding: 0.3rem 0.5rem; border-radius: 6px; white-space: nowrap; }
+    .member-card-actions .btn[title] { flex: 0 0 34px; padding-left: 0; padding-right: 0; }
+    .member-action-icon { color: var(--primary) !important; }
+    .member-card-actions .btn-outline-success,
+    .member-card-actions .btn-outline-info,
+    .member-card-actions .btn-outline-primary { color: var(--primary); border-color: var(--primary); }
+    .member-card-actions .btn-outline-success:hover,
+    .member-card-actions .btn-outline-info:hover,
+    .member-card-actions .btn-outline-primary:hover { background: var(--primary); color: #fff; }
 
     /* Toggle View Buttons */
-    .view-toggle .btn { padding: 0.25rem 0.5rem; font-size: 0.8rem; }
-    .view-toggle .btn.active { background: var(--card-color); color: white; }
+    .view-toggle .btn {
+        min-height: 29px; padding: 0.2rem 0.4rem; font-size: 0.72rem;
+        line-height: 1.25; font-weight: 600;
+    }
+    .ic-color-btn { color: var(--card-color) !important; border-color: var(--card-color) !important; }
+    .ic-color-btn:hover, .ic-color-btn.active { background-color: var(--card-color) !important; color: #fff !important; border-color: var(--card-color) !important; }
 </style>
 @endpush
 
@@ -130,25 +170,25 @@
         <div class="col">
             <div class="kpi-card">
                 <div><h3 class="kpi-value">{{ $recienCompradas }}</h3><div class="kpi-label">Recién Compradas</div></div>
-                <i class="fas fa-star kpi-icon text-warning"></i>
+                <i class="fas fa-star kpi-icon"></i>
             </div>
         </div>
         <div class="col">
             <div class="kpi-card">
                 <div><h3 class="kpi-value">{{ $activas }}</h3><div class="kpi-label">Activas</div></div>
-                <i class="fas fa-check-circle kpi-icon text-success"></i>
+                <i class="fas fa-check-circle kpi-icon"></i>
             </div>
         </div>
         <div class="col">
             <div class="kpi-card">
                 <div><h3 class="kpi-value">{{ $porVencer }}</h3><div class="kpi-label">Por Vencer</div></div>
-                <i class="fas fa-exclamation-triangle kpi-icon text-warning"></i>
+                <i class="fas fa-exclamation-triangle kpi-icon"></i>
             </div>
         </div>
         <div class="col">
             <div class="kpi-card">
                 <div><h3 class="kpi-value">{{ $vencidas }}</h3><div class="kpi-label">Inactivas / Vencidas</div></div>
-                <i class="fas fa-times-circle kpi-icon text-danger"></i>
+                <i class="fas fa-times-circle kpi-icon"></i>
             </div>
         </div>
     </div>
@@ -191,9 +231,9 @@
                 </div>
                 <div class="col-md-2 d-flex align-items-end gap-1 mt-2 mt-md-0">
                     <button type="button" class="btn btn-sm btn-outline-secondary js-clear-filters" style="font-size:0.8rem;" title="Limpiar"><i class="fas fa-redo"></i></button>
-                    <div class="view-toggle btn-group ml-1">
-                        <a href="{{ route('membresias-clientes.index', ['vista' => 'tabla']) }}" class="btn btn-sm btn-outline-secondary {{ $vista === 'tabla' ? 'active' : '' }}" title="Vista Tabla"><i class="fas fa-table"></i></a>
-                        <a href="{{ route('membresias-clientes.index', ['vista' => 'cards']) }}" class="btn btn-sm btn-outline-secondary {{ $vista === 'cards' ? 'active' : '' }}" title="Vista Tarjetas"><i class="fas fa-th-large"></i></a>
+                    <div class="view-toggle btn-group btn-group-sm ml-1" role="group">
+                        <a href="{{ route('membresias-clientes.index', ['vista' => 'tabla']) }}" class="btn btn-outline-primary ic-color-btn {{ $vista === 'tabla' ? 'active' : '' }}" title="Vista Tabla"><i class="fas fa-list mr-1"></i>Tabla</a>
+                        <a href="{{ route('membresias-clientes.index', ['vista' => 'cards']) }}" class="btn btn-outline-primary ic-color-btn {{ $vista === 'cards' ? 'active' : '' }}" title="Vista Tarjetas"><i class="fas fa-th-large mr-1"></i>Tarjetas</a>
                     </div>
                 </div>
             </div>
@@ -207,7 +247,7 @@
         {{-- TABLE VIEW --}}
         <div class="ic-card h-100 d-flex flex-column">
             <div class="d-flex justify-content-between align-items-center mb-1 flex-shrink-0">
-                <h5 class="ic-card-title mb-0"><i class="fas fa-users text-primary mr-2"></i> Control de Membresías</h5>
+                <h5 class="ic-card-title mb-0"><i class="fas fa-users ic-card-icon mr-2"></i> Control de Membresías</h5>
                 <span class="badge badge-light text-muted">{{ $membresias->count() }} registros</span>
             </div>
 
@@ -244,7 +284,7 @@
                             if ($porcentajeRestante > 75) $colorClass = 'bg-purple';
                             elseif ($porcentajeRestante > 50) $colorClass = 'bg-info';
                             elseif ($porcentajeRestante > 25) $colorClass = 'bg-success';
-                            elseif ($porcentajeRestante > 0) $colorClass = 'bg-warning';
+                            elseif ($porcentajeRestante > 5) $colorClass = 'bg-warning';
                             
                             $estadoRows = ['todas'];
                             if ($estaVencida) {
@@ -296,11 +336,11 @@
                                 <div class="dropdown">
                                     <button class="btn btn-sm btn-light py-0 px-2" type="button" data-toggle="dropdown"><i class="fas fa-ellipsis-v"></i></button>
                                     <div class="dropdown-menu dropdown-menu-right" style="font-size:0.8rem;">
-                                        <a class="dropdown-item py-1" href="{{ route('clientes.show', $cliente) }}"><i class="fas fa-eye text-primary mr-2"></i> Ver Expediente</a>
-                                        <a class="dropdown-item py-1" href="{{ route('pagos.create', ['cliente_id' => $cliente->id]) }}"><i class="fas fa-sync-alt text-success mr-2"></i> Renovar Plan</a>
+                                        <a class="dropdown-item py-1" href="{{ route('clientes.show', $cliente) }}"><i class="fas fa-eye member-action-icon mr-2"></i> Ver Expediente</a>
+                                        <a class="dropdown-item py-1" href="{{ route('pagos.create', ['cliente_id' => $cliente->id]) }}"><i class="fas fa-sync-alt member-action-icon mr-2"></i> Renovar Plan</a>
                                         @if($cliente->telefono)
-                                            <a class="dropdown-item py-1" href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $cliente->telefono) }}" target="_blank"><i class="fab fa-whatsapp text-success mr-2"></i> WhatsApp</a>
-                                            <a class="dropdown-item py-1" href="tel:{{ $cliente->telefono }}"><i class="fas fa-phone text-info mr-2"></i> Llamar</a>
+                                            <a class="dropdown-item py-1" href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $cliente->telefono) }}" target="_blank"><i class="fab fa-whatsapp member-action-icon mr-2"></i> WhatsApp</a>
+                                            <a class="dropdown-item py-1" href="tel:{{ $cliente->telefono }}"><i class="fas fa-phone member-action-icon mr-2"></i> Llamar</a>
                                         @endif
                                     </div>
                                 </div>
@@ -334,7 +374,7 @@
                 if ($porcentajeRestante > 75) $colorClass = 'bg-purple';
                 elseif ($porcentajeRestante > 50) $colorClass = 'bg-info';
                 elseif ($porcentajeRestante > 25) $colorClass = 'bg-success';
-                elseif ($porcentajeRestante > 0) $colorClass = 'bg-warning';
+                elseif ($porcentajeRestante > 5) $colorClass = 'bg-warning';
                 
                 $estadoRows = ['todas'];
                 if ($estaVencida) {

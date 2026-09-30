@@ -223,7 +223,9 @@
                                     <span class="d-block font-weight-bold text-dark">{{ $pago->fecha_pago->format('d/m/Y') }}</span>
                                     <small class="text-muted">{{ $pago->fecha_pago->format('h:i A') }}</small>
                                 </td>
-                                <td class="font-weight-bold">{{ $pago->cliente->nombre }}</td>
+                                <td class="font-weight-bold">
+                                    {{ $pago->cliente->nombre ?? 'Cliente no disponible' }}
+                                </td>
                                 <td>
                                     @if($pago->tipo_pago === 'membresia')
                                         <span class="payment-badge payment-badge-membership"><i class="fas fa-id-card mr-1"></i>Membresía</span>
