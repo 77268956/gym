@@ -11,6 +11,7 @@ class ConfiguracionGeneral extends Model
     protected $fillable = [
         'nombre_gimnasio',
         'logo_path',
+        'mensaje_whatsapp',
         'moneda',
         'simbolo_moneda',
         'codigo_moneda',

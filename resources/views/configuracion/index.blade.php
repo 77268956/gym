@@ -185,7 +185,19 @@
                             </div>
                         </div>
 
-                        {{-- SECCIÓN 4: Apariencia --}}
+                        {{-- SECCIÓN 4: Mensajes --}}
+                        <div class="config-section">
+                            <div class="config-section-title"><i class="fab fa-whatsapp mr-2"></i> Plantilla de WhatsApp</div>
+                            <div class="form-group mb-0">
+                                <label for="mensaje_whatsapp" class="config-label">Mensaje predeterminado para clientes</label>
+                                <textarea name="mensaje_whatsapp" id="mensaje_whatsapp" class="form-control @error('mensaje_whatsapp') is-invalid @enderror" rows="4" maxlength="2000" placeholder="Escribe el mensaje que recibirá el cliente...">{{ old('mensaje_whatsapp', $configuracion->mensaje_whatsapp ?? 'Hola @usuario, te recordamos que tu plan @plan vence en @dias días, el @fecha_vencimiento. Saludos de @gimnasio.') }}</textarea>
+                                <div class="config-hint">
+                                    Variables disponibles: <code>&#64;usuario</code> nombre, <code>&#64;plan</code> plan, <code>&#64;dias</code> días restantes, <code>&#64;fecha_vencimiento</code> vencimiento y <code>&#64;gimnasio</code> nombre del gimnasio.
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- SECCIÓN 5: Apariencia --}}
                         <div class="config-section">
                             <div class="config-section-title"><i class="fas fa-palette mr-2"></i> Colores del sistema</div>
                             <div class="form-group mb-3">

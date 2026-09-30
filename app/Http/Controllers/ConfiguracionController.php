@@ -26,6 +26,7 @@ class ConfiguracionController extends Controller
     {
         $request->validate([
             'nombre_gimnasio' => 'required|string|max:255',
+            'mensaje_whatsapp' => 'nullable|string|max:2000',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
             'color_primario' => ['nullable', 'regex:/^#[0-9A-Fa-f]{6}$/'],
             'color_primario_hover' => ['nullable', 'regex:/^#[0-9A-Fa-f]{6}$/'],
@@ -44,6 +45,7 @@ class ConfiguracionController extends Controller
         ]);
 
         $configuracion->nombre_gimnasio = $request->input('nombre_gimnasio');
+        $configuracion->mensaje_whatsapp = $request->input('mensaje_whatsapp');
 
         // Eliminar logo si el usuario lo solicitó
         if ($request->boolean('eliminar_logo')) {

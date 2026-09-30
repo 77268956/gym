@@ -33,6 +33,7 @@ class AppServiceProvider extends ServiceProvider
                         return [
                             'nombre_gimnasio' => $model->nombre_gimnasio ?? 'EcoGim',
                             'logo_path' => $model->logo_path ?? null,
+                            'mensaje_whatsapp' => $model->mensaje_whatsapp ?? 'Hola @usuario, te recordamos que tu plan @plan vence en @dias días, el @fecha_vencimiento. Saludos de @gimnasio.',
                             'simbolo_moneda' => $model->simbolo_moneda ?? 'L.',
                             'color_primario' => $model->color_primario ?? '#2563EB',
                             'color_primario_hover' => $model->color_primario_hover ?? '#1D4ED8',
@@ -53,6 +54,7 @@ class AppServiceProvider extends ServiceProvider
                 $gymConfig = (object) [
                     'nombre_gimnasio' => 'EcoGim',
                     'logo_path' => null,
+                    'mensaje_whatsapp' => 'Hola @usuario, te recordamos que tu plan @plan vence en @dias días, el @fecha_vencimiento. Saludos de @gimnasio.',
                     'simbolo_moneda' => 'L.',
                     'color_primario' => '#2563EB',
                     'color_primario_hover' => '#1D4ED8',

@@ -339,7 +339,17 @@
                                         <a class="dropdown-item py-1" href="{{ route('clientes.show', $cliente) }}"><i class="fas fa-eye member-action-icon mr-2"></i> Ver Expediente</a>
                                         <a class="dropdown-item py-1" href="{{ route('pagos.create', ['cliente_id' => $cliente->id]) }}"><i class="fas fa-sync-alt member-action-icon mr-2"></i> Renovar Plan</a>
                                         @if($cliente->telefono)
-                                            <a class="dropdown-item py-1" href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $cliente->telefono) }}" target="_blank"><i class="fab fa-whatsapp member-action-icon mr-2"></i> WhatsApp</a>
+                                            @php
+                                                $mensajeWhatsApp = strtr($gymConfig->mensaje_whatsapp ?? 'Hola @usuario, te recordamos que tu plan @plan vence en @dias días, el @fecha_vencimiento. Saludos de @gimnasio.', [
+                                                    '@usuario' => $cliente->nombre,
+                                                    '@plan' => $membresia->tipoMembresia->nombre ?? 'Sin plan',
+                                                    '@dias' => (string) $diasRestantes,
+                                                    '@fecha_vencimiento' => $membresia->fecha_vencimiento->format('d/m/Y'),
+                                                    '@gimnasio' => $gymConfig->nombre_gimnasio,
+                                                ]);
+                                                $whatsappUrl = 'https://wa.me/' . preg_replace('/[^0-9]/', '', $cliente->telefono) . '?text=' . rawurlencode($mensajeWhatsApp);
+                                            @endphp
+                                            <a class="dropdown-item py-1" href="{{ $whatsappUrl }}" target="_blank"><i class="fab fa-whatsapp member-action-icon mr-2"></i> WhatsApp</a>
                                             <a class="dropdown-item py-1" href="tel:{{ $cliente->telefono }}"><i class="fas fa-phone member-action-icon mr-2"></i> Llamar</a>
                                         @endif
                                     </div>
@@ -429,7 +439,17 @@
                     <a href="{{ route('clientes.show', $cliente) }}" class="btn btn-outline-primary"><i class="fas fa-eye mr-1"></i> Expediente</a>
                     <a href="{{ route('pagos.create', ['cliente_id' => $cliente->id]) }}" class="btn btn-outline-success"><i class="fas fa-sync-alt mr-1"></i> Renovar</a>
                     @if($cliente->telefono)
-                        <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $cliente->telefono) }}" target="_blank" class="btn btn-outline-success" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                        @php
+                            $mensajeWhatsApp = strtr($gymConfig->mensaje_whatsapp ?? 'Hola @usuario, te recordamos que tu plan @plan vence en @dias días, el @fecha_vencimiento. Saludos de @gimnasio.', [
+                                '@usuario' => $cliente->nombre,
+                                '@plan' => $membresia->tipoMembresia->nombre ?? 'Sin plan',
+                                '@dias' => (string) $diasRestantes,
+                                '@fecha_vencimiento' => $membresia->fecha_vencimiento->format('d/m/Y'),
+                                '@gimnasio' => $gymConfig->nombre_gimnasio,
+                            ]);
+                            $whatsappUrl = 'https://wa.me/' . preg_replace('/[^0-9]/', '', $cliente->telefono) . '?text=' . rawurlencode($mensajeWhatsApp);
+                        @endphp
+                        <a href="{{ $whatsappUrl }}" target="_blank" class="btn btn-outline-success" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
                         <a href="tel:{{ $cliente->telefono }}" class="btn btn-outline-info" title="Llamar"><i class="fas fa-phone"></i></a>
                     @endif
                 </div>
