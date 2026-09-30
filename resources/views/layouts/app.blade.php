@@ -457,6 +457,12 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('membresias-clientes.*') ? 'active' : '' }}" href="{{ route('membresias-clientes.index') }}" title="Control de Membresías">
+                        <i class="fas fa-address-book"></i>
+                        <span class="sidebar-label">Control Membresías</span>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('asistencias.escanear') ? 'active' : '' }}" href="{{ route('asistencias.escanear') }}" title="Escanear Facial">
                         <i class="fas fa-camera"></i>
                         <span class="sidebar-label">Recepción Facial</span>

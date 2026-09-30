@@ -6,6 +6,7 @@ use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\ConfiguracionController;
 use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\LandingController;
+use App\Http\Controllers\MembresiaClienteController;
 use App\Http\Controllers\PagoController;
 use App\Http\Controllers\ProductoEcogimController;
 use App\Http\Controllers\TiendaController;
@@ -25,9 +26,7 @@ Route::post('/escanear-publico/registrar', [AsistenciaController::class, 'regist
 
 // Rutas autenticadas (Accesibles para Recepcionista y Administrador)
 Route::middleware('auth')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/perfil', [UserController::class, 'profile'])->name('perfil');
 
@@ -49,6 +48,9 @@ Route::middleware('auth')->group(function () {
 
     // Consulta de Tipos de Membresía / Planes
     Route::get('/membresias', [TipoMembresiaController::class, 'index'])->name('membresias.index');
+
+    // Control de Membresías de Clientes
+    Route::get('/membresias-clientes', [MembresiaClienteController::class, 'index'])->name('membresias-clientes.index');
 
     // Módulo de Asistencias (Escáner Facial)
     Route::get('/asistencias', [AsistenciaController::class, 'index'])->name('asistencias.index');
