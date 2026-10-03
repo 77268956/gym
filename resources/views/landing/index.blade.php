@@ -14,6 +14,7 @@
     <style>
         :root {
             --primary: {{ $config->primary_color ?? '#2563EB' }};
+            --secondary: {{ $config->secondary_color ?? '#111214' }};
             --text-dark: #101113;
             --text-light: #aeb2b6;
             --bg-light: #f1f0ed;
@@ -99,12 +100,29 @@
             display: flex;
             align-items: center;
             justify-content: flex-start;
-            background: linear-gradient(90deg, rgba(6, 7, 8, 0.94) 0%, rgba(6, 7, 8, 0.76) 48%, rgba(6, 7, 8, 0.22) 100%),
-                        url('{{ $config->hero_image ? asset("storage/".$config->hero_image) : "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1470&auto=format&fit=crop" }}') center/cover no-repeat;
             color: white;
             text-align: left;
             padding: 104px 0 2rem;
             overflow: hidden;
+        }
+        .hero-slide {
+            position: absolute;
+            z-index: 0;
+            inset: 0;
+            background-position: center;
+            background-size: cover;
+            opacity: 0;
+            transition: opacity 1.2s ease-in-out;
+        }
+        .hero-slide.is-active,
+        .hero-copy-slide.is-active {
+            opacity: 1;
+        }
+        .hero-slide::after {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, rgba(6, 7, 8, 0.94) 0%, rgba(6, 7, 8, 0.76) 48%, rgba(6, 7, 8, 0.22) 100%);
+            content: '';
         }
         .hero .container {
             position: relative;
@@ -114,6 +132,59 @@
             max-width: 760px;
             animation: hero-rise 0.8s ease-out both;
         }
+        .hero-copy-slide {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-42%);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity .25s ease-in-out;
+        }
+        .hero-copy-slide.is-active {
+            visibility: visible;
+        }
+        .hero-control {
+            position: absolute;
+            z-index: 3;
+            top: 50%;
+            display: grid;
+            width: 46px;
+            height: 46px;
+            place-items: center;
+            border: 1px solid rgba(255,255,255,.45);
+            border-radius: 50%;
+            background: rgba(0,0,0,.28);
+            color: #fff;
+            font-size: 1.1rem;
+            transform: translateY(-50%);
+            transition: background .2s ease, border-color .2s ease;
+        }
+        .hero-control:hover,
+        .hero-control:focus-visible {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: #fff;
+        }
+        .hero-control-prev { left: 1.5rem; }
+        .hero-control-next { right: 1.5rem; }
+        .hero-indicators {
+            position: absolute;
+            z-index: 3;
+            bottom: 1.5rem;
+            left: 50%;
+            display: flex;
+            gap: .45rem;
+            transform: translateX(-50%);
+        }
+        .hero-indicator {
+            width: 28px;
+            height: 4px;
+            padding: 0;
+            border: 0;
+            border-radius: 50px;
+            background: rgba(255,255,255,.45);
+        }
+        .hero-indicator.is-active { background: var(--primary); }
         .hero .hero-kicker {
             display: inline-flex;
             align-items: center;
@@ -224,12 +295,24 @@
             line-height: 1.8;
             color: #b8babd;
         }
-        .about-img {
-            max-height: 480px;
-            border-left: 4px solid var(--primary);
+        .about-content {
+            padding-right: 2rem;
+        }
+        .about-visual {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+        .about-image-frame {
             width: 100%;
-            height: 100%;
-            object-fit: cover;
+            max-width: 520px;
+            margin-left: auto;
+        }
+        .about-img {
+            display: block;
+            width: 100%;
+            height: auto;
+            border-left: 4px solid var(--primary);
         }
 
         /* Services Section */
@@ -315,7 +398,7 @@
             flex-direction: column;
             justify-content: flex-end;
             padding: 1rem;
-            background: linear-gradient(0deg, rgba(5, 6, 7, 0.92) 0%, rgba(5, 6, 7, 0.2) 72%);
+            background: transparent;
             color: #fff;
             pointer-events: none;
         }
@@ -392,6 +475,74 @@
             color: #fff;
             opacity: .82;
             text-decoration: none;
+        }
+        .reward-detail-modal {
+            background: #191b1e;
+            color: #fff;
+        }
+        .reward-detail-modal-dialog {
+            max-width: 720px;
+        }
+        .reward-detail-modal .modal-header {
+            min-height: 34px;
+            padding: .35rem .65rem !important;
+        }
+        .reward-detail-modal .modal-body {
+            display: grid;
+            grid-template-columns: minmax(0, 42%) minmax(0, 58%);
+            align-items: stretch;
+        }
+        .reward-detail-image {
+            display: block;
+            width: 100%;
+            height: 265px;
+            object-fit: cover;
+            background: #090a0c;
+        }
+        .reward-detail-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 1.1rem 1.25rem 1.25rem;
+        }
+        .reward-detail-content h3 {
+            margin-bottom: .45rem;
+            color: #fff;
+            font-size: 1.45rem;
+        }
+        .reward-detail-content p {
+            margin-bottom: .5rem;
+            color: #c4c6c8;
+            font-size: .88rem;
+            line-height: 1.45;
+        }
+        .reward-detail-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .5rem;
+            margin-top: 1rem;
+        }
+        .reward-detail-meta span {
+            display: inline-flex;
+            align-items: center;
+            gap: .35rem;
+            padding: .4rem .7rem;
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 50px;
+            color: #fff;
+            font-size: .78rem;
+            font-weight: 700;
+        }
+        @media (max-width: 575.98px) {
+            .reward-detail-modal .modal-body {
+                display: block;
+            }
+            .reward-detail-image {
+                height: 210px;
+            }
+            .reward-detail-content {
+                padding: 1rem;
+            }
         }
         /* Contact Section */
         .contact {
@@ -659,6 +810,102 @@
         .services-section {
             background: var(--bg-light);
         }
+        .equipment-section,
+        .facilities-section {
+            background: var(--secondary);
+            color: #fff;
+        }
+        .equipment-section .section-title h2,
+        .facilities-section .section-title h2,
+        .trainers-section .section-title h2 {
+            color: inherit;
+        }
+        .showcase-card {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            min-height: 360px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,.16);
+            border-radius: 6px;
+            background: #191b1e;
+            box-shadow: 0 8px 24px rgba(0,0,0,.12);
+            transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+        }
+        .showcase-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 14px 30px rgba(0,0,0,.22);
+            transform: translateY(-4px);
+        }
+        .trainers-section {
+            background: var(--bg-light);
+        }
+        .showcase-card img {
+            position: absolute;
+            z-index: 0;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .showcase-card-body {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex: 1;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 1.25rem;
+            background: transparent;
+            color: #fff;
+        }
+        .showcase-intro {
+            max-width: 720px;
+            margin: -2.5rem auto 2.5rem;
+            color: #b8babd;
+            font-size: 1.05rem;
+            line-height: 1.75;
+            text-align: center;
+        }
+        .trainers-section .showcase-intro {
+            color: #62666b;
+        }
+        .showcase-card-label {
+            display: inline-flex;
+            align-items: center;
+            align-self: flex-start;
+            gap: .35rem;
+            margin-bottom: .55rem;
+            padding: .28rem .55rem;
+            border: 1px solid rgba(255,255,255,.38);
+            border-radius: 50px;
+            background: rgba(0,0,0,.22);
+            color: var(--primary);
+            font-size: .72rem;
+            font-weight: 700;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+        }
+        .showcase-card h3 {
+            margin-bottom: .5rem;
+            color: #fff;
+            font-size: 1.35rem;
+            line-height: 1.1;
+            text-shadow: 0 1px 3px #000, 0 0 8px rgba(0,0,0,.9);
+        }
+        .showcase-card p {
+            margin-bottom: 0;
+            color: #fff;
+            font-size: .82rem;
+            line-height: 1.45;
+            text-shadow: 0 1px 3px #000, 0 0 8px rgba(0,0,0,.9);
+        }
+        .trainers-section .showcase-card {
+            border-color: rgba(255,255,255,.16);
+            background: #191b1e;
+            color: #fff;
+        }
         .plans-section {
             background: #090a0c;
             color: #fff;
@@ -735,6 +982,12 @@
             .hero p {
                 font-size: 1rem;
             }
+            .hero-control {
+                width: 38px;
+                height: 38px;
+            }
+            .hero-control-prev { left: .75rem; }
+            .hero-control-next { right: .75rem; }
             section {
                 padding: 4rem 0;
             }
@@ -771,6 +1024,9 @@
                     <li class="nav-item"><a class="nav-link" href="#inicio">Inicio</a></li>
                     <li class="nav-item"><a class="nav-link" href="#nosotros">Nosotros</a></li>
                     <li class="nav-item"><a class="nav-link" href="#servicios">Servicios</a></li>
+                    @if(!empty($config->equipment))<li class="nav-item"><a class="nav-link" href="#equipos">Equipos</a></li>@endif
+                    @if(!empty($config->trainers))<li class="nav-item"><a class="nav-link" href="#entrenadores">Entrenadores</a></li>@endif
+                    @if(!empty($config->facilities))<li class="nav-item"><a class="nav-link" href="#instalaciones">Instalaciones</a></li>@endif
                     <li class="nav-item"><a class="nav-link" href="#planes">Planes</a></li>
                     <li class="nav-item"><a class="nav-link" href="#recompensas">Tienda</a></li>
                     <li class="nav-item"><a class="nav-link" href="#contacto">Contacto</a></li>
@@ -784,17 +1040,40 @@
 
     <!-- Hero Section -->
     <section id="inicio" class="hero">
+        @php($heroSlides = array_slice($config->hero_slides ?: [[
+            'title' => $config->hero_title,
+            'subtitle' => $config->hero_subtitle,
+            'image' => $config->hero_image,
+        ]], 0, 3))
+        @foreach($heroSlides as $index => $slide)
+            <div class="hero-slide{{ $index === 0 ? ' is-active' : '' }}" style="background-image: url('{{ !empty($slide['image']) ? asset('storage/'.$slide['image']) : 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1470&auto=format&fit=crop' }}');"></div>
+        @endforeach
         <div class="container">
-            <div class="hero-copy">
-                <p class="hero-kicker">Star Gym / Fitness System</p>
-                <h1>{{ $config->hero_title ?? 'Transforma tu Vida' }}</h1>
-                <p>{{ $config->hero_subtitle ?? 'El mejor gimnasio para alcanzar tus metas.' }}</p>
-                <div class="hero-actions">
-                    <a href="#contacto" class="btn btn-custom text-decoration-none">Únete Ahora</a>
-                    <a href="#planes" class="hero-secondary-link">Explorar planes <i class="fas fa-arrow-down ms-1" aria-hidden="true"></i></a>
+            @foreach($heroSlides as $index => $slide)
+                <div class="hero-copy hero-copy-slide{{ $index === 0 ? ' is-active' : '' }}">
+                    <p class="hero-kicker">Star Gym / Fitness System</p>
+                    <h1>{{ $slide['title'] ?? 'Transforma tu Vida' }}</h1>
+                    <p>{{ $slide['subtitle'] ?? 'El mejor gimnasio para alcanzar tus metas.' }}</p>
+                    <div class="hero-actions">
+                        <a href="#contacto" class="btn btn-custom text-decoration-none">Únete Ahora</a>
+                        <a href="#planes" class="hero-secondary-link">Explorar planes <i class="fas fa-arrow-down ms-1" aria-hidden="true"></i></a>
+                    </div>
                 </div>
-            </div>
+            @endforeach
         </div>
+        @if(count($heroSlides) > 1)
+            <button type="button" class="hero-control hero-control-prev" id="heroPrevious" aria-label="Imagen anterior">
+                <i class="fas fa-chevron-left" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="hero-control hero-control-next" id="heroNext" aria-label="Siguiente imagen">
+                <i class="fas fa-chevron-right" aria-hidden="true"></i>
+            </button>
+            <div class="hero-indicators" aria-label="Seleccionar imagen">
+                @foreach($heroSlides as $index => $slide)
+                    <button type="button" class="hero-indicator{{ $index === 0 ? ' is-active' : '' }}" data-hero-index="{{ $index }}" aria-label="Mostrar imagen {{ $index + 1 }}"></button>
+                @endforeach
+            </div>
+        @endif
     </section>
 
     <!-- About Section -->
@@ -802,7 +1081,7 @@
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-lg-6 mb-5 mb-lg-0">
-                    <div class="pe-lg-5">
+                    <div class="about-content">
                         <div class="section-title" style="text-align: left;">
                             <h2>Sobre Nosotros</h2>
                         </div>
@@ -812,8 +1091,10 @@
                         <a href="#servicios" class="btn btn-custom mt-3 text-decoration-none">Ver Servicios</a>
                     </div>
                 </div>
-                <div class="col-lg-6 text-center">
-                    <img src="{{ $config->about_image ? asset('storage/'.$config->about_image) : 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?q=80&w=1470&auto=format&fit=crop' }}" alt="Nosotros" class="about-img img-fluid">
+                <div class="col-lg-6 about-visual">
+                    <div class="about-image-frame">
+                        <img src="{{ $config->about_image ? asset('storage/'.$config->about_image) : 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?q=80&w=1470&auto=format&fit=crop' }}" alt="Nosotros" class="about-img">
+                    </div>
                 </div>
             </div>
         </div>
@@ -837,6 +1118,67 @@
                                 @endif
                             </div>
                         </div>
+                    @endforeach
+                </div>
+            </div>
+        </section>
+    @endif
+
+    @if(!empty($config->equipment))
+        <section id="equipos" class="equipment-section">
+            <div class="container">
+                <div class="section-title">
+                    <h2>{{ $config->equipment_heading ?: 'Equipos para cada objetivo' }}</h2>
+                </div>
+                <p class="showcase-intro">{{ $config->equipment_intro ?: 'Entrena con herramientas modernas, seguras y seleccionadas para ayudarte a ganar fuerza, mejorar tu resistencia y avanzar con confianza.' }}</p>
+                <div class="row g-4">
+                    @foreach($config->equipment as $item)
+                        <div class="col-lg-4 col-md-6"><article class="showcase-card">
+                            @if(!empty($item['image']))<img src="{{ asset('storage/'.$item['image']) }}" alt="{{ $item['title'] ?? 'Equipo' }}">@endif
+                            <div class="showcase-card-body">
+                                @if(!empty($item['icon']))<span class="showcase-card-label"><i class="{{ $item['icon'] }}"></i> Equipamiento</span>@endif
+                                <h3>{{ $item['title'] ?? '' }}</h3>
+                                <p>{{ $item['desc'] ?: 'Diseñado para complementar tu entrenamiento y ayudarte a alcanzar tus metas.' }}</p>
+                            </div>
+                        </article></div>
+                    @endforeach
+                </div>
+            </div>
+        </section>
+    @endif
+
+    @if(!empty($config->trainers))
+        <section id="entrenadores" class="trainers-section">
+            <div class="container">
+                <div class="section-title">
+                    <h2>{{ $config->trainers_heading ?: 'Entrenadores que te acompañan' }}</h2>
+                </div>
+                <p class="showcase-intro">{{ $config->trainers_intro ?: 'Recibe orientación, motivación y seguimiento de profesionales comprometidos con tu progreso dentro y fuera del gimnasio.' }}</p>
+                <div class="row g-4">
+                    @foreach($config->trainers as $trainer)
+                        <div class="col-lg-4 col-md-6"><article class="showcase-card">
+                            @if(!empty($trainer['image']))<img src="{{ asset('storage/'.$trainer['image']) }}" alt="{{ $trainer['name'] ?? 'Entrenador' }}">@endif
+                            <div class="showcase-card-body"><span class="showcase-card-label">{{ $trainer['role'] ?: 'Coach certificado' }}</span><h3>{{ $trainer['name'] ?? '' }}</h3><p>{{ $trainer['bio'] ?: 'Te ayudará a entrenar con técnica, constancia y objetivos claros.' }}</p></div>
+                        </article></div>
+                    @endforeach
+                </div>
+            </div>
+        </section>
+    @endif
+
+    @if(!empty($config->facilities))
+        <section id="instalaciones" class="facilities-section">
+            <div class="container">
+                <div class="section-title">
+                    <h2>{{ $config->facilities_heading ?: 'Un espacio para superarte' }}</h2>
+                </div>
+                <p class="showcase-intro">{{ $config->facilities_intro ?: 'Conoce ambientes cómodos, funcionales y preparados para que cada visita se convierta en una experiencia de entrenamiento completa.' }}</p>
+                <div class="row g-4">
+                    @foreach($config->facilities as $facility)
+                        <div class="col-lg-4 col-md-6"><article class="showcase-card">
+                            @if(!empty($facility['image']))<img src="{{ asset('storage/'.$facility['image']) }}" alt="{{ $facility['title'] ?? 'Instalación' }}">@endif
+                            <div class="showcase-card-body"><span class="showcase-card-label">Espacio GymX</span><h3>{{ $facility['title'] ?? '' }}</h3><p>{{ $facility['desc'] ?: 'Un ambiente preparado para entrenar con comodidad, energía y seguridad.' }}</p></div>
+                        </article></div>
                     @endforeach
                 </div>
             </div>
@@ -892,13 +1234,25 @@
                                     <span class="reward-tag">{{ ucfirst($prod->categoria) }}</span>
                                 @endif
                             </div>
-                            <a href="{{ route('login') }}" class="reward-action">
-                                Canjear ahora <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                            <a href="#" class="reward-action" data-bs-toggle="modal" data-bs-target="#modalImagenRecompensa"
+                                data-image="{{ $prod->imagen ? asset('storage/'.$prod->imagen) : '' }}"
+                                data-name="{{ $prod->nombre }}"
+                                data-description="{{ $prod->descripcion ?: 'Canjea este producto con tus puntos EcoGim.' }}"
+                                data-category="{{ $prod->categoria ? ucfirst($prod->categoria) : 'Recompensa EcoGim' }}"
+                                data-points="{{ number_format($prod->puntos_valor) }}"
+                                data-stock="{{ $prod->stock }}">
+                                Ver detalles <i class="fas fa-arrow-right" aria-hidden="true"></i>
                             </a>
                         </div>
                         <div class="reward-image">
                             @if($prod->imagen)
-                                <img src="{{ asset('storage/'.$prod->imagen) }}" alt="{{ $prod->nombre }}" class="reward-click-image" data-bs-toggle="modal" data-bs-target="#modalImagenRecompensa" data-image="{{ asset('storage/'.$prod->imagen) }}">
+                                <img src="{{ asset('storage/'.$prod->imagen) }}" alt="{{ $prod->nombre }}" class="reward-click-image" data-bs-toggle="modal" data-bs-target="#modalImagenRecompensa"
+                                    data-image="{{ asset('storage/'.$prod->imagen) }}"
+                                    data-name="{{ $prod->nombre }}"
+                                    data-description="{{ $prod->descripcion ?: 'Canjea este producto con tus puntos EcoGim.' }}"
+                                    data-category="{{ $prod->categoria ? ucfirst($prod->categoria) : 'Recompensa EcoGim' }}"
+                                    data-points="{{ number_format($prod->puntos_valor) }}"
+                                    data-stock="{{ $prod->stock }}">
                             @else
                                 <i class="fas fa-box" aria-hidden="true"></i>
                             @endif
@@ -917,14 +1271,23 @@
     </section>
 
     <div class="modal fade" id="modalImagenRecompensa" tabindex="-1" aria-labelledby="modalImagenRecompensaTitulo" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content border-0 bg-dark">
+        <div class="modal-dialog modal-dialog-centered reward-detail-modal-dialog">
+            <div class="modal-content reward-detail-modal border-0">
                 <div class="modal-header border-0 py-2">
-                    <h2 class="visually-hidden" id="modalImagenRecompensaTitulo">Imagen del producto</h2>
+                    <h2 class="visually-hidden" id="modalImagenRecompensaTitulo">Detalles de la recompensa</h2>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
-                <div class="modal-body p-0 text-center">
-                    <img id="imagenRecompensaModal" src="" alt="" style="width:100%;max-height:75vh;object-fit:contain;">
+                <div class="modal-body p-0">
+                    <img id="imagenRecompensaModal" class="reward-detail-image" src="" alt="">
+                    <div class="reward-detail-content">
+                        <span id="detalleCategoria" class="showcase-card-label"></span>
+                        <h3 id="detalleNombre"></h3>
+                        <p id="detalleDescripcion"></p>
+                        <div class="reward-detail-meta">
+                            <span><i class="fas fa-star" aria-hidden="true"></i> <span id="detallePuntos"></span> puntos</span>
+                            <span><i class="fas fa-box-open" aria-hidden="true"></i> <span id="detalleStock"></span></span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1049,11 +1412,62 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        const heroSlides = document.querySelectorAll('.hero-slide');
+        const heroCopySlides = document.querySelectorAll('.hero-copy-slide');
+        const heroIndicators = document.querySelectorAll('.hero-indicator');
+        const heroPrevious = document.getElementById('heroPrevious');
+        const heroNext = document.getElementById('heroNext');
+
+        if (heroSlides.length > 1 && heroSlides.length === heroCopySlides.length) {
+            let activeHeroSlide = 0;
+            let heroTimer;
+
+            const showHeroSlide = function (index) {
+                heroSlides[activeHeroSlide].classList.remove('is-active');
+                heroCopySlides[activeHeroSlide].classList.remove('is-active');
+                heroIndicators[activeHeroSlide]?.classList.remove('is-active');
+                activeHeroSlide = (index + heroSlides.length) % heroSlides.length;
+                heroSlides[activeHeroSlide].classList.add('is-active');
+                heroCopySlides[activeHeroSlide].classList.add('is-active');
+                heroIndicators[activeHeroSlide]?.classList.add('is-active');
+            };
+            const restartHeroTimer = function () {
+                window.clearInterval(heroTimer);
+                heroTimer = window.setInterval(function () {
+                    showHeroSlide(activeHeroSlide + 1);
+                }, 6000);
+            };
+
+            heroPrevious?.addEventListener('click', function () {
+                showHeroSlide(activeHeroSlide - 1);
+                restartHeroTimer();
+            });
+            heroNext?.addEventListener('click', function () {
+                showHeroSlide(activeHeroSlide + 1);
+                restartHeroTimer();
+            });
+            heroIndicators.forEach(function (indicator) {
+                indicator.addEventListener('click', function () {
+                    showHeroSlide(Number(indicator.dataset.heroIndex));
+                    restartHeroTimer();
+                });
+            });
+            restartHeroTimer();
+        }
+
         document.getElementById('modalImagenRecompensa').addEventListener('show.bs.modal', function (event) {
-            var image = event.relatedTarget;
+            var trigger = event.relatedTarget;
             var modalImage = document.getElementById('imagenRecompensaModal');
-            modalImage.src = image.dataset.image;
-            modalImage.alt = image.alt;
+            modalImage.src = trigger.dataset.image;
+            modalImage.alt = trigger.dataset.name;
+            modalImage.hidden = !trigger.dataset.image;
+            document.getElementById('detalleCategoria').textContent = trigger.dataset.category;
+            document.getElementById('detalleNombre').textContent = trigger.dataset.name;
+            document.getElementById('detalleDescripcion').textContent = trigger.dataset.description;
+            document.getElementById('detallePuntos').textContent = trigger.dataset.points;
+            document.getElementById('detalleStock').textContent = Number(trigger.dataset.stock) > 0
+                ? 'Disponible'
+                : 'Agotado';
         });
 
         const planRequestForm = document.getElementById('planRequestForm');
