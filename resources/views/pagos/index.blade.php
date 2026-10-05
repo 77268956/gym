@@ -30,12 +30,20 @@
     
     .page-header { flex-shrink: 0; margin-bottom: 0.75rem !important; }
     .main-container { flex: 1; overflow: hidden; display: flex; flex-direction: column; padding: 0 !important; }
+
+    :root {
+        --ic-accent: var(--primary);
+        --card-color: var(--sidebar-bg);
+        --ic-green: #10B981;
+        --ic-red: #EF4444;
+        --ic-muted: #64748B;
+    }
     
     /* KPI Cards */
     .kpi-card {
-        border-radius: 8px;
+        border-radius: 10px;
         border: none;
-        padding: 0.5rem 1rem; /* Más delgadas */
+        padding: 0.6rem 1rem;
         color: white;
         box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         display: flex;
@@ -44,9 +52,9 @@
         background: var(--sidebar-bg);
         height: 100%;
     }
-    .kpi-icon { font-size: 1.6rem; opacity: 0.4; } /* Icono más pequeño */
-    .kpi-value { font-size: 1.3rem; font-weight: 800; margin: 0; line-height: 1; } /* Texto más pequeño */
-    .kpi-label { font-size: 0.65rem; font-weight: 600; text-transform: uppercase; opacity: 0.8; margin-top: 2px;}
+    .kpi-icon { font-size: 1.8rem; opacity: 0.4; }
+    .kpi-value { font-size: 1.4rem; font-weight: 800; margin: 0; line-height: 1; }
+    .kpi-label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; opacity: 0.8; margin-top: 2px;}
 
     .ic-card {
         background: #fff;
@@ -59,22 +67,21 @@
     }
     .ic-card-title { font-weight: 700; font-size: 0.8rem; color: var(--sidebar-bg); margin-bottom: 0.5rem; text-transform: uppercase; }
     
-    /* Panel scrollable para la tabla */
-    .table-panel { flex: 1; min-height: 0; overflow: hidden; padding-right: 5px; }
+    /* Panel scrollable */
+    .table-panel { flex: 1; min-height: 0; overflow-y: auto; padding-right: 5px; }
     
     /* Fix datatables height */
     .dataTables_wrapper { display: flex; flex-direction: column; height: 100%; }
     .dataTables_wrapper .row { margin-left: 0; margin-right: 0; }
-    .dataTables_scroll { flex: 1 1 auto; overflow: hidden; display: flex; flex-direction: column; min-height: 0; margin-top: 0.5rem; margin-bottom: 0.5rem; }
-    .dataTables_scroll > .col-sm-12 { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
-    .dataTables_scrollBody { flex: 1 1 auto; min-height: 0; height: auto !important; max-height: none !important; overflow-y: auto !important; }
+    .dataTables_scroll { flex-grow: 1; overflow: hidden; display: flex; flex-direction: column; min-height: 0; margin-top: 0.5rem; margin-bottom: 0.5rem; }
+    .dataTables_scrollBody { flex-grow: 1; min-height: 0; overflow-y: auto !important; max-height: none !important; height: auto !important; }
     
-    .ic-table thead th { font-size: 0.7rem; color: #64748B; background: #F8FAFC; border-bottom: 2px solid #E2E8F0; padding: 0.5rem; white-space: nowrap; }
-    .ic-table td { font-size: 0.85rem; vertical-align: middle; white-space: nowrap; border-top: 1px solid #F1F5F9; padding: 0.5rem; }
+    .ic-table thead th { font-size: 0.75rem; font-weight: 700; color: #4e73df; background: #eaecf4; border-bottom: 2px solid #4e73df; padding: 0.75rem 0.5rem; letter-spacing: 0.5px; text-transform: uppercase; }
+    .ic-table td { font-size: 0.85rem; vertical-align: middle; white-space: nowrap; border-top: 1px solid #e3e6f0; padding: 0.6rem 0.5rem; color: #5a5c69; }
     
-    .badge-membresia-activa  { background:#D1FAE5; color:#059669; padding:.3rem .6rem; border-radius:50px; font-size:.72rem; font-weight:600; }
-    .badge-membresia-vencida { background:#FEE2E2; color:#EF4444; padding:.3rem .6rem; border-radius:50px; font-size:.72rem; font-weight:600; }
-    .badge-membresia-sin     { background:#F1F5F9; color:#475569; padding:.3rem .6rem; border-radius:50px; font-size:.72rem; font-weight:600; }
+    .ic-avatar { width: 30px; height: 30px; background: var(--card-color); color: white; font-weight: bold; font-size:0.7rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .ic-card-icon { color: var(--card-color); }
+    .ic-badge-active, .ic-badge-inactive, .ic-badge-warn, .ic-badge-critical { background: var(--card-color); color: white; padding: 3px 8px; border-radius: 50px; font-weight: 600; font-size: 0.7rem; }
     
     /* Select2 custom styling for Bootstrap 4 */
     .select2-container .select2-selection--single { height: calc(1.5em + .75rem + 2px); border: 1px solid #ced4da; border-radius: .25rem; }
@@ -88,11 +95,6 @@
     .client-result .name { font-weight: bold; color: #1e293b; }
     .client-result .cedula { font-size: 0.85em; color: #64748b; }
     .client-result .badges { margin-top: 4px; }
-
-    .badge-cobro { padding: .3rem .6rem; border-radius: 50px; font-size: .72rem; font-weight: 600; color: #fff; }
-    .badge-cobro-membresia { background: var(--primary); }
-    .badge-cobro-pase { background: var(--primary-hover); }
-    .badge-cobro-otro { background: var(--sidebar-hover); }
 
     .row.tight { margin-bottom: 0.75rem; }
 </style>
@@ -136,23 +138,45 @@
     <div class="row flex-grow-1" style="min-height: 0;">
         <div class="col-12 h-100 pb-1">
             <div class="ic-card h-100 d-flex flex-column">
-                <div class="d-flex justify-content-between align-items-center mb-1 flex-shrink-0">
-                    <h5 class="ic-card-title mb-0"><i class="fas fa-receipt text-primary mr-2"></i> Historial y Auditoría de Cobros</h5>
-                    <button type="button" class="btn btn-sm btn-primary py-1 px-2 font-weight-bold" data-toggle="modal" data-target="#modalClientes" style="font-size:0.75rem;">
-                        <i class="fas fa-cash-register mr-1"></i> Procesar Nuevo Cobro
-                    </button>
+                <div class="d-flex justify-content-between align-items-center mb-2 flex-shrink-0">
+                    <div class="d-flex align-items-center">
+                        <h5 class="ic-card-title mb-0 mr-3"><i class="fas fa-receipt text-primary mr-2"></i> Historial y Auditoría de Cobros</h5>
+                        <div class="input-group input-group-sm" style="width: 250px;">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text bg-light border-right-0"><i class="fas fa-search text-muted"></i></span>
+                            </div>
+                            <input type="text" id="customSearch" class="form-control border-left-0" placeholder="Buscar cobro..." style="background-color: #F8FAFC;">
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <select id="filterTipoCobro" class="form-control form-control-sm mr-2" style="width: 130px;">
+                            <option value="">Todos los cobros</option>
+                            <option value="Membresía">Membresías</option>
+                            <option value="Pase Diario">Pases diarios</option>
+                            <option value="OTRO">Otros</option>
+                        </select>
+                        <select id="filterMetodoPago" class="form-control form-control-sm mr-2" style="width: 125px;">
+                            <option value="">Todos los métodos</option>
+                            <option value="Efectivo">Efectivo</option>
+                            <option value="Tarjeta">Tarjeta</option>
+                            <option value="Transferencia">Transferencia</option>
+                        </select>
+                        <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#modalClientes" title="Procesar nuevo cobro" style="width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; border-radius: 50%;">
+                            <i class="fas fa-cash-register"></i>
+                        </button>
+                    </div>
                 </div>
         
                 <div class="table-panel mt-2">
                     <table id="pagosTable" class="table ic-table w-100">
                         <thead>
                             <tr>
-                                <th>FECHA / HORA</th>
-                                <th>CLIENTE</th>
-                                <th>TIPO DE COBRO</th>
-                                <th>MÉTODO</th>
-                                <th>MONTO</th>
-                                <th>CAJERO</th>
+                                <th class="text-uppercase"><i class="fas fa-calendar-alt mr-1 text-primary"></i> Fecha / Hora</th>
+                                <th class="text-uppercase"><i class="fas fa-user mr-1 text-primary"></i> Cliente</th>
+                                <th class="text-uppercase"><i class="fas fa-receipt mr-1 text-primary"></i> Tipo de cobro</th>
+                                <th class="text-uppercase"><i class="fas fa-credit-card mr-1 text-primary"></i> Método</th>
+                                <th class="text-uppercase"><i class="fas fa-dollar-sign mr-1 text-primary"></i> Monto</th>
+                                <th class="text-uppercase"><i class="fas fa-user-tie mr-1 text-primary"></i> Cajero</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -164,21 +188,28 @@
                                 </td>
                                 <td>
                                     @if($pago->cliente)
-                                        <a href="{{ route('clientes.show', $pago->cliente) }}" class="font-weight-bold text-dark">
-                                            {{ $pago->cliente->nombre }}
-                                        </a>
+                                        <div class="d-flex align-items-center">
+                                            <div class="ic-avatar mr-2">
+                                                {{ strtoupper(substr($pago->cliente->nombre, 0, 2)) }}
+                                            </div>
+                                            <div class="font-weight-bold text-dark">
+                                                <a href="{{ route('clientes.show', $pago->cliente) }}" class="text-dark">
+                                                {{ $pago->cliente->nombre }}
+                                                </a>
+                                            </div>
+                                        </div>
                                     @else
                                         <span class="text-muted font-weight-bold">Cliente no disponible</span>
                                     @endif
                                 </td>
                                 <td>
                                     @if($pago->tipo_pago === 'membresia')
-                                        <span class="badge-cobro badge-cobro-membresia"><i class="fas fa-id-card mr-1"></i> Membresía</span><br>
+                                        <span class="ic-badge-active"><i class="fas fa-id-card mr-1"></i> Membresía</span><br>
                                         <small class="text-muted">{{ $pago->membresia->tipoMembresia->nombre ?? 'N/A' }}</small>
                                     @elseif($pago->tipo_pago === 'pase_diario')
-                                        <span class="badge-cobro badge-cobro-pase"><i class="fas fa-ticket-alt mr-1"></i> Pase Diario</span>
+                                        <span class="ic-badge-warn"><i class="fas fa-ticket-alt mr-1"></i> Pase Diario</span>
                                     @else
-                                        <span class="badge-cobro badge-cobro-otro">{{ strtoupper($pago->tipo_pago) }}</span>
+                                        <span class="ic-badge-inactive">{{ strtoupper($pago->tipo_pago) }}</span>
                                     @endif
                                 </td>
                                 <td>
@@ -266,16 +297,27 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
 $(document).ready(function() {
-    $('#pagosTable').DataTable({
+    var table = $('#pagosTable').DataTable({
         language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json' },
         order: [[0, 'desc']],
         pageLength: 25,
         scrollY: '100%',
         scrollCollapse: true,
         info: true,
-        dom: "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
-             "<'row dataTables_scroll'<'col-sm-12'tr>>" +
-             "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>"
+        dom: "<'row dataTables_scroll'<'col-sm-12'tr>>" +
+             "<'row mt-2 align-items-center'<'col-sm-12 col-md-4'l><'col-sm-12 col-md-4'i><'col-sm-12 col-md-4'p>>"
+    });
+
+    $('#customSearch').on('keyup', function() {
+        table.search(this.value).draw();
+    });
+
+    $('#filterTipoCobro').on('change', function() {
+        table.column(2).search(this.value).draw();
+    });
+
+    $('#filterMetodoPago').on('change', function() {
+        table.column(3).search(this.value).draw();
     });
 
     $('#select2Cliente').select2({
