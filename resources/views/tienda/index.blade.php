@@ -28,22 +28,42 @@
 @push('styles')
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
 <style>
-    .store-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 1.25rem; }
-    .product-card { background:#fff; border-radius:14px; box-shadow:0 2px 8px rgba(0,0,0,.06); overflow:hidden; transition:transform .2s,box-shadow .2s; display:flex; flex-direction:column; }
-    .product-card:hover { transform:translateY(-3px); box-shadow:0 8px 20px rgba(0,0,0,.1); }
-    .product-img { position:relative; width:100%; height:160px; background:#F1F5F9; display:flex; align-items:center; justify-content:center; color:#CBD5E1; font-size:3rem; overflow:hidden; }
-    .product-img::after { content:""; position:absolute; inset:0; background:linear-gradient(180deg,rgba(15,23,42,.08) 20%,rgba(15,23,42,.88) 100%); pointer-events:none; }
-    .product-img img { width:100%; height:100%; object-fit:cover; filter:saturate(.78) brightness(.9); }
+    html, body { height: 100%; overflow: hidden; }
+    #page-wrapper main {
+        height: calc(100vh - 60px);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+    .store-page {
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+    .store-toolbar { flex-shrink: 0; }
+    .products-panel {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding: .25rem .35rem .75rem .1rem;
+    }
+    .store-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 250px), 1fr)); justify-items:center; gap:1.5rem; }
+    .product-card { position:relative; overflow:hidden; width:100%; max-width:310px; aspect-ratio:1 / 1; background:transparent; border:1px solid rgba(255,255,255,.16); border-radius:6px; box-shadow:0 8px 24px rgba(0,0,0,.1); transition:transform .2s ease,box-shadow .2s ease; }
+    .product-card:hover { transform:translateY(-3px); box-shadow:0 14px 30px rgba(0,0,0,.18); }
+    .product-img { position:absolute; z-index:0; inset:0; display:flex; align-items:center; justify-content:center; overflow:hidden; background:transparent; color:#e5e5e5; font-size:2.5rem; }
+    .product-img::after { content:""; position:absolute; inset:0; z-index:1; background:linear-gradient(180deg,rgba(15,23,42,.08) 20%,rgba(15,23,42,.9) 100%); pointer-events:none; }
+    .product-img img { width:100%; height:100%; object-fit:cover; filter:none; }
     .product-img img.product-click-image { cursor:zoom-in; }
-    .product-overlay { position:absolute; inset:0; padding:.45rem; display:flex; align-items:flex-start; justify-content:flex-start; pointer-events:none; z-index:2; }
-    .product-category { font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--primary); margin-bottom:.3rem; }
-    .product-category-badge { background:rgba(255,255,255,.92); border-radius:50px; padding:.3rem .65rem; box-shadow:0 2px 8px rgba(15,23,42,.12); }
-    .product-points-badge { background:linear-gradient(135deg,var(--primary),#1E293B); color:#fff; border-radius:50px; padding:.35rem .7rem; font-size:.78rem; font-weight:800; box-shadow:0 2px 8px rgba(15,23,42,.28); }
-    .product-image-info { position:absolute; left:.75rem; right:.75rem; bottom:.7rem; z-index:2; color:#fff; }
-    .product-image-name { display:block; font-size:1.1rem; line-height:1.15; font-weight:800; color:#fff; text-shadow:0 1px 4px rgba(15,23,42,.85); }
-    .product-body { padding:1rem; flex:1; display:flex; flex-direction:column; }
-    .product-name { font-weight:800; font-size:1.12rem; line-height:1.15; color:#1E293B; margin:0; }
-    .product-desc { font-size:.78rem; color:#64748B; flex:1; margin-bottom:.75rem; }
+    .product-overlay { display:none; }
+    .product-image-info { display:none; }
+    .product-body { position:absolute; z-index:2; inset:0; display:flex; flex-direction:column; justify-content:flex-end; padding:1rem; background:transparent; color:#fff; pointer-events:none; }
+    .product-name { overflow:hidden; margin:0 0 .35rem; color:#fff; font-size:1.08rem; font-weight:800; line-height:1.2; text-overflow:ellipsis; text-shadow:0 1px 3px #000,0 0 8px rgba(0,0,0,.95); white-space:nowrap; }
+    .product-desc { display:-webkit-box; overflow:hidden; margin:0 0 .65rem; color:#fff; font-size:.76rem; line-height:1.35; text-shadow:0 1px 3px #000,0 0 8px rgba(0,0,0,.95); -webkit-box-orient:vertical; -webkit-line-clamp:2; }
+    .product-meta { display:flex; flex-wrap:wrap; gap:.35rem; margin-bottom:.55rem; }
+    .product-tag { display:inline-flex; align-items:center; gap:.35rem; max-width:100%; padding:.25rem .5rem; border:1px solid rgba(255,255,255,.38); border-radius:50px; background:transparent; color:#fff; font-size:.66rem; font-weight:700; text-shadow:0 1px 3px #000,0 0 6px rgba(0,0,0,.95); }
     .canje-product-summary { display:flex; align-items:center; gap:.85rem; padding:.75rem; background:#F8FAFC; border-radius:12px; margin-bottom:1rem; }
     .canje-product-summary img { width:76px; height:76px; border-radius:10px; object-fit:cover; flex-shrink:0; }
     .canje-product-summary .placeholder { width:76px; height:76px; border-radius:10px; background:#E2E8F0; color:#94A3B8; display:flex; align-items:center; justify-content:center; font-size:1.8rem; flex-shrink:0; }
@@ -51,8 +71,41 @@
     .canje-product-summary-category { color:#64748B; font-size:.7rem; font-weight:700; text-transform:uppercase; }
     .canje-product-summary-description { color:#64748B; font-size:.78rem; line-height:1.3; margin-top:.25rem; }
     .canje-product-summary-points { color:var(--primary); font-size:.8rem; font-weight:800; margin-top:.35rem; }
-    .product-footer { margin-top:auto; }
-    .product-footer .btn { display:block; width:100%; }
+    .product-footer { margin-top:auto; display:flex; justify-content:flex-end; }
+    .product-footer .btn { display:inline-flex; align-items:center; align-self:flex-end; gap:.4rem; min-height:30px; margin-top:auto; padding:.3rem .55rem; border:1px solid rgba(255,255,255,.72); border-radius:7px; background:transparent; color:#fff; font-size:.72rem; font-weight:800; pointer-events:auto; text-shadow:0 1px 3px #000,0 0 6px rgba(0,0,0,.95); transition:border-color .2s ease,opacity .2s ease; }
+    .product-footer .btn:hover { border-color:#fff; color:#fff; opacity:.82; }
+    .canje-modal { background:#191b1e; color:#fff; }
+    .canje-modal .modal-header { position:absolute; top:0; right:0; z-index:5; min-height:0; padding:0 !important; background:transparent; }
+    .canje-modal .close { top:12px !important; right:14px !important; width:32px; height:32px; border:1px solid rgba(255,255,255,.45); border-radius:50%; background:rgba(0,0,0,.35); font-size:1.35rem; line-height:1; }
+    .canje-modal .modal-body { display:grid; grid-template-columns:minmax(0,42%) minmax(0,58%); padding:0; background:#191b1e; }
+    .canje-modal-dialog { max-width:780px; }
+    .canje-modal-image { position:relative; display:flex; align-items:center; justify-content:center; min-height:390px; background:#090a0c; overflow:hidden; }
+    .canje-modal-image::after { content:""; position:absolute; inset:0; background:linear-gradient(180deg,rgba(9,10,12,.02) 25%,rgba(9,10,12,.55) 100%); pointer-events:none; }
+    .canje-modal-image img { position:relative; z-index:0; display:block; width:100%; height:390px; min-height:390px; object-fit:cover; }
+    .canje-modal-image #canjeProductoImagenContenedor { width:100%; height:100%; }
+    .canje-modal-image #canjeProductoImagenContenedor img { width:100%; height:100%; object-fit:cover; }
+    .canje-modal-image .placeholder { color:#64748B; font-size:3rem; }
+    .canje-modal-content { display:flex; flex-direction:column; justify-content:center; padding:2rem 1.5rem 1.5rem; overflow-y:auto; max-height:510px; }
+    .canje-modal-content .canje-product-summary { display:block; padding:0; margin-bottom:1.1rem; background:transparent; }
+    .canje-modal-content .canje-product-summary-name { color:#fff; font-size:1.7rem; font-weight:800; line-height:1.1; text-shadow:0 1px 3px #000,0 0 8px rgba(0,0,0,.95); }
+    .canje-modal-content .canje-product-summary-category { color:var(--primary); margin-top:.45rem; letter-spacing:.08em; }
+    .canje-modal-content .canje-product-summary-description { color:#c4c6c8; font-size:.88rem; line-height:1.45; margin-top:.55rem; }
+    .canje-modal-content .canje-product-summary-points { display:inline-flex; align-items:center; gap:.35rem; padding:.4rem .7rem; border:1px solid rgba(255,255,255,.2); border-radius:50px; color:#fff; font-size:.78rem; }
+    .canje-modal-content label { color:#c4c6c8 !important; letter-spacing:.06em; }
+    .canje-modal-content .select2-container .select2-selection--single { height:42px; border:1px solid rgba(255,255,255,.22); border-radius:7px; background:#24272b; }
+    .canje-modal-content .select2-container--default .select2-selection--single .select2-selection__rendered { color:#fff; line-height:40px; padding-left:13px; }
+    .canje-modal-content .select2-container--default .select2-selection--single .select2-selection__arrow { height:40px; }
+    .canje-modal-content .card { background:#24272b !important; color:#fff; border:1px solid rgba(255,255,255,.12) !important; box-shadow:0 8px 22px rgba(0,0,0,.16); }
+    .canje-modal-content .alert { border:1px solid rgba(255,255,255,.12); border-radius:7px; }
+    .canje-modal-content .text-muted { color:#aeb2b6 !important; }
+    .canje-modal .modal-footer { background:#191b1e !important; border-top:1px solid rgba(255,255,255,.12); padding:1rem 1.5rem !important; }
+    .canje-modal .modal-footer .btn { min-width:125px; border-radius:5px; font-weight:700; }
+    .canje-modal .modal-footer .btn-outline-secondary { border-color:rgba(255,255,255,.35); color:#fff; }
+    @media (max-width: 575.98px) {
+        .canje-modal .modal-body { display:block; }
+        .canje-modal-image, .canje-modal-image img { min-height:220px; height:220px; }
+        .canje-modal-content { max-height:none; }
+    }
     .store-search { position:relative; flex:1 1 420px; max-width:560px; }
     .store-search input { width:100%; border:1px solid #E2E8F0; border-radius:50px; padding:.55rem 1rem .55rem 2.35rem; font-size:.82rem; color:#1E293B; outline:none; }
     .store-search input:focus { border-color:var(--primary); box-shadow:0 0 0 .15rem rgba(78,115,223,.12); }
@@ -82,9 +135,9 @@
 @endpush
 
 @section('content')
-<div class="container-fluid py-2">
+<div class="container-fluid py-2 store-page">
 
-    <div class="d-flex flex-wrap align-items-center justify-content-between mb-3" style="gap:.75rem;">
+    <div class="d-flex flex-wrap align-items-center justify-content-between mb-3 store-toolbar" style="gap:.75rem;">
         <div class="store-search">
             <i class="fas fa-search"></i>
             <input type="search" id="buscadorProductos" placeholder="Buscar productos..." aria-label="Buscar productos">
@@ -112,36 +165,40 @@
             <small>El administrador puede agregar productos desde <strong>Administración → Gestión de Tienda</strong>.</small>
         </div>
     @else
-        <div class="store-grid" id="productoGrid">
-            @foreach($productos as $producto)
-            <div class="product-card" data-cat="{{ $producto->categoria }}" data-points="{{ $producto->puntos_valor }}" data-search="{{ $producto->nombre }} {{ $producto->descripcion }} {{ $producto->categoria }}">
-                <div class="product-img">
-                    @if($producto->imagen)
-                        <img src="{{ asset('storage/' . $producto->imagen) }}" alt="{{ $producto->nombre }}" class="product-click-image" data-image="{{ asset('storage/' . $producto->imagen) }}" data-description="{{ $producto->descripcion }}">
-                    @else
-                        <i class="fas fa-box"></i>
-                    @endif
-                    <div class="product-overlay">
-                        <span class="product-points-badge"><i class="fas fa-star mr-1"></i>{{ number_format($producto->puntos_valor) }} pts</span>
+        <div class="products-panel">
+            <div class="store-grid" id="productoGrid">
+                @foreach($productos as $producto)
+                <div class="product-card" data-cat="{{ $producto->categoria }}" data-points="{{ $producto->puntos_valor }}" data-search="{{ $producto->nombre }} {{ $producto->descripcion }} {{ $producto->categoria }}">
+                    <div class="product-img">
+                        @if($producto->imagen)
+                            <img src="{{ asset('storage/' . $producto->imagen) }}" alt="{{ $producto->nombre }}" class="product-click-image" data-image="{{ asset('storage/' . $producto->imagen) }}" data-description="{{ $producto->descripcion }}">
+                        @else
+                            <i class="fas fa-box"></i>
+                        @endif
                     </div>
-                    <div class="product-image-info">
-                        <div class="product-image-name">{{ $producto->nombre }}</div>
+                    <div class="product-body">
+                        <h3 class="product-name">{{ $producto->nombre }}</h3>
+                        <p class="product-desc">{{ $producto->descripcion ?: 'Canjea este producto con tus puntos EcoGim.' }}</p>
+                        <div class="product-meta">
+                            <span class="product-tag"><i class="fas fa-star"></i>{{ number_format($producto->puntos_valor) }} pts</span>
+                            @if($producto->categoria)
+                                <span class="product-tag">{{ ucfirst($producto->categoria) }}</span>
+                            @endif
+                        </div>
+                        <div class="product-footer pt-2">
+                            <button class="btn btn-primary btn-sm font-weight-bold px-3"
+                                data-product-name="{{ $producto->nombre }}"
+                                data-product-image="{{ $producto->imagen ? asset('storage/' . $producto->imagen) : '' }}"
+                                data-product-description="{{ $producto->descripcion }}"
+                                data-product-category="{{ $producto->categoria }}"
+                                onclick="abrirModalCanje(this, {{ $producto->id }}, {{ $producto->puntos_valor }}, {{ $producto->stock }})">
+                                <i class="fas fa-exchange-alt mr-1"></i>Canjear
+                            </button>
+                        </div>
                     </div>
                 </div>
-                <div class="product-body">
-                    <div class="product-footer pt-2">
-                        <button class="btn btn-primary btn-sm font-weight-bold px-3"
-                            data-product-name="{{ $producto->nombre }}"
-                            data-product-image="{{ $producto->imagen ? asset('storage/' . $producto->imagen) : '' }}"
-                            data-product-description="{{ $producto->descripcion }}"
-                            data-product-category="{{ $producto->categoria }}"
-                            onclick="abrirModalCanje(this, {{ $producto->id }}, {{ $producto->puntos_valor }}, {{ $producto->stock }})">
-                            <i class="fas fa-exchange-alt mr-1"></i>Canjear
-                        </button>
-                    </div>
-                </div>
+                @endforeach
             </div>
-            @endforeach
         </div>
     @endif
 </div>
@@ -163,29 +220,31 @@
 
 {{-- MODAL CANJE --}}
 <div class="modal fade" id="modalCanje" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content border-0 shadow-lg" style="border-radius:16px;overflow:hidden;">
-            <div class="modal-header border-0 pb-0 text-center" style="background:linear-gradient(135deg,#1E293B,#0F172A);padding:1.5rem 1.5rem 1rem;display:block;">
+    <div class="modal-dialog modal-dialog-centered canje-modal-dialog" role="document">
+        <div class="modal-content canje-modal border-0 shadow-lg" style="border-radius:6px;overflow:hidden;">
+            <div class="modal-header border-0 text-center">
                 <button type="button" class="close text-white position-absolute" style="top:15px;right:20px;opacity:.8;" data-dismiss="modal"><span>&times;</span></button>
-                <i class="fas fa-exchange-alt fa-2x text-primary mb-2 d-block"></i>
-                <h5 class="modal-title font-weight-bold text-white mb-1" id="modalCanjeTitle">Canjear Producto</h5>
-                <small class="text-muted" id="modalCanjePts"></small>
+                <h5 class="sr-only modal-title" id="modalCanjeTitle">Canjear Producto</h5>
+                <span id="modalCanjePts" class="sr-only"></span>
             </div>
-            <div class="modal-body p-4 bg-white">
-                <div class="canje-product-summary">
+            <div class="modal-body">
+                <div class="canje-modal-image">
                     <div id="canjeProductoImagenContenedor"></div>
-                    <div class="min-width-0">
-                        <div id="canjeProductoNombre" class="canje-product-summary-name"></div>
-                        <div id="canjeProductoCategoria" class="canje-product-summary-category"></div>
-                        <div id="canjeProductoDescripcion" class="canje-product-summary-description"></div>
-                        <div id="canjeProductoPuntos" class="canje-product-summary-points"></div>
+                </div>
+                <div class="canje-modal-content">
+                    <div class="canje-product-summary">
+                        <div class="min-width-0">
+                            <div id="canjeProductoNombre" class="canje-product-summary-name"></div>
+                            <div id="canjeProductoCategoria" class="canje-product-summary-category"></div>
+                            <div id="canjeProductoDescripcion" class="canje-product-summary-description"></div>
+                            <div id="canjeProductoPuntos" class="canje-product-summary-points"><i class="fas fa-star"></i></div>
+                        </div>
                     </div>
-                </div>
-                <div class="form-group mb-3">
-                    <label class="font-weight-bold small text-uppercase text-muted mb-1">Buscar Cliente</label>
-                    <select id="selectCliente" style="width:100%;"></select>
-                </div>
-                <div id="clienteInfoBox" class="d-none">
+                    <div class="form-group mb-3">
+                        <label class="font-weight-bold small text-uppercase text-muted mb-1">Buscar Cliente</label>
+                        <select id="selectCliente" style="width:100%;"></select>
+                    </div>
+                    <div id="clienteInfoBox" class="d-none">
                     <div class="card border-0 bg-light" style="border-radius:12px;">
                         <div class="card-body p-3 text-center">
                             <div id="clienteFoto" class="mb-2"></div>
@@ -206,9 +265,10 @@
                     <div id="alertaSinPuntos" class="alert alert-warning mt-3 mb-0 small d-none py-2">
                         <i class="fas fa-coins mr-1"></i> Puntos insuficientes para este producto.
                     </div>
+                    </div>
                 </div>
             </div>
-            <div class="modal-footer bg-white py-3">
+            <div class="modal-footer">
                 <button type="button" class="btn btn-outline-secondary px-4" data-dismiss="modal">Cancelar</button>
                 <button type="button" id="btnConfirmarCanje" class="btn btn-primary font-weight-bold px-4" disabled onclick="confirmarCanje()">
                     <i class="fas fa-check mr-1"></i>Confirmar Canje
@@ -412,4 +472,3 @@ function confirmarCanje() {
 }
 </script>
 @endpush
-
