@@ -146,12 +146,12 @@
                             <label class="small font-weight-bold text-muted mb-0" style="font-size:0.7rem;">ESTADO</label>
                             <select name="estado" class="form-control form-control-sm">
                                 <option value="">Todos</option>
-                                <option value="completo"     {{ request('estado') === 'completo'     ? 'selected' : '' }}>✅ Completo</option>
-                                <option value="en_turno"     {{ request('estado') === 'en_turno'     ? 'selected' : '' }}>🟡 En turno</option>
-                                <option value="ausente"      {{ request('estado') === 'ausente'      ? 'selected' : '' }}>🔴 Ausente</option>
-                                <option value="tardanza"     {{ request('estado') === 'tardanza'     ? 'selected' : '' }}>⏰ Tardanza</option>
-                                <option value="salida_temp"  {{ request('estado') === 'salida_temp'  ? 'selected' : '' }}>🚪 Salida Temprana</option>
-                                <option value="cerrado_auto" {{ request('estado') === 'cerrado_auto' ? 'selected' : '' }}>🤖 Cerrado Auto</option>
+                                <option value="completo"     {{ request('estado') === 'completo'     ? 'selected' : '' }}>Completo</option>
+                                <option value="en_turno"     {{ request('estado') === 'en_turno'     ? 'selected' : '' }}>En turno</option>
+                                <option value="ausente"      {{ request('estado') === 'ausente'      ? 'selected' : '' }}>Ausente</option>
+                                <option value="tardanza"     {{ request('estado') === 'tardanza'     ? 'selected' : '' }}>Tardanza</option>
+                                <option value="salida_temp"  {{ request('estado') === 'salida_temp'  ? 'selected' : '' }}>Salida Temprana</option>
+                                <option value="cerrado_auto" {{ request('estado') === 'cerrado_auto' ? 'selected' : '' }}>Cerrado Auto</option>
                             </select>
                         </div>
                         <div class="col-md-3 col-12 mb-1 d-flex align-items-end" style="gap:0.4rem;">

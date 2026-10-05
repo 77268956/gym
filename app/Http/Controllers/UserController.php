@@ -42,13 +42,20 @@ class UserController extends Controller
             ->take(5)
             ->get()
             ->map(function ($m) {
-                $dias = now()->startOfDay()->diffInDays(Carbon::parse($m->fecha_vencimiento)->startOfDay(), false);
+                $vencimiento = Carbon::parse($m->fecha_vencimiento);
+                $horasRestantes = now()->diffInHours($vencimiento, false);
+                $horasRestantes = max(0, (float) $horasRestantes);
+                $horasRedondeadas = (int) ceil($horasRestantes);
+                $diasRestantes = (int) ceil($horasRestantes / 24);
 
                 return (object) [
                     'nombre' => $m->cliente->nombre ?? 'Desconocido',
                     'plan' => $m->tipoMembresia ? $m->tipoMembresia->nombre : 'Membresía',
-                    'dias' => max(0, (int) $dias),
-                    'nivel' => $dias <= 3 ? 'critical' : 'warn',
+                    'dias' => $diasRestantes,
+                    'tiempo' => $horasRestantes < 24
+                        ? $horasRedondeadas.'h'
+                        : $diasRestantes.' D',
+                    'nivel' => $horasRestantes < 72 ? 'critical' : 'warn',
                 ];
             });
 

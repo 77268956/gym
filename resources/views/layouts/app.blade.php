@@ -390,6 +390,13 @@
         }
     </style>
     @stack('styles')
+    <style>
+        :is(.badge, [class*="badge"], [class*="ic-badge"], [class*="tipo-"]) {
+            background-color: var(--primary) !important;
+            border-color: var(--primary) !important;
+            color: #fff !important;
+        }
+    </style>
 </head>
 <body>
 

@@ -27,6 +27,13 @@
         @media (max-width: 767.98px) { .scanner-topbar { padding: .75rem 1rem; } }
     </style>
     @stack('styles')
+    <style>
+        :is(.badge, [class*="badge"], [class*="ic-badge"], [class*="tipo-"]) {
+            background-color: var(--primary) !important;
+            border-color: var(--primary) !important;
+            color: #fff !important;
+        }
+    </style>
 </head>
 <body>
     <header class="scanner-topbar d-flex align-items-center justify-content-between">

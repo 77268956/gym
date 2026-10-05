@@ -103,6 +103,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/admin/productos', [ProductoEcogimController::class, 'index'])->name('admin.productos.index');
         Route::post('/admin/productos', [ProductoEcogimController::class, 'store'])->name('admin.productos.store');
         Route::put('/admin/productos/{producto}', [ProductoEcogimController::class, 'update'])->name('admin.productos.update');
+        Route::patch('/admin/productos/{producto}/toggle', [ProductoEcogimController::class, 'toggleStatus'])->name('admin.productos.toggleStatus');
         Route::delete('/admin/productos/{producto}', [ProductoEcogimController::class, 'destroy'])->name('admin.productos.destroy');
         Route::get('/admin/landing', [LandingController::class, 'edit'])->name('admin.landing');
         Route::post('/admin/landing', [LandingController::class, 'update'])->name('admin.landing.update');

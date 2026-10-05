@@ -22,7 +22,11 @@ class ClienteController extends Controller
     {
         $tiposMembresia = TipoMembresia::where('estado', 'activo')->orderBy('precio')->get();
 
-        return view('clientes.create', compact('tiposMembresia'));
+        return view('clientes.create', [
+            'cliente' => null,
+            'membresiaActiva' => null,
+            'tiposMembresia' => $tiposMembresia,
+        ]);
     }
 
     public function store(Request $request)
@@ -144,7 +148,7 @@ class ClienteController extends Controller
             ->latest()
             ->first();
 
-        return view('clientes.edit', compact('cliente', 'tiposMembresia', 'membresiaActiva'));
+        return view('clientes.create', compact('cliente', 'tiposMembresia', 'membresiaActiva'));
     }
 
     public function update(Request $request, Cliente $cliente)
@@ -155,6 +159,7 @@ class ClienteController extends Controller
             'telefono' => 'nullable|string|max:20',
             'historial_medico' => 'nullable|string|max:2000',
             'foto' => 'nullable|image|max:2048',
+            'estado' => 'required|in:activo,inactivo',
         ]);
 
         $data = [
@@ -162,6 +167,7 @@ class ClienteController extends Controller
             'cedula' => $request->cedula,
             'telefono' => $request->telefono,
             'historial_medico' => $request->historial_medico,
+            'estado' => $request->estado,
         ];
 
         if ($request->boolean('eliminar_foto')) {

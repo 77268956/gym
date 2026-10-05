@@ -136,23 +136,20 @@
     let scanInterval  = null;
     let lastScannedId = null;
     let resultTimer   = null;
+    let unknownFrames  = 0;
 
     // Empleados cargados desde la BD
     const dbEmpleados = @json($empleados);
 
     // Endpoint de registro
-    @auth
-        const registrarUrl = '{{ route('asistencias_empleados.registrar') }}';
-    @else
-        const registrarUrl = '{{ route('asistencias_empleados.publico.registrar') }}';
-    @endauth
+    const registrarUrl = '{{ request()->routeIs('asistencias_empleados.publico') ? route('asistencias_empleados.publico.registrar') : route('asistencias_empleados.registrar') }}';
 
     async function loadModelsAndData() {
         try {
             await Promise.all([
-                faceapi.nets.ssdMobilenetv1.loadFromUri('/models'),
-                faceapi.nets.faceLandmark68Net.loadFromUri('/models'),
-                faceapi.nets.faceRecognitionNet.loadFromUri('/models'),
+                faceapi.nets.ssdMobilenetv1.loadFromUri('{{ asset('models') }}'),
+                faceapi.nets.faceLandmark68Net.loadFromUri('{{ asset('models') }}'),
+                faceapi.nets.faceRecognitionNet.loadFromUri('{{ asset('models') }}'),
             ]);
 
             const labeledDescriptors = [];
@@ -175,7 +172,9 @@
             }
 
             if (labeledDescriptors.length > 0) {
-                faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, 0.58);
+                faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, 0.65);
+            } else {
+                throw new Error('No hay empleados activos con descriptor facial registrado.');
             }
 
             document.getElementById('modelLoader').className = 'badge badge-success p-2';
@@ -185,7 +184,7 @@
         } catch (e) {
             console.error(e);
             document.getElementById('modelLoader').className = 'badge badge-danger p-2';
-            document.getElementById('modelLoader').innerHTML = '<i class="fas fa-times-circle mr-1"></i> Error';
+            document.getElementById('modelLoader').innerHTML = '<i class="fas fa-times-circle mr-1"></i> ' + (e.message || 'Error al cargar');
         }
     }
 
@@ -222,7 +221,7 @@
             if (!isScanning || !faceMatcher) return;
 
             const detections = await faceapi
-                .detectAllFaces(video, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }))
+                .detectAllFaces(video, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.4 }))
                 .withFaceLandmarks()
                 .withFaceDescriptors();
 
@@ -237,8 +236,13 @@
                 new faceapi.draw.DrawBox(box, { label: result.toString() }).draw(overlay);
 
                 if (result.label !== 'unknown' && result.label !== lastScannedId) {
+                    unknownFrames = 0;
                     procesarAsistencia(result.label);
                 } else if (result.label === 'unknown' && lastScannedId === null) {
+                    unknownFrames++;
+                }
+
+                if (unknownFrames >= 3 && lastScannedId === null) {
                     mostrarNoReconocido();
                 }
             });
@@ -250,16 +254,40 @@
 
         fetch(registrarUrl, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
             body: JSON.stringify({ empleado_id: empleadoId }),
         })
-        .then(r => r.json())
+        .then(async response => {
+            const responseText = await response.text();
+            let data;
+
+            try {
+                data = JSON.parse(responseText);
+            } catch (error) {
+                throw new Error('El servidor no devolvió una respuesta JSON válida. Verifica la sesión y los permisos del escáner.');
+            }
+
+            if (!response.ok) {
+                throw new Error(data.message || data.error || 'No se pudo registrar la asistencia.');
+            }
+
+            return data;
+        })
         .then(data => {
             detenerCamara();
             mostrarResultado(data.status, data);
             resultTimer = setTimeout(volverAEscanear, 6000);
         })
-        .catch(err => { console.error(err); lastScannedId = null; });
+        .catch(err => {
+            console.error(err);
+            detenerCamara();
+            mostrarResultado('error', { message: err.message || 'No se pudo registrar la asistencia.' });
+            resultTimer = setTimeout(volverAEscanear, 6000);
+        });
     }
 
     function mostrarResultado(status, data) {
@@ -330,6 +358,7 @@
     function volverAEscanear() {
         clearTimeout(resultTimer);
         lastScannedId = null;
+        unknownFrames = 0;
         document.getElementById('resultScreen').classList.add('d-none');
         document.getElementById('scannerScreen').classList.remove('d-none');
         document.getElementById('btnStart').classList.remove('d-none');

@@ -39,7 +39,9 @@
     }
     
     .page-header { flex-shrink: 0; margin-bottom: 0.75rem !important; }
-    .main-container { flex: 1; overflow: hidden; display: flex; flex-direction: column; padding: 0 !important; }
+    .main-container { flex: 1 1 auto; min-height: 0; overflow: hidden; display: flex; flex-direction: column; padding: 0 !important; }
+    .main-container > .row.flex-grow-1 { flex: 1 1 0 !important; min-height: 0; }
+    .main-container > .row.flex-grow-1 > [class*="col-"] { min-height: 0; }
     
     :root {
         --ic-accent: var(--primary);
@@ -74,19 +76,45 @@
         display: flex;
         flex-direction: column;
         margin-bottom: 0 !important;
+        min-height: 0;
     }
     .ic-card-title { font-weight: 700; font-size: 0.8rem; color: var(--sidebar-bg); margin-bottom: 0.5rem; text-transform: uppercase; }
     
     /* Panel scrollable */
-    .table-panel { flex: 1; min-height: 0; overflow-y: auto; padding-right: 5px; }
+    .table-panel { flex: 1 1 0; min-height: 0; min-width: 0; overflow: hidden; padding-right: 5px; display: flex; flex-direction: column; }
     
     /* Fix datatables height */
-    .dataTables_wrapper { display: flex; flex-direction: column; height: 100%; }
+    .dataTables_wrapper { display: flex; flex: 1 1 0; min-height: 0; flex-direction: column; height: 100%; }
     .dataTables_wrapper .row { margin-left: 0; margin-right: 0; }
-    .dataTables_scroll { flex-grow: 1; overflow: hidden; display: flex; flex-direction: column; min-height: 0; margin-top: 0.5rem; margin-bottom: 0.5rem; }
-    .dataTables_scrollBody { flex-grow: 1; min-height: 0; overflow-y: auto !important; max-height: none !important; height: auto !important; }
+    .dataTables_scroll { flex: 1 1 0; overflow: hidden; display: flex; flex-direction: column; min-height: 0; margin-top: 0.5rem; margin-bottom: 0.5rem; }
+    .dataTables_scrollBody {
+        flex: 1 1 auto;
+        min-height: 180px;
+        height: calc(100vh - 350px) !important;
+        max-height: calc(100vh - 350px) !important;
+        overflow-y: scroll !important;
+        padding-bottom: 1rem;
+        box-sizing: border-box;
+    }
+    #mainClientesTable_wrapper { flex: 1 1 auto; min-height: 0; }
+    #mainClientesTable_wrapper .dataTables_scroll { min-height: 0; }
+    #mainClientesTable_wrapper .dataTables_scrollBody { min-height: 120px; }
+    #mainClientesTable_wrapper .pagination .page-item.active .page-link {
+        background-color: var(--primary);
+        border-color: var(--primary);
+        color: #fff;
+    }
+    #mainClientesTable_wrapper .pagination .page-link {
+        color: var(--primary);
+    }
+    #mainClientesTable_wrapper .pagination .page-item:not(.disabled):not(.active) .page-link:hover {
+        background-color: var(--primary);
+        border-color: var(--primary);
+        color: #fff;
+    }
     
-    .ic-table thead th { font-size: 0.75rem; font-weight: 700; color: #4e73df; background: #eaecf4; border-bottom: 2px solid #4e73df; padding: 0.75rem 0.5rem; letter-spacing: 0.5px; text-transform: uppercase; }
+    .ic-table thead th { font-size: 0.75rem; font-weight: 700; color: var(--primary); background: #eaecf4; border-bottom: 2px solid var(--primary); padding: 0.75rem 0.5rem; letter-spacing: 0.5px; text-transform: uppercase; white-space: nowrap; }
+    .ic-table thead th i { display: inline-block; vertical-align: middle; }
     .ic-table td { font-size: 0.85rem; vertical-align: middle; white-space: nowrap; border-top: 1px solid #e3e6f0; padding: 0.6rem 0.5rem; color: #5a5c69; }
     .ic-avatar { width: 30px; height: 30px; background: var(--card-color); color: white; font-weight: bold; font-size:0.7rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
     .ic-card-icon { color: var(--card-color); }
@@ -102,6 +130,129 @@
 
     /* Reducir márgenes de row */
     .row.tight { margin-bottom: 0.75rem; }
+
+    @media (max-width: 991.98px) {
+        body, html { overflow: auto; height: auto; }
+        #page-wrapper main {
+            height: auto;
+            min-height: calc(100vh - 60px);
+            overflow: visible;
+            padding: .75rem !important;
+        }
+        .main-container {
+            overflow: visible;
+            min-height: auto;
+        }
+        .main-container > .row.flex-grow-1 {
+            height: auto;
+            flex: none !important;
+        }
+        .main-container > .row.flex-grow-1 > [class*="col-"] {
+            height: auto !important;
+            padding-bottom: .75rem !important;
+        }
+        .main-container > .row.flex-grow-1 > .col-lg-9 {
+            min-height: 560px;
+        }
+        .main-container > .row.flex-grow-1 > .col-lg-9 > .ic-card {
+            height: auto !important;
+            min-height: 540px;
+        }
+        .table-panel {
+            overflow-x: auto;
+            overflow-y: visible;
+            height: auto;
+            min-height: 450px;
+            flex: none;
+        }
+        #mainClientesTable_wrapper {
+            width: 100%;
+            min-width: 0;
+            height: auto;
+            min-height: 430px;
+        }
+        #mainClientesTable_wrapper .dataTables_scroll {
+            min-width: 760px;
+            height: auto;
+            overflow: visible;
+        }
+        #mainClientesTable_wrapper .dataTables_scrollBody {
+            height: 420px !important;
+            max-height: 420px !important;
+            min-height: 0;
+        }
+        .ic-card > .d-flex.justify-content-between.align-items-center {
+            flex-wrap: wrap;
+            gap: .65rem;
+        }
+        .ic-card > .d-flex.justify-content-between.align-items-center > div:first-child {
+            width: 100%;
+        }
+        .ic-card > .d-flex.justify-content-between.align-items-center > div:last-child {
+            width: 100%;
+        }
+        .ic-card > .d-flex.justify-content-between.align-items-center #customSearch {
+            width: 100% !important;
+        }
+        #customFilter {
+            flex: 1;
+            width: auto !important;
+        }
+        .main-container > .row.tight {
+            margin-left: -.375rem;
+            margin-right: -.375rem;
+        }
+        .main-container > .row.tight > [class*="col-"] {
+            padding-left: .375rem;
+            padding-right: .375rem;
+            margin-bottom: .75rem;
+        }
+        .main-container > .row.tight > [class*="col-"]:last-child {
+            margin-bottom: 0;
+        }
+        .main-container > .row.flex-grow-1 > .col-lg-3 {
+            min-height: 500px;
+        }
+    }
+
+    @media (max-width: 575.98px) {
+        .kpi-card { min-height: 64px; }
+        .kpi-value { font-size: 1.2rem; }
+        .kpi-label { font-size: .62rem; }
+        .ic-card { padding: .65rem; }
+        .ic-card-title { font-size: .72rem; }
+        .input-group[style*="width: 250px"] { width: 100% !important; }
+        #customFilter { max-width: none; }
+        .main-container > .row.flex-grow-1 > .col-lg-9,
+        .main-container > .row.flex-grow-1 > .col-lg-3 {
+            min-height: 0;
+        }
+        .main-container > .row.flex-grow-1 > .col-lg-9,
+        .main-container > .row.flex-grow-1 > .col-lg-9 > .ic-card {
+            min-height: 540px;
+        }
+        #mainClientesTable_wrapper .dataTables_scrollBody {
+            height: 360px !important;
+            max-height: 360px !important;
+        }
+        #mainClientesTable_wrapper > .row:last-child {
+            min-width: 0;
+            width: 100%;
+            margin-left: 0;
+            margin-right: 0;
+        }
+        #mainClientesTable_wrapper .dataTables_length,
+        #mainClientesTable_wrapper .dataTables_info,
+        #mainClientesTable_wrapper .dataTables_paginate {
+            width: 100%;
+            text-align: center;
+        }
+        #mainClientesTable_wrapper .pagination {
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 0;
+        }
+    }
 </style>
 @endpush
 
@@ -153,7 +304,7 @@
     <div class="row flex-grow-1" style="min-height: 0;">
         
         {{-- COLUMNA IZQUIERDA: TABLA PRINCIPAL --}}
-        <div class="col-lg-9 h-100 pb-1">
+        <div class="col-lg-9 h-100 pb-1" style="min-height:0;">
             <div class="ic-card h-100 d-flex flex-column">
                 <div class="d-flex justify-content-between align-items-center mb-2 flex-shrink-0">
                     <div class="d-flex align-items-center">
@@ -171,8 +322,8 @@
                             <option value="ACTIVO">Activos</option>
                             <option value="INACTIVO">Inactivos</option>
                         </select>
-                        <a href="{{ route('clientes.create') }}" class="btn btn-sm btn-primary" title="Nuevo Cliente" style="width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; border-radius: 50%;">
-                            <i class="fas fa-plus"></i>
+                        <a href="{{ route('clientes.create') }}" class="btn btn-sm btn-primary font-weight-bold px-3" title="Nuevo Cliente">
+                            <i class="fas fa-plus mr-1"></i> Nuevo Cliente
                         </a>
                     </div>
                 </div>
@@ -252,12 +403,12 @@
         </div>
 
         {{-- COLUMNA DERECHA: SECUNDARIAS --}}
-        <div class="col-lg-3 h-100 d-flex flex-column pb-1">
+        <div class="col-lg-3 h-100 d-flex flex-column pb-1" style="gap: 1rem;">
             
             {{-- Panel Gráfica Pequeña --}}
-            <div class="ic-card flex-shrink-0 mb-2" style="height: 35%;">
+            <div class="ic-card flex-shrink-0" style="height: 35%;">
                 <div class="d-flex justify-content-between align-items-center mb-1">
-                    <span class="ic-card-title mb-0"><i class="fas fa-chart-line text-success mr-1"></i> Crecimiento</span>
+                    <span class="ic-card-title mb-0"><i class="fas fa-chart-line text-primary mr-1"></i> Crecimiento</span>
                 </div>
                 <div class="flex-grow-1" style="position: relative; min-height:0;">
                     <canvas id="growthChart"></canvas>
@@ -283,7 +434,7 @@
                         </div>
                         <div>
                             <span class="{{ $item->nivel === 'critical' ? 'ic-badge-critical' : 'ic-badge-warn' }}">
-                                {{ $item->dias }} D
+                                {{ $item->tiempo ?? $item->dias . ' D' }}
                             </span>
                         </div>
                     </div>
@@ -308,7 +459,7 @@ $(document).ready(function() {
     var table = $('#mainClientesTable').DataTable({
         language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json' },
         pageLength: 25,
-        scrollY: '100%',
+        scrollY: 'calc(100vh - 350px)',
         scrollCollapse: true,
         info: true,
         dom: "<'row dataTables_scroll'<'col-sm-12'tr>>" +
@@ -327,15 +478,18 @@ $(document).ready(function() {
 
     var ctx = document.getElementById('growthChart');
     if (ctx) {
+        var primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
         new Chart(ctx, {
             type: 'line',
             data: {
                 labels: {!! json_encode($growthLabels ?? ['1','2','3','4','5','6']) !!},
                 datasets: [{
                     data: {!! json_encode($growthData ?? [0,0,0,0,0,0]) !!},
-                    borderColor: '#10B981',
-                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    borderColor: primaryColor,
+                    backgroundColor: primaryColor + '1A',
                     pointRadius: 0,
+                    pointHoverRadius: 5,
+                    pointHitRadius: 12,
                     tension: 0.4,
                     fill: true,
                 }]
@@ -343,7 +497,18 @@ $(document).ready(function() {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        enabled: true,
+                        callbacks: {
+                            label: function(context) {
+                                return 'Clientes: ' + context.parsed.y;
+                            }
+                        }
+                    }
+                },
                 scales: {
                     y: { display: false },
                     x: { grid: { display: false }, ticks: { font: { size: 9 } } }

@@ -111,10 +111,15 @@ class AsistenciaEmpleadoController extends Controller
             ]);
 
             return response()->json([
+                'status' => 'success',
                 'success' => true,
                 'tipo' => 'entrada',
+                'tipo_registro' => 'entrada',
                 'empleado' => $empleado->nombre,
                 'tardanza' => $tardanza,
+                'hora' => $ahora->format('H:i:s'),
+                'foto' => $empleado->foto_referencia ? asset('storage/'.$empleado->foto_referencia) : null,
+                'message' => 'Entrada registrada correctamente.',
             ]);
         }
 
@@ -128,7 +133,8 @@ class AsistenciaEmpleadoController extends Controller
                 $salidaTemprana = true;
             }
 
-            $entrada = Carbon::parse($asistencia->fecha.' '.$asistencia->hora_entrada);
+            $horaEntrada = Carbon::parse((string) $asistencia->hora_entrada)->format('H:i:s');
+            $entrada = Carbon::parse($asistencia->fecha->format('Y-m-d').' '.$horaEntrada);
             $horasTrabajadas = $entrada->diffInMinutes($ahora) / 60;
 
             $asistencia->update([
@@ -138,18 +144,28 @@ class AsistenciaEmpleadoController extends Controller
             ]);
 
             return response()->json([
+                'status' => 'success',
                 'success' => true,
                 'tipo' => 'salida',
+                'tipo_registro' => 'salida',
                 'empleado' => $empleado->nombre,
                 'salida_temprana' => $salidaTemprana,
+                'hora' => $ahora->format('H:i:s'),
+                'foto' => $empleado->foto_referencia ? asset('storage/'.$empleado->foto_referencia) : null,
+                'message' => 'Salida registrada correctamente.',
             ]);
         }
 
         return response()->json([
+            'status' => 'success',
             'success' => true,
             'tipo' => 'completo',
+            'tipo_registro' => 'completo',
             'empleado' => $empleado->nombre,
             'mensaje' => 'Ya completaste tu turno hoy.',
+            'message' => 'Ya completaste tu turno hoy.',
+            'hora' => $ahora->format('H:i:s'),
+            'foto' => $empleado->foto_referencia ? asset('storage/'.$empleado->foto_referencia) : null,
         ]);
     }
 }

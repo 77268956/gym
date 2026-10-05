@@ -45,12 +45,14 @@ class CerrarTurnosEmpleados extends Command
                 $this->line("  [SIN SALIDA] {$empleado->nombre} — entró {$asistencia->hora_entrada}");
 
                 if (! $dryRun) {
+                    $horaEntrada = Carbon::parse((string) $asistencia->hora_entrada)->format('H:i:s');
+
                     $asistencia->update([
                         'hora_salida' => $salidaEsperada?->format('H:i:s'),
                         'salida_no_registrada' => true,
                         'salida_temprana' => false,
                         'horas_trabajadas' => $salidaEsperada
-                            ? Carbon::parse($fecha->format('Y-m-d').' '.$asistencia->hora_entrada)
+                            ? Carbon::parse($fecha->format('Y-m-d').' '.$horaEntrada)
                                 ->diffInMinutes($salidaEsperada) / 60
                             : null,
                     ]);

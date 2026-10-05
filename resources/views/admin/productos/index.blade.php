@@ -19,9 +19,25 @@
 @push('styles')
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css">
 <style>
+    body, html { overflow: hidden; height: 100%; }
+    #page-wrapper main {
+        padding: 1rem 1.5rem !important;
+        display: flex;
+        flex-direction: column;
+        height: calc(100vh - 60px);
+        overflow: hidden;
+    }
+    .main-container { flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; padding: 0 !important; }
+    .table-panel { flex: 1; min-height: 0; overflow: hidden; }
+    .dataTables_wrapper { display: flex; flex-direction: column; height: 100%; }
+    .dataTables_wrapper .row { margin-left: 0; margin-right: 0; }
+    .dataTables_scroll { flex-grow: 1; overflow: hidden; display: flex; flex-direction: column; min-height: 0; margin-top: .5rem; margin-bottom: .5rem; }
+    .dataTables_scrollBody { flex-grow: 1; min-height: 0; overflow-y: auto !important; max-height: none !important; height: auto !important; }
     :root { --card-color: var(--sidebar-bg); }
-    .ic-card { border:none; border-radius:12px; box-shadow:0 4px 6px rgba(0,0,0,.04); }
-    .ic-table th { background:#f8f9fc; color:var(--card-color); text-transform:uppercase; font-size:.75rem; }
+    .ic-card { background:#fff; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,.04); padding:.85rem; display:flex; flex-direction:column; margin-bottom:0 !important; }
+    .ic-card-title { font-weight:700; font-size:.8rem; color:var(--sidebar-bg); margin-bottom:.5rem; text-transform:uppercase; }
+    .ic-table th { background:#eaecf4; color:var(--primary); border-bottom:2px solid var(--primary); text-transform:uppercase; font-size:.75rem; font-weight:700; padding:.75rem .5rem; letter-spacing:.5px; }
+    .ic-table td { font-size:.85rem; vertical-align:middle; white-space:nowrap; border-top:1px solid #e3e6f0; padding:.6rem .5rem; color:#5a5c69; }
     .ic-status-active, .ic-status-inactive, .ic-category-badge, .stock-badge { background:var(--card-color); color:#fff; padding:.35rem .75rem; border-radius:50px; font-size:.75rem; font-weight:600; }
     .product-thumb { width:45px; height:45px; border-radius:8px; object-fit:cover; background:var(--card-color); }
     .stock-badge { font-size:.72rem; padding:.2rem .6rem; }
@@ -46,7 +62,7 @@
 @endpush
 
 @section('content')
-<div class="container-fluid py-2">
+<div class="container-fluid main-container">
 
     {{-- Alerts --}}
     @if(session('success'))
@@ -57,7 +73,7 @@
     @endif
 
     {{-- KPIs --}}
-    <div class="row mb-3">
+    <div class="row tight flex-shrink-0 mb-3">
         <div class="col-md-4 mb-2">
             <div class="kpi-card">
                 <div>
@@ -88,16 +104,36 @@
     </div>
 
     {{-- Tabla --}}
-    <div class="ic-card card">
-        <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
-            <h6 class="font-weight-bold mb-0"><i class="fas fa-shopping-bag ic-card-icon mr-2"></i>Productos de la Tienda</h6>
-            <button class="btn btn-primary btn-sm font-weight-bold px-3" onclick="abrirModalCrear()">
-                <i class="fas fa-plus mr-1"></i>Nuevo Producto
-            </button>
+    <div class="ic-card h-100">
+        <div class="d-flex justify-content-between align-items-center mb-2 flex-shrink-0">
+            <div class="d-flex align-items-center">
+                <h5 class="ic-card-title mb-0 mr-3"><i class="fas fa-shopping-bag text-primary mr-2"></i>Productos de la tienda</h5>
+                <div class="input-group input-group-sm" style="width:250px;">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text bg-light border-right-0"><i class="fas fa-search text-muted"></i></span>
+                    </div>
+                    <input type="text" id="customSearch" class="form-control border-left-0" placeholder="Buscar producto..." style="background-color:#F8FAFC;">
+                </div>
+            </div>
+            <div class="d-flex align-items-center">
+                <select id="categoryFilter" class="form-control form-control-sm mr-2" style="width:140px;">
+                    <option value="">Todas las categorías</option>
+                    @foreach($categorias as $categoria)
+                        <option value="{{ $categoria }}">{{ $categoria }}</option>
+                    @endforeach
+                </select>
+                <select id="statusFilter" class="form-control form-control-sm mr-2" style="width:110px;">
+                    <option value="">Todos</option>
+                    <option value="Activo">Activos</option>
+                    <option value="Inactivo">Inactivos</option>
+                </select>
+                <button class="btn btn-sm btn-primary" onclick="abrirModalCrear()" title="Nuevo producto" style="width:35px;height:35px;display:flex;align-items:center;justify-content:center;border-radius:50%;">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
         </div>
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table ic-table mb-0">
+        <div class="table-panel">
+                <table id="productosTable" class="table ic-table w-100">
                     <thead>
                         <tr>
                             <th class="pl-4">Producto</th>
@@ -176,7 +212,6 @@
                         @endforelse
                     </tbody>
                 </table>
-            </div>
         </div>
     </div>
 </div>
@@ -273,13 +308,30 @@
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
 <script>
 $(document).ready(function() {
-    $('.ic-table').DataTable({
+    var table = $('#productosTable').DataTable({
         language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json' },
         pageLength: 25,
         order: [],
+        scrollY: '100%',
+        scrollCollapse: true,
+        info: true,
+        dom: "<'row dataTables_scroll'<'col-sm-12'tr>>" +
+             "<'row mt-2 align-items-center'<'col-sm-12 col-md-4'l><'col-sm-12 col-md-4'i><'col-sm-12 col-md-4'p>>",
         columnDefs: [
             { orderable: false, targets: [0, 6] }
         ]
+    });
+
+    $('#customSearch').on('keyup', function() {
+        table.search(this.value).draw();
+    });
+
+    $('#categoryFilter').on('change', function() {
+        table.column(1).search(this.value).draw();
+    });
+
+    $('#statusFilter').on('change', function() {
+        table.column(5).search(this.value).draw();
     });
 });
 
@@ -339,4 +391,3 @@ function abrirModalEditar(id, nombre, descripcion, categoria, puntos, stock, est
 }
 </script>
 @endpush
-

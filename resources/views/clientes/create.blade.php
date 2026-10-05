@@ -1,6 +1,11 @@
 @extends('layouts.app')
 
-@section('title', 'Nuevo Socio / Cliente')
+@php
+    $editando = $cliente !== null;
+    $valor = fn (string $campo, mixed $default = '') => old($campo, $editando ? ($cliente->{$campo} ?? $default) : $default);
+@endphp
+
+@section('title', $editando ? 'Editar Socio / Cliente' : 'Nuevo Socio / Cliente')
 
 @section('skeleton')
     <div class="skel-box" style="height: 32px; width: 250px; margin-bottom: 1.5rem;"></div>
@@ -61,7 +66,8 @@
                 {{-- Header --}}
                 <div class="d-flex justify-content-between align-items-center mb-3 flex-shrink-0">
                     <h5 class="mb-0 font-weight-bold text-dark" style="font-size:0.95rem;">
-                        <i class="fas fa-user-plus text-primary mr-2"></i> Registrar Nuevo Socio
+                        <i class="fas {{ $editando ? 'fa-user-edit' : 'fa-user-plus' }} text-primary mr-2"></i>
+                        {{ $editando ? 'Editar Socio / Cliente' : 'Registrar Nuevo Socio' }}
                     </h5>
                     <a href="{{ route('user') }}" class="btn btn-outline-secondary btn-sm font-weight-bold">
                         <i class="fas fa-arrow-left mr-1"></i> Volver
@@ -84,11 +90,16 @@
 
                 {{-- Scrollable Form --}}
                 <div class="config-scroll">
-                    <form action="{{ route('clientes.store') }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ $editando ? route('clientes.update', $cliente) : route('clientes.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
+                        @if($editando)
+                            @method('PUT')
+                        @endif
                         <input type="hidden" name="foto_base64" id="foto_base64">
-                        <input type="hidden" name="descriptor_facial" id="descriptor_facial">
-                        <input type="hidden" name="tipo_membresia_id" id="tipo_membresia_id" value="{{ old('tipo_membresia_id') }}">
+                        <input type="hidden" name="descriptor_facial" id="descriptor_facial" value="{{ $editando ? $cliente->descriptor_facial : '' }}">
+                        @if(!$editando)
+                            <input type="hidden" name="tipo_membresia_id" id="tipo_membresia_id" value="{{ old('tipo_membresia_id') }}">
+                        @endif
 
                         {{-- SECCIÓN 1: DATOS PERSONALES --}}
                         <div class="config-section">
@@ -98,7 +109,7 @@
                                     <label class="config-label">Nombre Completo <span class="text-danger">*</span></label>
                                     <div class="input-group input-group-sm">
                                         <div class="input-group-prepend"><span class="input-group-text"><i class="fas fa-user"></i></span></div>
-                                        <input type="text" name="nombre" class="form-control @error('nombre') is-invalid @enderror" value="{{ old('nombre') }}" placeholder="Ej: Carlos Martínez" required>
+                                        <input type="text" name="nombre" class="form-control @error('nombre') is-invalid @enderror" value="{{ $valor('nombre') }}" placeholder="Ej: Carlos Martínez" required>
                                     </div>
                                     @error('nombre')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                                 </div>
@@ -106,7 +117,7 @@
                                     <label class="config-label">Identificación <span class="text-danger">*</span></label>
                                     <div class="input-group input-group-sm">
                                         <div class="input-group-prepend"><span class="input-group-text"><i class="fas fa-id-card"></i></span></div>
-                                        <input type="text" name="cedula" id="cedula" class="form-control @error('cedula') is-invalid @enderror" value="{{ old('cedula') }}" placeholder="Ej: 0801-1990-12345" required>
+                                        <input type="text" name="cedula" id="cedula" class="form-control @error('cedula') is-invalid @enderror" value="{{ $valor('cedula') }}" placeholder="Ej: 0801-1990-12345" required>
                                     </div>
                                     @error('cedula')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                                 </div>
@@ -114,16 +125,26 @@
                                     <label class="config-label">Teléfono</label>
                                     <div class="input-group input-group-sm">
                                         <div class="input-group-prepend"><span class="input-group-text"><i class="fas fa-phone"></i></span></div>
-                                        <input type="text" name="telefono" id="telefono" class="form-control @error('telefono') is-invalid @enderror" value="{{ old('telefono') }}" placeholder="Ej: 9999-9999">
+                                        <input type="text" name="telefono" id="telefono" class="form-control @error('telefono') is-invalid @enderror" value="{{ $valor('telefono') }}" placeholder="Ej: 9999-9999">
                                     </div>
                                 </div>
                                 <div class="col-md-6 form-group mb-2">
                                     <label class="config-label">Historial Médico / Notas</label>
-                                    <textarea name="historial_medico" class="form-control form-control-sm @error('historial_medico') is-invalid @enderror" rows="1" placeholder="Alergias, lesiones, etc.">{{ old('historial_medico') }}</textarea>
+                                    <textarea name="historial_medico" class="form-control form-control-sm @error('historial_medico') is-invalid @enderror" rows="1" placeholder="Alergias, lesiones, etc.">{{ $valor('historial_medico') }}</textarea>
                                 </div>
+                                @if($editando)
+                                    <div class="col-md-12 form-group mb-0 mt-2">
+                                        <label class="config-label">Estado <span class="text-danger">*</span></label>
+                                        <select name="estado" class="form-control form-control-sm @error('estado') is-invalid @enderror" required>
+                                            <option value="activo" {{ $valor('estado', 'activo') === 'activo' ? 'selected' : '' }}>Activo</option>
+                                            <option value="inactivo" {{ $valor('estado') === 'inactivo' ? 'selected' : '' }}>Inactivo</option>
+                                        </select>
+                                    </div>
+                                @endif
                             </div>
                         </div>
 
+                        @if(!$editando)
                         {{-- SECCIÓN 2: MEMBRESÍA --}}
                         <div class="config-section">
                             <div class="config-section-title"><i class="fas fa-dumbbell mr-2"></i> 2. Membresía <span class="text-danger">*</span></div>
@@ -152,16 +173,17 @@
                                 @enderror
                             </div>
                         </div>
+                        @endif
 
-                        {{-- SECCIÓN 3: FOTO --}}
+                        {{-- SECCIÓN {{ $editando ? '2' : '3' }}: FOTO --}}
                         <div class="config-section">
-                            <div class="config-section-title"><i class="fas fa-camera mr-2"></i> 3. Fotografía de Referencia</div>
+                            <div class="config-section-title"><i class="fas fa-camera mr-2"></i> {{ $editando ? '2' : '3' }}. Fotografía de Referencia</div>
                             
                             <div class="row align-items-center">
                                 <div class="col-md-3 text-center mb-2 mb-md-0">
                                     <div class="p-3 border rounded bg-white d-flex flex-column align-items-center justify-content-center" style="min-height:120px;">
-                                        <img id="fotoPreview" src="#" alt="Preview" class="rounded-circle d-none mb-2" style="width:80px;height:80px;object-fit:cover;">
-                                        <div id="fotoPlaceholder" class="text-muted text-center">
+                                        <img id="fotoPreview" src="{{ $editando && $cliente->foto_referencia ? asset('storage/' . $cliente->foto_referencia) : '#' }}" alt="Preview" class="rounded-circle {{ $editando && $cliente->foto_referencia ? '' : 'd-none' }} mb-2" style="width:80px;height:80px;object-fit:cover;">
+                                        <div id="fotoPlaceholder" class="text-muted text-center {{ $editando && $cliente->foto_referencia ? 'd-none' : '' }}">
                                             <i class="fas fa-user-circle fa-2x mb-1 text-primary"></i>
                                             <small class="d-block" style="font-size:0.7rem;">Sin foto</small>
                                         </div>
@@ -172,13 +194,21 @@
                                     <div class="d-flex flex-column flex-sm-row align-items-sm-center mb-1">
                                         <div class="custom-file custom-file-sm flex-grow-1 mb-2 mb-sm-0 mr-sm-2">
                                             <input type="file" name="foto" id="foto" class="custom-file-input @error('foto') is-invalid @enderror" accept="image/*" onchange="previewFoto(this)">
-                                            <label class="custom-file-label" for="foto" style="font-size:0.85rem; height: calc(1.5em + 0.5rem + 2px); padding: 0.25rem 0.5rem;">Subir desde archivo...</label>
+                                            <label class="custom-file-label" for="foto" style="font-size:0.85rem; height: calc(1.5em + 0.5rem + 2px); padding: 0.25rem 0.5rem;">{{ $editando ? 'Cambiar fotografía...' : 'Subir desde archivo...' }}</label>
                                         </div>
                                         <button type="button" class="btn btn-outline-primary btn-sm font-weight-bold text-nowrap" onclick="openWebcamModal()">
                                             <i class="fas fa-camera mr-1"></i> Usar Cámara
                                         </button>
                                     </div>
                                     <small class="form-text text-muted" style="font-size:0.7rem;">JPG/PNG, máx 2MB. Usado para reconocimiento facial.</small>
+                                    @if($editando && $cliente->foto_referencia)
+                                        <div class="custom-control custom-checkbox mt-2">
+                                            <input type="checkbox" class="custom-control-input" id="eliminar_foto" name="eliminar_foto" value="1">
+                                            <label class="custom-control-label text-danger" for="eliminar_foto" style="font-size:0.8rem;">
+                                                <i class="fas fa-trash-alt mr-1"></i> Eliminar foto actual
+                                            </label>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -187,7 +217,7 @@
                         <div class="d-flex justify-content-end mt-3 mb-2">
                             <a href="{{ route('user') }}" class="btn btn-outline-secondary btn-sm px-4 font-weight-bold mr-2">Cancelar</a>
                             <button type="submit" class="btn btn-primary btn-sm px-4 font-weight-bold">
-                                <i class="fas fa-save mr-2"></i> Guardar Cliente
+                                <i class="fas fa-save mr-2"></i> {{ $editando ? 'Actualizar Cliente' : 'Guardar Cliente' }}
                             </button>
                         </div>
                     </form>
@@ -197,6 +227,7 @@
     </div>
 </div>
 
+@if(!$editando)
 {{-- MODAL MEMBRESÍAS --}}
 <div class="modal fade" id="modalMembresias" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
@@ -234,6 +265,7 @@
         </div>
     </div>
 </div>
+@endif
 
 {{-- MODAL WEBCAM --}}
 <div class="modal fade" id="modalWebcam" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">
@@ -259,8 +291,10 @@
 @push('scripts')
 <script src="{{ asset('js/face-api.min.js') }}"></script>
 <script>
+    @if(!$editando)
     var selectedMembresiaId = null;
     var selectedMembresiaCard = null;
+    @endif
     var faceApiModelsReady = Promise.all([
         faceapi.nets.ssdMobilenetv1.loadFromUri('{{ asset('models') }}'),
         faceapi.nets.faceLandmark68Net.loadFromUri('{{ asset('models') }}'),
@@ -276,6 +310,7 @@
         } catch (error) { document.getElementById('descriptor_facial').value = ''; }
     }
 
+    @if(!$editando)
     function abrirModalMembresias() { $('#modalMembresias').modal('show'); }
     function seleccionarMembresia(el) {
         document.querySelectorAll('.membresia-card').forEach(function(c) {
@@ -298,6 +333,7 @@
         document.getElementById('membresiaVaciaBox').classList.add('d-none');
         $('#modalMembresias').modal('hide');
     }
+    @endif
 
     var webcamStream = null;
     function previewFoto(input) {
@@ -345,7 +381,7 @@
         }
     }
 
-    @if(old('tipo_membresia_id'))
+    @if(!$editando && old('tipo_membresia_id'))
         document.getElementById('tipo_membresia_id').value = '{{ old("tipo_membresia_id") }}';
         @foreach($tiposMembresia as $tipo)
             @if(old('tipo_membresia_id') == $tipo->id)
@@ -356,6 +392,9 @@
                 document.getElementById('membresiaVaciaBox').classList.add('d-none');
             @endif
         @endforeach
+    @endif
+    @if($editando && $cliente->foto_referencia)
+        setFaceDescriptor(@json(asset('storage/' . $cliente->foto_referencia)));
     @endif
 </script>
 <script>
