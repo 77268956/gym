@@ -69,7 +69,7 @@ class ClienteController extends Controller
         ]);
 
         $tipo = TipoMembresia::findOrFail($request->tipo_membresia_id);
-        $fechaInicio = Carbon::today();
+        $fechaInicio = Carbon::now();
         $fechaVencimiento = $fechaInicio->copy()->addDays($tipo->duracion_dias ?? 30);
 
         $membresia = Membresia::create([
@@ -139,8 +139,8 @@ class ClienteController extends Controller
         $tiposMembresia = TipoMembresia::where('estado', 'activo')->orderBy('precio')->get();
         $membresiaActiva = $cliente->membresias()
             ->where('estado', 'activa')
-            ->where('fecha_inicio', '<=', Carbon::today())
-            ->where('fecha_vencimiento', '>=', Carbon::today())
+            ->where('fecha_inicio', '<=', Carbon::now())
+            ->where('fecha_vencimiento', '>=', Carbon::now())
             ->latest()
             ->first();
 

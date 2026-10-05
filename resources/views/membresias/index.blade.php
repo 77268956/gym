@@ -53,8 +53,8 @@
     .dataTables_scroll { flex-grow: 1; overflow: hidden; display: flex; flex-direction: column; min-height: 0; margin-top: 0.5rem; margin-bottom: 0.5rem; }
     .dataTables_scrollBody { flex-grow: 1; min-height: 0; overflow-y: auto !important; max-height: none !important; height: auto !important; }
 
-    .ic-table thead th { font-size: 0.7rem; color: #64748B; background: #F8FAFC; border-bottom: 2px solid #E2E8F0; padding: 0.5rem; white-space: nowrap; }
-    .ic-table td { font-size: 0.85rem; vertical-align: middle; white-space: nowrap; border-top: 1px solid #F1F5F9; padding: 0.5rem; }
+    .ic-table thead th { font-size: 0.75rem; font-weight: 700; color: #4e73df; background: #eaecf4; border-bottom: 2px solid #4e73df; padding: 0.75rem 0.5rem; letter-spacing: 0.5px; text-transform: uppercase; white-space: nowrap; }
+    .ic-table td { font-size: 0.85rem; vertical-align: middle; white-space: nowrap; border-top: 1px solid #e3e6f0; padding: 0.6rem 0.5rem; color: #5a5c69; }
 
     .ic-badge-active, .ic-badge-inactive, .ic-status-badge { background: var(--card-color); color: white; padding: 3px 8px; border-radius: 50px; font-weight: 600; font-size: 0.7rem; }
     .ic-card-icon { color: var(--card-color); }
@@ -131,21 +131,34 @@
                 
                 {{-- Toolbar --}}
                 <div class="d-flex justify-content-between align-items-center mb-2 flex-shrink-0 flex-wrap">
-                    <h5 class="ic-card-title mb-0">
-                        <i class="fas fa-id-card text-primary mr-2"></i> Tipos de Membresías y Planes
-                    </h5>
+                    <div class="d-flex align-items-center">
+                        <h5 class="ic-card-title mb-0 mr-3">
+                            <i class="fas fa-layer-group text-primary mr-2"></i> Planes
+                        </h5>
+                        <div class="input-group input-group-sm" style="width: 220px;">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text bg-light border-right-0"><i class="fas fa-search text-muted"></i></span>
+                            </div>
+                            <input type="text" id="customSearchPlanes" class="form-control border-left-0" placeholder="Buscar plan..." style="background-color: #F8FAFC;">
+                        </div>
+                    </div>
                     <div class="d-flex align-items-center mt-2 mt-md-0">
+                        <select id="customFilterPlanes" class="form-control form-control-sm mr-2" style="width: 120px;">
+                            <option value="">Todos</option>
+                            <option value="ACTIVO">Activos</option>
+                            <option value="INACTIVO">Inactivos</option>
+                        </select>
                         <div class="btn-group btn-group-sm mr-2" role="group">
                             <button type="button" class="btn btn-outline-primary ic-color-btn custom-tab-btn active" id="btnViewTable" onclick="switchView('table')">
-                                <i class="fas fa-list mr-1"></i> Tabla
+                                <i class="fas fa-list"></i>
                             </button>
                             <button type="button" class="btn btn-outline-primary ic-color-btn custom-tab-btn" id="btnViewCards" onclick="switchView('cards')">
-                                <i class="fas fa-th-large mr-1"></i> Tarjetas
+                                <i class="fas fa-th-large"></i>
                             </button>
                         </div>
                         @if(Auth::user() && Auth::user()->rol === 'admin')
-                            <button type="button" class="btn btn-primary btn-sm py-1 px-2 font-weight-bold" data-toggle="modal" data-target="#modalCrearPlan" style="font-size:0.75rem;">
-                                <i class="fas fa-plus mr-1"></i> Nuevo Plan
+                            <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#modalCrearPlan" title="Nuevo Plan" style="width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; border-radius: 50%;">
+                                <i class="fas fa-plus"></i>
                             </button>
                         @endif
                     </div>
@@ -156,12 +169,12 @@
                     <table id="mainPlanesTable" class="table ic-table w-100">
                         <thead>
                             <tr>
-                                <th>NOMBRE DEL PLAN</th>
-                                <th>DURACIÓN</th>
-                                <th>PRECIO</th>
-                                <th>BENEFICIOS</th>
-                                <th>ESTADO</th>
-                                <th class="text-center">ACCIONES</th>
+                                <th class="text-uppercase"><i class="fas fa-tag mr-1 text-primary"></i> Nombre</th>
+                                <th class="text-uppercase"><i class="fas fa-calendar-alt mr-1 text-primary"></i> Duración</th>
+                                <th class="text-uppercase"><i class="fas fa-dollar-sign mr-1 text-primary"></i> Precio</th>
+                                <th class="text-uppercase"><i class="fas fa-gift mr-1 text-primary"></i> Beneficios</th>
+                                <th class="text-uppercase"><i class="fas fa-toggle-on mr-1 text-primary"></i> Estado</th>
+                                <th class="text-center text-uppercase"><i class="fas fa-cogs mr-1 text-primary"></i> Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -401,15 +414,22 @@
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
 <script>
 $(document).ready(function() {
-    $('#mainPlanesTable').DataTable({
+    var tablePlanes = $('#mainPlanesTable').DataTable({
         language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json' },
         pageLength: 25,
         scrollY: '100%',
         scrollCollapse: true,
         info: true,
-        dom: "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
-             "<'row dataTables_scroll'<'col-sm-12'tr>>" +
-             "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>"
+        dom: "<'row dataTables_scroll'<'col-sm-12'tr>>" +
+             "<'row mt-2 align-items-center'<'col-sm-12 col-md-4'l><'col-sm-12 col-md-4'i><'col-sm-12 col-md-4'p>>"
+    });
+
+    $('#customSearchPlanes').on('keyup', function() {
+        tablePlanes.search(this.value).draw();
+    });
+
+    $('#customFilterPlanes').on('change', function() {
+        tablePlanes.column(4).search(this.value).draw();
     });
 });
 

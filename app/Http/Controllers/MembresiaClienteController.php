@@ -12,7 +12,7 @@ class MembresiaClienteController extends Controller
 {
     public function index(Request $request): View
     {
-        $today = Carbon::today();
+        $today = Carbon::now();
 
         // KPIs (clientes únicos)
         $totalMembresias = Membresia::distinct('cliente_id')->count('cliente_id');
@@ -33,12 +33,12 @@ class MembresiaClienteController extends Controller
             ->distinct('cliente_id')
             ->count('cliente_id');
         $vencidas = Membresia::where(function ($q) use ($today) {
-                $q->where('estado', 'vencida')
-                    ->orWhere(function ($q2) use ($today) {
-                        $q2->where('estado', 'activa')
-                            ->where('fecha_vencimiento', '<', $today);
-                    });
-            })
+            $q->where('estado', 'vencida')
+                ->orWhere(function ($q2) use ($today) {
+                    $q2->where('estado', 'activa')
+                        ->where('fecha_vencimiento', '<', $today);
+                });
+        })
             ->whereNotIn('cliente_id', function ($sub) use ($today) {
                 $sub->select('cliente_id')
                     ->from('membresias')
@@ -73,7 +73,7 @@ class MembresiaClienteController extends Controller
                 // 0 = Activa ahora, 1 = Futura, 2 = Vencida
                 $isActivaAhora = $m->estado === 'activa' && $m->fecha_inicio <= $today && $m->fecha_vencimiento >= $today;
                 $isFutura = $m->estado === 'activa' && $m->fecha_inicio > $today;
-                
+
                 if ($isActivaAhora) {
                     return [0, $m->fecha_vencimiento->timestamp]; // Activas: ordenadas por las que vencen más pronto
                 } elseif ($isFutura) {

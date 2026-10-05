@@ -1,9 +1,11 @@
 <?php
 
 use App\Http\Controllers\AsistenciaController;
+use App\Http\Controllers\AsistenciaEmpleadoController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\ConfiguracionController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\MembresiaClienteController;
@@ -24,9 +26,13 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/escanear-publico', [AsistenciaController::class, 'escanear'])->name('asistencias.publico');
 Route::post('/escanear-publico/registrar', [AsistenciaController::class, 'registrarEscaneo'])->name('asistencias.publico.registrar');
 
+// Escáner facial público para empleados
+Route::get('/escanear-empleados', [AsistenciaEmpleadoController::class, 'escanear'])->name('asistencias_empleados.publico');
+Route::post('/escanear-empleados/registrar', [AsistenciaEmpleadoController::class, 'registrarEscaneo'])->name('asistencias_empleados.publico.registrar');
+
 // Rutas autenticadas (Accesibles para Recepcionista y Administrador)
 Route::middleware('auth')->group(function () {
-    Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/perfil', [UserController::class, 'profile'])->name('perfil');
 
@@ -77,6 +83,11 @@ Route::middleware('auth')->group(function () {
         Route::put('/empleados/{empleado}', [EmpleadoController::class, 'update'])->name('empleados.update');
         Route::delete('/empleados/{empleado}', [EmpleadoController::class, 'destroy'])->name('empleados.destroy');
         Route::patch('/empleados/{empleado}/toggle', [EmpleadoController::class, 'toggleStatus'])->name('empleados.toggleStatus');
+
+        // Módulo de Asistencias de Empleados
+        Route::get('/asistencias-empleados', [AsistenciaEmpleadoController::class, 'index'])->name('asistencias_empleados.index');
+        Route::get('/asistencias-empleados/escanear', [AsistenciaEmpleadoController::class, 'escanear'])->name('asistencias_empleados.escanear');
+        Route::post('/asistencias-empleados/registrar', [AsistenciaEmpleadoController::class, 'registrarEscaneo'])->name('asistencias_empleados.registrar');
 
         // Configuración del Sistema
         Route::get('/configuracion', [ConfiguracionController::class, 'index'])->name('configuracion.index');

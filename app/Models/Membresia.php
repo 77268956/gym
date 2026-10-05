@@ -21,8 +21,8 @@ class Membresia extends Model
     ];
 
     protected $casts = [
-        'fecha_inicio' => 'date',
-        'fecha_vencimiento' => 'date',
+        'fecha_inicio' => 'datetime',
+        'fecha_vencimiento' => 'datetime',
     ];
 
     public function cliente()

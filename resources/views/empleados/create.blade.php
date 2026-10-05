@@ -18,9 +18,9 @@
 @push('styles')
 <style>
     body, html { overflow: hidden; height: 100%; }
-    #page-wrapper main { 
-        padding: 1rem 1.5rem !important; 
-        display: flex; flex-direction: column; 
+    #page-wrapper main {
+        padding: 1rem 1.5rem !important;
+        display: flex; flex-direction: column;
         height: calc(100vh - 60px); overflow: hidden;
     }
     .page-header { flex-shrink: 0; margin-bottom: 0.75rem !important; }
@@ -73,7 +73,7 @@
 
                 {{-- Scrollable Form --}}
                 <div class="config-scroll">
-                    <form action="{{ route('empleados.store') }}" method="POST" enctype="multipart/form-data">
+                    <form id="empleadoForm" action="{{ route('empleados.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <input type="hidden" name="foto_base64" id="foto_base64">
                         <input type="hidden" name="descriptor_facial" id="descriptor_facial">
@@ -118,7 +118,7 @@
                         {{-- SECCIÓN 2: ROL Y TURNO --}}
                         <div class="config-section">
                             <div class="config-section-title"><i class="fas fa-clock mr-2"></i> 2. Rol y Horario de Turno</div>
-                            
+
                             <div class="row">
                                 <div class="col-md-6 form-group mb-3">
                                     <label class="config-label">Rol en el Sistema <span class="text-danger">*</span></label>
@@ -157,7 +157,7 @@
                         {{-- SECCIÓN 3: FOTO --}}
                         <div class="config-section">
                             <div class="config-section-title"><i class="fas fa-camera mr-2"></i> 3. Fotografía de Referencia</div>
-                            
+
                             <div class="row align-items-center">
                                 <div class="col-md-3 text-center mb-2 mb-md-0">
                                     <div class="p-3 border rounded bg-white d-flex flex-column align-items-center justify-content-center" style="min-height:120px;">
@@ -167,6 +167,7 @@
                                             <small class="d-block" style="font-size:0.7rem;">Sin foto</small>
                                         </div>
                                         <span id="webcamBadge" class="badge badge-success d-none mt-1" style="font-size:0.6rem;"><i class="fas fa-camera mr-1"></i> Webcam</span>
+                                        <span id="descriptorStatus" class="badge badge-secondary d-none mt-1" style="font-size:0.6rem;"><i class="fas fa-spinner fa-spin mr-1"></i> Procesando...</span>
                                     </div>
                                 </div>
                                 <div class="col-md-9">
@@ -187,7 +188,7 @@
                         {{-- Footer Buttons --}}
                         <div class="d-flex justify-content-end mt-3 mb-2">
                             <a href="{{ route('empleados') }}" class="btn btn-outline-secondary btn-sm px-4 font-weight-bold mr-2">Cancelar</a>
-                            <button type="submit" class="btn btn-primary btn-sm px-4 font-weight-bold">
+                            <button type="submit" id="btnSubmit" class="btn btn-primary btn-sm px-4 font-weight-bold">
                                 <i class="fas fa-save mr-2"></i> Guardar Empleado
                             </button>
                         </div>
@@ -220,54 +221,110 @@
 @endsection
 
 @push('scripts')
+<script src="{{ asset('js/face-api.min.js') }}"></script>
 <script>
-    var webcamStream = null;
+var webcamStream = null;
+var descriptorPromise = null; // Guarda la Promise de detección actual
 
-    function previewFoto(input) {
-        if (input.files && input.files[0]) {
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById('fotoPreview').src = e.target.result;
-                document.getElementById('fotoPreview').classList.remove('d-none');
-                document.getElementById('fotoPlaceholder').classList.add('d-none');
-                document.getElementById('webcamBadge').classList.add('d-none');
-                document.getElementById('foto_base64').value = '';
-            };
-            reader.readAsDataURL(input.files[0]);
-            var lbl = input.nextElementSibling; if(lbl) lbl.textContent = input.files[0].name;
-        }
+var faceApiModelsReady = Promise.all([
+    faceapi.nets.ssdMobilenetv1.loadFromUri('{{ asset('models') }}'),
+    faceapi.nets.faceLandmark68Net.loadFromUri('{{ asset('models') }}'),
+    faceapi.nets.faceRecognitionNet.loadFromUri('{{ asset('models') }}')
+]);
+
+function mostrarProcesando(activo) {
+    var badge = document.getElementById('descriptorStatus');
+    if (activo) { badge.classList.remove('d-none'); }
+    else        { badge.classList.add('d-none'); }
+}
+
+async function computeDescriptor(dataUrl) {
+    mostrarProcesando(true);
+    try {
+        await faceApiModelsReady;
+        var image = await faceapi.fetchImage(dataUrl);
+        var detection = await faceapi.detectSingleFace(image).withFaceLandmarks().withFaceDescriptor();
+        return detection ? JSON.stringify(Array.from(detection.descriptor)) : '';
+    } catch(e) {
+        return '';
+    } finally {
+        mostrarProcesando(false);
     }
-    function openWebcamModal() {
-        $('#modalWebcam').modal('show');
-        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-            navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720, facingMode: 'user' } })
-                .then(function(stream) { webcamStream = stream; document.getElementById('webcamVideo').srcObject = stream; })
-                .catch(function() { alert('No se pudo acceder a la cámara.'); closeWebcamModal(); });
-        } else { alert('Tu navegador no soporta la cámara.'); closeWebcamModal(); }
-    }
-    function closeWebcamModal() {
-        if (webcamStream) { webcamStream.getTracks().forEach(function(t) { t.stop(); }); webcamStream = null; }
-        $('#modalWebcam').modal('hide');
-    }
-    function takeSnapshot() {
-        var video = document.getElementById('webcamVideo'); var canvas = document.getElementById('webcamCanvas');
-        if (video && video.videoWidth > 0) {
-            canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-            canvas.getContext('2d').drawImage(video, 0, 0);
-            var dataUrl = canvas.toDataURL('image/jpeg', 0.9);
-            document.getElementById('foto_base64').value = dataUrl;
-            document.getElementById('fotoPreview').src = dataUrl;
+}
+
+function previewFoto(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('fotoPreview').src = e.target.result;
             document.getElementById('fotoPreview').classList.remove('d-none');
             document.getElementById('fotoPlaceholder').classList.add('d-none');
-            document.getElementById('webcamBadge').classList.remove('d-none');
-            document.getElementById('foto').value = '';
-            document.querySelector('.custom-file-label').textContent = 'Subir desde archivo...';
-            closeWebcamModal();
-        }
+            document.getElementById('webcamBadge').classList.add('d-none');
+            document.getElementById('foto_base64').value = '';
+            // Guardar Promise — NO await aquí, el submit la esperará
+            descriptorPromise = computeDescriptor(e.target.result);
+        };
+        reader.readAsDataURL(input.files[0]);
+        var lbl = input.nextElementSibling;
+        if (lbl) { lbl.textContent = input.files[0].name; }
     }
-</script>
-<script>
+}
+
+function openWebcamModal() {
+    $('#modalWebcam').modal('show');
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720, facingMode: 'user' } })
+            .then(function(stream) { webcamStream = stream; document.getElementById('webcamVideo').srcObject = stream; })
+            .catch(function() { alert('No se pudo acceder a la cámara.'); closeWebcamModal(); });
+    } else { alert('Tu navegador no soporta la cámara.'); closeWebcamModal(); }
+}
+
+function closeWebcamModal() {
+    if (webcamStream) { webcamStream.getTracks().forEach(function(t) { t.stop(); }); webcamStream = null; }
+    $('#modalWebcam').modal('hide');
+}
+
+function takeSnapshot() {
+    var video = document.getElementById('webcamVideo');
+    var canvas = document.getElementById('webcamCanvas');
+    if (video && video.videoWidth > 0) {
+        canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0);
+        var dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+        document.getElementById('foto_base64').value = dataUrl;
+        document.getElementById('fotoPreview').src = dataUrl;
+        document.getElementById('fotoPreview').classList.remove('d-none');
+        document.getElementById('fotoPlaceholder').classList.add('d-none');
+        document.getElementById('webcamBadge').classList.remove('d-none');
+        document.getElementById('foto').value = '';
+        document.querySelector('.custom-file-label').textContent = 'Subir desde archivo...';
+        closeWebcamModal();
+        // Guardar Promise — el submit la esperará
+        descriptorPromise = computeDescriptor(dataUrl);
+    }
+}
+
+// Interceptar submit: esperar el descriptor antes de enviar
 document.addEventListener('DOMContentLoaded', function() {
+    var form = document.getElementById('empleadoForm');
+    var btn  = document.getElementById('btnSubmit');
+
+    form.addEventListener('submit', function(e) {
+        if (!descriptorPromise) { return; } // sin foto → enviar directo
+
+        e.preventDefault();
+        var originalHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Procesando rostro...';
+
+        descriptorPromise.then(function(descriptor) {
+            document.getElementById('descriptor_facial').value = descriptor;
+            btn.disabled = false;
+            btn.innerHTML = originalHtml;
+            form.submit();
+        });
+    });
+
     if (document.getElementById('cedula')) {
         new Cleave('#cedula', { delimiters: ['-', '-'], blocks: [4, 4, 5], numericOnly: true });
     }

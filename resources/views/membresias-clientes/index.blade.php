@@ -77,8 +77,8 @@
         color: #94A3B8; background-color: #F8FAFC;
     }
 
-    .ic-table thead th { font-size: 0.7rem; color: var(--ic-muted); background: #F8FAFC; border-bottom: 2px solid #E2E8F0; padding: 0.4rem 0.5rem; position: sticky; top: 0; z-index: 10; }
-    .ic-table td { font-size: 0.8rem; vertical-align: middle; white-space: nowrap; border-top: 1px solid #F1F5F9; padding: 0.4rem 0.5rem; }
+    .ic-table thead th { font-size: 0.75rem; font-weight: 700; color: #4e73df; background: #eaecf4; border-bottom: 2px solid #4e73df; padding: 0.75rem 0.5rem; letter-spacing: 0.5px; text-transform: uppercase; position: sticky; top: 0; z-index: 10; }
+    .ic-table td { font-size: 0.85rem; vertical-align: middle; white-space: nowrap; border-top: 1px solid #e3e6f0; padding: 0.6rem 0.5rem; color: #5a5c69; }
     .ic-avatar { width: 30px; height: 30px; background: var(--card-color); color: white; font-weight: bold; font-size:0.7rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
 
     /* Badges */
@@ -246,8 +246,16 @@
         @if($vista === 'tabla')
         {{-- TABLE VIEW --}}
         <div class="ic-card h-100 d-flex flex-column">
-            <div class="d-flex justify-content-between align-items-center mb-1 flex-shrink-0">
-                <h5 class="ic-card-title mb-0"><i class="fas fa-users ic-card-icon mr-2"></i> Control de Membresías</h5>
+            <div class="d-flex justify-content-between align-items-center mb-2 flex-shrink-0">
+                <div class="d-flex align-items-center">
+                    <h5 class="ic-card-title mb-0 mr-3"><i class="fas fa-id-card-alt text-primary mr-2"></i> Control de Membresías</h5>
+                    <div class="input-group input-group-sm" style="width: 220px;">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text bg-light border-right-0"><i class="fas fa-search text-muted"></i></span>
+                        </div>
+                        <input type="text" id="customSearchMemClientes" class="form-control border-left-0" placeholder="Buscar cliente..." style="background-color: #F8FAFC;">
+                    </div>
+                </div>
                 <span class="badge badge-light text-muted">{{ $membresias->count() }} registros</span>
             </div>
 
@@ -255,14 +263,14 @@
                 <table id="mainTable" class="table ic-table w-100">
                     <thead>
                         <tr>
-                            <th>CLIENTE</th>
-                            <th>TELÉFONO</th>
-                            <th>PLAN</th>
-                            <th>INICIO</th>
-                            <th>VENCIMIENTO</th>
-                            <th>DURACIÓN</th>
-                            <th>ESTADO</th>
-                            <th class="text-center">ACCIONES</th>
+                            <th class="text-uppercase"><i class="fas fa-user mr-1 text-primary"></i> Cliente</th>
+                            <th class="text-uppercase"><i class="fas fa-phone-alt mr-1 text-primary"></i> Teléfono</th>
+                            <th class="text-uppercase"><i class="fas fa-dumbbell mr-1 text-primary"></i> Plan</th>
+                            <th class="text-uppercase"><i class="fas fa-calendar mr-1 text-primary"></i> Inicio</th>
+                            <th class="text-uppercase"><i class="fas fa-calendar-times mr-1 text-primary"></i> Vencimiento</th>
+                            <th class="text-uppercase"><i class="fas fa-hourglass-half mr-1 text-primary"></i> Duración</th>
+                            <th class="text-uppercase"><i class="fas fa-info-circle mr-1 text-primary"></i> Estado</th>
+                            <th class="text-center text-uppercase"><i class="fas fa-cogs mr-1 text-primary"></i> Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -270,16 +278,18 @@
                         @php
                             $cliente = $membresia->cliente;
                             if (!$cliente) continue;
-                            $diasTotales = max(1, $membresia->fecha_inicio->diffInDays($membresia->fecha_vencimiento));
-                            $diasTranscurridos = max(0, min($diasTotales, $membresia->fecha_inicio->diffInDays(now(), false)));
-                            $diasRestantes = max(0, now()->startOfDay()->diffInDays($membresia->fecha_vencimiento, false));
+                            $minutosTotales = max(1, $membresia->fecha_inicio->diffInMinutes($membresia->fecha_vencimiento));
+                            $minutosTranscurridos = max(0, min($minutosTotales, $membresia->fecha_inicio->diffInMinutes(now(), false)));
+                            
+                            $horasRestantes = max(0, (int) ceil(now()->diffInMinutes($membresia->fecha_vencimiento, false) / 60));
+                            $diasRestantes = (int) ceil($horasRestantes / 24);
                             
                             $estaActiva = $membresia->estado === 'activa' && $membresia->fecha_inicio <= now() && $membresia->fecha_vencimiento >= now();
                             $estaPorVencer = $estaActiva && $diasRestantes <= 7;
                             $estaVencida = $membresia->fecha_vencimiento < now() || $membresia->estado === 'vencida';
                             $esReciente = $estaActiva && $membresia->fecha_inicio >= now()->subDays(7) && $membresia->fecha_inicio <= now();
                             
-                            $porcentajeRestante = 100 - (($diasTranscurridos / $diasTotales) * 100);
+                            $porcentajeRestante = 100 - (($minutosTranscurridos / $minutosTotales) * 100);
                             $colorClass = 'bg-danger';
                             if ($porcentajeRestante > 75) $colorClass = 'bg-purple';
                             elseif ($porcentajeRestante > 50) $colorClass = 'bg-info';
@@ -315,7 +325,7 @@
                             <td>{{ $membresia->fecha_vencimiento->format('d/m/Y') }}</td>
                             <td style="width: 120px;">
                                 <div class="d-flex justify-content-between align-items-center mb-1" style="font-size:0.75rem;">
-                                    <span>{{ $estaVencida ? 'Vencida' : $diasRestantes . ' d' }}</span>
+                                    <span>{{ $estaVencida ? 'Vencida' : ($horasRestantes < 48 ? $horasRestantes . ' hrs' : $diasRestantes . ' d') }}</span>
                                 </div>
                                 <div class="progress progress-sm">
                                     <div class="progress-bar {{ $colorClass }}" style="width: {{ $porcentajeRestante }}%"></div>
@@ -489,9 +499,13 @@ $(document).ready(function() {
             searching: true,
             info: true,
             order: [],
-            dom: "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'>>" +
-                 "<'row'<'col-sm-12'tr>>" +
-                 "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>"
+            dom: "<'row dataTables_scroll'<'col-sm-12'tr>>" +
+                 "<'row mt-2 align-items-center'<'col-sm-12 col-md-4'l><'col-sm-12 col-md-4'i><'col-sm-12 col-md-4'p>>"
+        });
+
+        // Custom search
+        $('#customSearchMemClientes').on('keyup', function() {
+            table.search(this.value).draw();
         });
     }
 

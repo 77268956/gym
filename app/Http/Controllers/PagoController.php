@@ -27,8 +27,8 @@ class PagoController extends Controller
         // Para el modal de selección de clientes
         $clientes = Cliente::with(['membresias' => function ($q) {
             $q->where('estado', 'activa')
-                ->where('fecha_inicio', '<=', Carbon::today())
-                ->where('fecha_vencimiento', '>=', Carbon::today())
+                ->where('fecha_inicio', '<=', Carbon::now())
+                ->where('fecha_vencimiento', '>=', Carbon::now())
                 ->latest();
         }])->orderBy('nombre')->get();
 
@@ -68,19 +68,19 @@ class PagoController extends Controller
             // Si tiene membresía activa vigente, sumar los días al vencimiento actual
             $membresiaActiva = Membresia::where('cliente_id', $request->cliente_id)
                 ->where('estado', 'activa')
-                ->where('fecha_inicio', '<=', Carbon::today())
-                ->where('fecha_vencimiento', '>=', Carbon::today())
+                ->where('fecha_inicio', '<=', Carbon::now())
+                ->where('fecha_vencimiento', '>=', Carbon::now())
                 ->latest('fecha_vencimiento')
                 ->first();
 
             if ($membresiaActiva) {
                 // Sumar días al vencimiento actual
-                $fechaInicio = Carbon::parse($membresiaActiva->fecha_vencimiento)->addDay();
-                $fechaVencimiento = Carbon::parse($membresiaActiva->fecha_vencimiento)->addDays($diasNuevoPlan);
+                $fechaInicio = Carbon::parse($membresiaActiva->fecha_vencimiento);
+                $fechaVencimiento = $fechaInicio->copy()->addDays($diasNuevoPlan);
                 // NO marcamos la anterior como vencida porque aún puede estar vigente (tiene días restantes)
             } else {
                 // Sin membresía activa: empezar desde hoy
-                $fechaInicio = Carbon::today();
+                $fechaInicio = Carbon::now();
                 $fechaVencimiento = $fechaInicio->copy()->addDays($diasNuevoPlan);
                 // Marcar cualquier membresía anterior como vencida
                 Membresia::where('cliente_id', $request->cliente_id)
@@ -154,8 +154,8 @@ class PagoController extends Controller
 
         $query = Cliente::with(['membresias' => function ($q) {
             $q->where('estado', 'activa')
-                ->where('fecha_inicio', '<=', Carbon::today())
-                ->where('fecha_vencimiento', '>=', Carbon::today())
+                ->where('fecha_inicio', '<=', Carbon::now())
+                ->where('fecha_vencimiento', '>=', Carbon::now())
                 ->latest();
         }]);
 

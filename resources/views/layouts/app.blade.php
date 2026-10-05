@@ -491,6 +491,12 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('asistencias_empleados.*') ? 'active' : '' }}" href="{{ route('asistencias_empleados.index') }}" title="Asistencias Empleados">
+                            <i class="fas fa-user-clock"></i>
+                            <span class="sidebar-label">Asistencias Staff</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('admin.productos.*') ? 'active' : '' }}" href="{{ route('admin.productos.index') }}" title="Gestión de Tienda">
                             <i class="fas fa-store"></i>
                             <span class="sidebar-label">Gestión de Tienda</span>

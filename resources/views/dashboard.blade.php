@@ -178,8 +178,8 @@
                             @forelse($vencimientosProximos as $vencimiento)
                             <tr>
                                 <td>
-                                    <div class="font-weight-bold">{{ $vencimiento->cliente->nombre }}</div>
-                                    <div class="text-muted small">{{ $vencimiento->cliente->telefono ?? 'Sin teléfono' }}</div>
+                                    <div class="font-weight-bold">{{ $vencimiento->cliente?->nombre ?? 'Cliente no encontrado' }}</div>
+                                    <div class="text-muted small">{{ $vencimiento->cliente?->telefono ?? 'Sin teléfono' }}</div>
                                 </td>
                                 <td>{{ $vencimiento->tipoMembresia->nombre ?? 'N/A' }}</td>
                                 <td>

@@ -104,19 +104,29 @@
                                         <div class="text-right text-muted">Vence: <br><strong class="text-dark">{{ \Carbon\Carbon::parse($membresiaActiva->fecha_vencimiento)->format('d/m/Y') }}</strong></div>
                                     </div>
                                     @php
-                                        $diasRestantes = \Carbon\Carbon::now()->diffInDays(\Carbon\Carbon::parse($membresiaActiva->fecha_vencimiento), false);
-                                        $porcentaje = max(0, min(100, (($membresiaActiva->tipoMembresia->duracion_dias ?? 30) - $diasRestantes) / ($membresiaActiva->tipoMembresia->duracion_dias ?? 30) * 100));
+                                        $minutosTotales = max(1, \Carbon\Carbon::parse($membresiaActiva->fecha_inicio)->diffInMinutes(\Carbon\Carbon::parse($membresiaActiva->fecha_vencimiento)));
+                                        $minutosTranscurridos = max(0, min($minutosTotales, \Carbon\Carbon::parse($membresiaActiva->fecha_inicio)->diffInMinutes(now(), false)));
+                                        $porcentajeRestante = max(0, min(100, 100 - (($minutosTranscurridos / $minutosTotales) * 100)));
+                                        
+                                        $horasRestantes = (int) ceil(now()->diffInMinutes(\Carbon\Carbon::parse($membresiaActiva->fecha_vencimiento), false) / 60);
+                                        $diasRestantes = (int) ceil($horasRestantes / 24);
+
+                                        $colorClass = 'bg-danger';
+                                        if ($porcentajeRestante > 75) $colorClass = 'bg-primary'; // equivale a bg-purple
+                                        elseif ($porcentajeRestante > 50) $colorClass = 'bg-info';
+                                        elseif ($porcentajeRestante > 25) $colorClass = 'bg-success';
+                                        elseif ($porcentajeRestante > 5) $colorClass = 'bg-warning';
                                     @endphp
                                     <div class="progress mt-3" style="height: 6px;">
-                                        <div class="progress-bar {{ $diasRestantes <= 5 ? 'bg-danger' : 'bg-success' }}" role="progressbar" style="width: {{ $porcentaje }}%"></div>
+                                        <div class="progress-bar {{ $colorClass }}" role="progressbar" style="width: {{ $porcentajeRestante }}%"></div>
                                     </div>
                                     <div class="text-center mt-2" style="font-size: 0.8rem;">
-                                        @if($diasRestantes < 0)
-                                            <span class="text-danger font-weight-bold">Vencida hace {{ abs(intval($diasRestantes)) }} días</span>
-                                        @elseif($diasRestantes == 0)
-                                            <span class="text-danger font-weight-bold">¡Vence HOY!</span>
+                                        @if($horasRestantes < 0)
+                                            <span class="text-danger font-weight-bold">Vencida hace {{ abs($diasRestantes) }} días</span>
+                                        @elseif($horasRestantes < 48)
+                                            <span class="text-warning font-weight-bold">Quedan {{ $horasRestantes }} hrs</span>
                                         @else
-                                            <span class="text-success font-weight-bold">Quedan {{ intval($diasRestantes) }} días</span>
+                                            <span class="text-success font-weight-bold">Quedan {{ $diasRestantes }} días</span>
                                         @endif
                                     </div>
                                 </div>

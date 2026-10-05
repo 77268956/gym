@@ -30,8 +30,8 @@ class TiendaController extends Controller
     {
         $membresiaActiva = $cliente->membresias()
             ->where('estado', 'activa')
-            ->where('fecha_inicio', '<=', Carbon::today())
-            ->where('fecha_vencimiento', '>=', Carbon::today())
+            ->where('fecha_inicio', '<=', Carbon::now())
+            ->where('fecha_vencimiento', '>=', Carbon::now())
             ->latest()
             ->first();
 
@@ -59,8 +59,8 @@ class TiendaController extends Controller
 
         $query = Cliente::where('estado', 'activo')->with(['membresias' => function ($q) {
             $q->where('estado', 'activa')
-                ->where('fecha_inicio', '<=', Carbon::today())
-                ->where('fecha_vencimiento', '>=', Carbon::today())
+                ->where('fecha_inicio', '<=', Carbon::now())
+                ->where('fecha_vencimiento', '>=', Carbon::now())
                 ->latest();
         }]);
 
@@ -82,7 +82,7 @@ class TiendaController extends Controller
             } else {
                 $tieneVencida = $c->membresias()->where(function ($q) {
                     $q->where('estado', 'vencida')
-                        ->orWhere('fecha_vencimiento', '<', Carbon::today());
+                        ->orWhere('fecha_vencimiento', '<', Carbon::now());
                 })->exists();
                 $membStatus = $tieneVencida ? 'VENCIDA' : 'SIN MEMBRESÍA';
             }
@@ -119,7 +119,7 @@ class TiendaController extends Controller
 
         $tieneMembresiaActiva = $cliente->membresias()
             ->where('estado', 'activa')
-            ->where('fecha_vencimiento', '>=', Carbon::today())
+            ->where('fecha_vencimiento', '>=', Carbon::now())
             ->exists();
 
         if (! $tieneMembresiaActiva) {
