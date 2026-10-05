@@ -108,10 +108,66 @@
         }
         
         .topbar-right {
-            margin-left: auto;
             display: flex;
             align-items: center;
             padding-right: 1.5rem;
+        }
+
+        .topbar-page-title {
+            position: relative;
+            color: var(--sidebar-bg);
+            display: inline-flex;
+            align-items: center;
+            min-height: 34px;
+            padding: .35rem 1rem .35rem .9rem;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            text-align: right;
+            margin-left: auto;
+            margin-right: 0;
+            overflow: hidden;
+            animation: topbar-title-in .45s ease-out both;
+        }
+
+        .topbar-page-title::before {
+            content: "";
+            position: absolute;
+            right: 0;
+            top: 7px;
+            bottom: 7px;
+            width: 4px;
+            border-radius: 4px;
+            background: var(--primary);
+            box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 12%, transparent);
+            animation: topbar-title-accent .55s ease-out both;
+        }
+
+        .topbar-page-title::after {
+            content: "";
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            width: 0;
+            height: 2px;
+            border-radius: 2px;
+            background: var(--primary);
+            animation: topbar-title-line .7s .2s ease-out forwards;
+        }
+
+        @keyframes topbar-title-in {
+            from { opacity: 0; transform: translateX(-12px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes topbar-title-accent {
+            from { opacity: 0; transform: scaleY(0); }
+            to { opacity: 1; transform: scaleY(1); }
+        }
+
+        @keyframes topbar-title-line {
+            from { width: 0; }
+            to { width: 100%; }
         }
 
         /* Mobile toggle (hamburger) */
@@ -264,6 +320,12 @@
             font-size: 0.75rem;
             display: block;
         }
+        .topbar-page-title {
+            font-size: .9rem;
+            margin-left: auto;
+            margin-right: 0;
+            padding-right: .8rem;
+        }
         .sidebar-footer .btn-logout {
             width: 100%;
             background: rgba(239, 68, 68, 0.1);
@@ -405,6 +467,10 @@
         <button id="mobileSidebarToggle" class="topbar-mobile-toggle" title="Abrir menu">
             <i class="fas fa-bars"></i>
         </button>
+
+        <div class="topbar-page-title">
+            @yield('title')
+        </div>
 
         <div class="topbar-right">
             <!-- Empty for now, can add notifications or clock here later -->
@@ -555,9 +621,6 @@
     <!-- ===== PAGE WRAPPER ===== -->
     <div id="page-wrapper">
         <main>
-            <header class="page-header">
-                <h1 class="page-title">@yield('title')</h1>
-            </header>
             @yield('content')
         </main>
     </div>

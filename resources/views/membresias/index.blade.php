@@ -47,13 +47,32 @@
     }
     .ic-card-title { font-weight: 700; font-size: 0.8rem; color: var(--sidebar-bg); text-transform: uppercase; }
 
-    .table-panel { flex: 1; min-height: 0; overflow-y: auto; padding-right: 5px; }
-    .dataTables_wrapper { display: flex; flex-direction: column; height: 100%; }
+    .main-container { flex: 1 1 auto; min-height: 0; overflow: hidden; display: flex; flex-direction: column; padding: 0 !important; }
+    .main-container > .row.flex-grow-1 { flex: 1 1 0 !important; min-height: 0; }
+    .main-container > .row.flex-grow-1 > .col-12 { min-height: 0; }
+    .table-panel { flex: 1 1 0; min-height: 0; min-width: 0; overflow: hidden; padding-right: 5px; display: flex; flex-direction: column; }
+    .dataTables_wrapper { display: flex; flex: 1 1 0; min-height: 0; flex-direction: column; height: 100%; }
     .dataTables_wrapper .row { margin-left: 0; margin-right: 0; }
-    .dataTables_scroll { flex-grow: 1; overflow: hidden; display: flex; flex-direction: column; min-height: 0; margin-top: 0.5rem; margin-bottom: 0.5rem; }
-    .dataTables_scrollBody { flex-grow: 1; min-height: 0; overflow-y: auto !important; max-height: none !important; height: auto !important; }
+    .dataTables_scroll { flex: 1 1 0; overflow: hidden; display: flex; flex-direction: column; min-height: 0; margin-top: 0.5rem; margin-bottom: 0.5rem; }
+    .dataTables_scrollBody { flex: 1 1 auto; min-height: 180px; height: calc(100vh - 350px) !important; max-height: calc(100vh - 350px) !important; overflow-y: scroll !important; padding-bottom: 1rem; box-sizing: border-box; }
+    #mainPlanesTable_wrapper { flex: 1 1 auto; min-height: 0; }
+    #mainPlanesTable_wrapper .dataTables_scroll { min-height: 0; }
+    #mainPlanesTable_wrapper .dataTables_scrollHead table,
+    #mainPlanesTable_wrapper .dataTables_scrollBody table { width: 100% !important; }
 
-    .ic-table thead th { font-size: 0.75rem; font-weight: 700; color: #4e73df; background: #eaecf4; border-bottom: 2px solid #4e73df; padding: 0.75rem 0.5rem; letter-spacing: 0.5px; text-transform: uppercase; white-space: nowrap; }
+    .ic-table thead th { font-size: 0.75rem; font-weight: 700; color: var(--primary); background: #eaecf4; border-bottom: 2px solid var(--primary); padding: 0.75rem 0.5rem; letter-spacing: 0.5px; text-transform: uppercase; white-space: nowrap; }
+    .ic-table thead th i { display: inline-block; vertical-align: middle; }
+    #mainPlanesTable_wrapper .pagination .page-item.active .page-link {
+        background-color: var(--primary);
+        border-color: var(--primary);
+        color: #fff;
+    }
+    #mainPlanesTable_wrapper .pagination .page-link { color: var(--primary); }
+    #mainPlanesTable_wrapper .pagination .page-item:not(.disabled):not(.active) .page-link:hover {
+        background-color: var(--primary);
+        border-color: var(--primary);
+        color: #fff;
+    }
     .ic-table td { font-size: 0.85rem; vertical-align: middle; white-space: nowrap; border-top: 1px solid #e3e6f0; padding: 0.6rem 0.5rem; color: #5a5c69; }
 
     .ic-badge-active, .ic-badge-inactive, .ic-status-badge { background: var(--card-color); color: white; padding: 3px 8px; border-radius: 50px; font-weight: 600; font-size: 0.7rem; }
@@ -78,6 +97,128 @@
     .plan-card-body { padding: 1rem; flex: 1; }
     .plan-card-footer { padding: 0.75rem 1rem; background: #fafaf8; border-top: 1px solid #f1f1ef; border-radius: 0 0 .75rem .75rem; }
     .plan-card h6, .plan-card .plan-card-body, .plan-card .plan-card-body p, .plan-card .plan-card-body li, .plan-card .plan-card-body small { color: var(--card-color) !important; }
+
+    @media (max-width: 991.98px) {
+        body, html { overflow: auto; height: auto; }
+        #page-wrapper main {
+            height: auto;
+            min-height: calc(100vh - 60px);
+            overflow: visible;
+            padding: .75rem !important;
+        }
+        .main-container {
+            overflow: visible;
+            min-height: auto;
+        }
+        .main-container > .row.flex-grow-1 {
+            height: auto;
+            flex: none !important;
+        }
+        .main-container > .row.flex-grow-1 > .col-12 {
+            height: auto !important;
+            min-height: 0;
+            padding-bottom: .75rem !important;
+        }
+        .ic-card.h-100 {
+            height: auto !important;
+            min-height: 0;
+        }
+        .ic-card > .d-flex.justify-content-between.align-items-center {
+            gap: .75rem;
+        }
+        .ic-card > .d-flex.justify-content-between.align-items-center > div:first-child,
+        .ic-card > .d-flex.justify-content-between.align-items-center > div:last-child {
+            width: 100%;
+        }
+        .ic-card > .d-flex.justify-content-between.align-items-center > div:first-child {
+            flex-wrap: wrap;
+        }
+        .ic-card > .d-flex.justify-content-between.align-items-center > div:first-child .input-group {
+            width: 100% !important;
+            margin-top: .5rem;
+        }
+        .ic-card > .d-flex.justify-content-between.align-items-center > div:last-child {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .5rem;
+            margin-top: 0 !important;
+        }
+        #customFilterPlanes {
+            flex: 1 1 120px;
+            width: auto !important;
+            margin-right: 0 !important;
+        }
+        .custom-tab-btn {
+            min-width: 42px;
+        }
+        #viewTable {
+            overflow-x: auto;
+            overflow-y: hidden;
+            flex: 0 0 470px;
+            height: 470px;
+            min-height: 470px;
+        }
+        #viewTable .dataTables_wrapper {
+            height: 100%;
+            min-height: 0;
+        }
+        #mainPlanesTable_wrapper {
+            width: 760px;
+            min-width: 760px;
+        }
+        #mainPlanesTable_wrapper .dataTables_scrollBody {
+            height: 360px !important;
+            max-height: 360px !important;
+        }
+        #mainPlanesTable_wrapper > .row:last-child {
+            min-width: 0;
+            width: 100%;
+            margin-left: 0;
+            margin-right: 0;
+        }
+        #mainPlanesTable_wrapper .dataTables_length,
+        #mainPlanesTable_wrapper .dataTables_info,
+        #mainPlanesTable_wrapper .dataTables_paginate {
+            width: 100%;
+            text-align: center;
+        }
+        #mainPlanesTable_wrapper .pagination {
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 0;
+        }
+        #viewCards {
+            overflow-y: visible !important;
+            height: auto !important;
+        }
+    }
+
+    @media (max-width: 575.98px) {
+        .main-container > .row.tight > [class*="col-"] {
+            margin-bottom: .75rem;
+        }
+        .main-container > .row.tight > [class*="col-"]:last-child {
+            margin-bottom: 0;
+        }
+        .kpi-card {
+            min-height: 64px;
+        }
+        .kpi-value {
+            font-size: 1.2rem;
+        }
+        .kpi-label {
+            font-size: .62rem;
+        }
+        .ic-card {
+            padding: .65rem;
+        }
+        .ic-card-title {
+            font-size: .72rem;
+        }
+        .btn[data-target="#modalCrearPlan"] {
+            flex: 1 1 100%;
+        }
+    }
 </style>
 @endpush
 
@@ -98,7 +239,7 @@
         <div class="col-md-3">
             <div class="kpi-card">
                 <div>
-                    <h3 class="kpi-value text-success">{{ $planesActivos }}</h3>
+                    <h3 class="kpi-value">{{ $planesActivos }}</h3>
                     <div class="kpi-label">Planes Activos</div>
                 </div>
                 <i class="fas fa-check-circle kpi-icon"></i>
@@ -157,8 +298,8 @@
                             </button>
                         </div>
                         @if(Auth::user() && Auth::user()->rol === 'admin')
-                            <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#modalCrearPlan" title="Nuevo Plan" style="width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; border-radius: 50%;">
-                                <i class="fas fa-plus"></i>
+                            <button type="button" class="btn btn-sm btn-primary font-weight-bold px-3" data-toggle="modal" data-target="#modalCrearPlan" title="Nuevo Plan">
+                                <i class="fas fa-plus mr-1"></i> Nuevo Plan
                             </button>
                         @endif
                     </div>
@@ -414,15 +555,20 @@
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
 <script>
 $(document).ready(function() {
+    var planesScrollHeight = window.innerWidth <= 991
+        ? '360px'
+        : Math.max(240, window.innerHeight - 350) + 'px';
     var tablePlanes = $('#mainPlanesTable').DataTable({
         language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json' },
         pageLength: 25,
-        scrollY: '100%',
+        scrollY: planesScrollHeight,
         scrollCollapse: true,
         info: true,
-        dom: "<'row dataTables_scroll'<'col-sm-12'tr>>" +
+        dom: "<'row table-data-row'<'col-sm-12'tr>>" +
              "<'row mt-2 align-items-center'<'col-sm-12 col-md-4'l><'col-sm-12 col-md-4'i><'col-sm-12 col-md-4'p>>"
     });
+
+    tablePlanes.columns.adjust();
 
     $('#customSearchPlanes').on('keyup', function() {
         tablePlanes.search(this.value).draw();
@@ -430,6 +576,10 @@ $(document).ready(function() {
 
     $('#customFilterPlanes').on('change', function() {
         tablePlanes.column(4).search(this.value).draw();
+    });
+
+    $(window).on('resize', function() {
+        tablePlanes.columns.adjust();
     });
 });
 
