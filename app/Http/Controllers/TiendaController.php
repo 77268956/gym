@@ -4,12 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\CanjeEcogim;
 use App\Models\Cliente;
-use App\Models\Empleado;
 use App\Models\MovimientoPunto;
 use App\Models\ProductoEcogim;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 class TiendaController extends Controller
 {
@@ -102,7 +103,7 @@ class TiendaController extends Controller
     }
 
     /** Procesa el canje de un producto */
-    public function canjear(Request $request)
+    public function canjear(Request $request): JsonResponse
     {
         $request->validate([
             'cliente_id' => 'required|exists:clientes,id',
@@ -145,23 +146,12 @@ class TiendaController extends Controller
             ], 422);
         }
 
-        DB::transaction(function () use ($cliente, $producto, $periodoActual) {
-            $empleado = Empleado::first();
-            if (! $empleado) {
-                $empleado = Empleado::create([
-                    'nombre' => 'Administrador General',
-                    'cedula' => '000-0000000-0',
-                    'usuario' => 'admin_sistema',
-                    'password_hash' => bcrypt('admin123'),
-                    'rol' => 'admin',
-                    'estado' => 'activo',
-                ]);
-            }
-
+        $empleadoId = (int) $request->user()->getAuthIdentifier();
+        $canje = DB::transaction(function () use ($cliente, $producto, $periodoActual, $empleadoId): CanjeEcogim {
             $canje = CanjeEcogim::create([
                 'cliente_id' => $cliente->id,
                 'producto_id' => $producto->id,
-                'empleado_id' => $empleado->id,
+                'empleado_id' => $empleadoId,
                 'puntos_utilizados' => $producto->puntos_valor,
                 'periodo_canje' => $periodoActual,
                 'fecha' => now(),
@@ -178,6 +168,8 @@ class TiendaController extends Controller
                 'origen_id' => $canje->id,
                 'fecha' => now(),
             ]);
+
+            return $canje;
         });
 
         $cliente->refresh();
@@ -186,6 +178,18 @@ class TiendaController extends Controller
             'ok' => true,
             'mensaje' => "¡Canje exitoso! Se descontaron {$producto->puntos_valor} puntos a {$cliente->nombre}.",
             'puntos_restantes' => $cliente->puntos_ecogim,
+            'ticket_url' => route('tienda.ticket', $canje),
         ]);
+    }
+
+    public function ticket(CanjeEcogim $canje): View
+    {
+        $canje->load([
+            'cliente:id,nombre,cedula',
+            'producto:id,nombre,descripcion,categoria,imagen,puntos_valor',
+            'empleado:id,nombre',
+        ]);
+
+        return view('tienda.ticket', compact('canje'));
     }
 }

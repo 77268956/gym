@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\AlertaSistema;
 use App\Models\Cliente;
 use App\Models\Membresia;
 use Carbon\Carbon;
@@ -47,6 +48,26 @@ class SincronizarEstadoClientes extends Command
         })->where('estado', 'activo')->update(['estado' => 'inactivo']);
 
         $this->line("  -> {$clientesAInactivar} clientes marcados como inactivos.");
+
+        $membresiasPorVencer = Membresia::with('cliente')
+            ->where('estado', 'activa')
+            ->whereDate('fecha_vencimiento', '>=', Carbon::today())
+            ->whereDate('fecha_vencimiento', '<=', Carbon::today()->addDays(3))
+            ->get();
+
+        foreach ($membresiasPorVencer as $membresia) {
+            $clienteNombre = $membresia->cliente?->nombre ?? 'Un cliente';
+            $fechaVencimiento = Carbon::parse($membresia->fecha_vencimiento)->format('d/m/Y');
+
+            AlertaSistema::registrar(
+                'membresia_por_vencer',
+                'membresias',
+                $membresia->id,
+                "La membresía de {$clienteNombre} vence el {$fechaVencimiento}."
+            );
+        }
+
+        $this->line("  -> {$membresiasPorVencer->count()} membresías por vencer notificadas.");
 
         $this->info('Sincronizacion completada.');
 

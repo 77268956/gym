@@ -321,6 +321,13 @@ video.addEventListener('play', () => {
 
     function mostrarClienteNoReconocido() {
         lastScannedId = 'unknown';
+        fetch('{{ route('asistencias.publico.intento-fallido') }}', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+        }).catch(error => console.error(error));
         detenerCamara();
         mostrarResultado(false, {
             message: 'El rostro no coincide con ningún cliente registrado.'

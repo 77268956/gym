@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Illuminate\View\View;
 
 class EmpleadoController extends Controller
 {
@@ -39,7 +40,7 @@ class EmpleadoController extends Controller
         $empleados = $query->orderBy('nombre', 'asc')->paginate(12)->withQueryString();
 
         // Estadísticas ejecutivas
-                $totalEmpleados = Empleado::count();
+        $totalEmpleados = Empleado::count();
         $empleadosActivos = Empleado::where('estado', 'activo')->count();
         $empleadosInactivos = Empleado::where('estado', 'inactivo')->count();
         $recepcionistasCount = Empleado::where('rol', 'empleado')->count();
@@ -49,22 +50,22 @@ class EmpleadoController extends Controller
         // -----------------------------------------------------
         $mesesLabels = [];
         $mesesData = [];
-        
+
         Carbon::setLocale('es'); // Para asegurar que los meses salgan en español
 
         for ($i = 6; $i >= 1; $i--) {
             $date = Carbon::now()->subMonths($i);
             $mesNum = $date->format('n');
             $year = $date->format('Y');
-            
+
             // Ejemplo: 'AGO'
-            $mesesLabels[] = strtoupper(substr($date->translatedFormat('F'), 0, 3)); 
+            $mesesLabels[] = strtoupper(substr($date->translatedFormat('F'), 0, 3));
 
             // Contar pagos procesados en ese mes
             $count = Pago::whereYear('fecha_pago', $year)
-                         ->whereMonth('fecha_pago', $mesNum)
-                         ->count();
-                         
+                ->whereMonth('fecha_pago', $mesNum)
+                ->count();
+
             $mesesData[] = $count;
         }
 
@@ -82,6 +83,51 @@ class EmpleadoController extends Controller
     public function create()
     {
         return view('empleados.create');
+    }
+
+    public function show(Empleado $empleado): View
+    {
+        $empleado->load(['asistencias' => function ($query) {
+            $query->orderByDesc('fecha')->orderByDesc('hora_entrada')->limit(30);
+        }]);
+
+        $inicioMes = now()->startOfMonth();
+        $finMes = now()->endOfMonth();
+
+        $asistenciasMes = $empleado->asistencias()
+            ->whereBetween('fecha', [$inicioMes, $finMes])
+            ->whereNotNull('hora_entrada')
+            ->count();
+
+        $tardanzasMes = $empleado->asistencias()
+            ->whereBetween('fecha', [$inicioMes, $finMes])
+            ->where('tardanza', true)
+            ->count();
+
+        $salidasTempranasMes = $empleado->asistencias()
+            ->whereBetween('fecha', [$inicioMes, $finMes])
+            ->where('salida_temprana', true)
+            ->count();
+
+        $ausenciasMes = $empleado->asistencias()
+            ->whereBetween('fecha', [$inicioMes, $finMes])
+            ->where('metodo_registro', 'sistema')
+            ->whereNull('hora_entrada')
+            ->count();
+
+        $asistenciasSemana = $empleado->asistencias()
+            ->whereBetween('fecha', [now()->startOfWeek(), now()->endOfWeek()])
+            ->whereNotNull('hora_entrada')
+            ->count();
+
+        return view('empleados.show', compact(
+            'empleado',
+            'asistenciasMes',
+            'tardanzasMes',
+            'salidasTempranasMes',
+            'ausenciasMes',
+            'asistenciasSemana',
+        ));
     }
 
     public function store(Request $request)

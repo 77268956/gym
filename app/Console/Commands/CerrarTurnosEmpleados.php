@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\AlertaSistema;
 use App\Models\AsistenciaEmpleado;
 use App\Models\Empleado;
 use Carbon\Carbon;
@@ -10,16 +11,16 @@ use Illuminate\Console\Command;
 class CerrarTurnosEmpleados extends Command
 {
     protected $signature = 'asistencias:cerrar-turnos
-                            {--fecha= : Fecha a procesar (Y-m-d). Por defecto: ayer}
+                            {--fecha= : Fecha a procesar (Y-m-d). Por defecto: hoy}
                             {--dry-run : Solo muestra qué haría sin guardar nada}';
 
-    protected $description = 'Cierra turnos sin salida y registra ausencias del día anterior.';
+    protected $description = 'Cierra turnos sin salida y registra ausencias del día actual.';
 
     public function handle(): int
     {
         $fecha = $this->option('fecha')
             ? Carbon::parse($this->option('fecha'))->startOfDay()
-            : Carbon::yesterday()->startOfDay();
+            : Carbon::today()->startOfDay();
 
         $dryRun = $this->option('dry-run');
 
@@ -54,8 +55,15 @@ class CerrarTurnosEmpleados extends Command
                         'horas_trabajadas' => $salidaEsperada
                             ? Carbon::parse($fecha->format('Y-m-d').' '.$horaEntrada)
                                 ->diffInMinutes($salidaEsperada) / 60
-                            : null,
+                        : null,
                     ]);
+
+                    AlertaSistema::registrar(
+                        'salida_no_registrada',
+                        'asistencias_empleados',
+                        $asistencia->id,
+                        "{$empleado->nombre} no registró su salida el {$fecha->format('d/m/Y')}."
+                    );
                 }
 
                 $turnosCerrados++;
@@ -68,7 +76,7 @@ class CerrarTurnosEmpleados extends Command
                 $this->line("  [AUSENTE]    {$empleado->nombre}");
 
                 if (! $dryRun) {
-                    AsistenciaEmpleado::create([
+                    $asistencia = AsistenciaEmpleado::create([
                         'empleado_id' => $empleado->id,
                         'fecha' => $fecha->format('Y-m-d'),
                         'hora_entrada' => null,
@@ -79,6 +87,13 @@ class CerrarTurnosEmpleados extends Command
                         'salida_no_registrada' => false,
                         'metodo_registro' => 'sistema',
                     ]);
+
+                    AlertaSistema::registrar(
+                        'ausencia',
+                        'asistencias_empleados',
+                        $asistencia->id,
+                        "{$empleado->nombre} no registró asistencia el {$fecha->format('d/m/Y')}."
+                    );
                 }
 
                 $ausenciasRegistradas++;

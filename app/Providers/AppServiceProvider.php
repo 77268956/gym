@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\AlertaSistema;
 use App\Models\ConfiguracionGeneral;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
@@ -64,6 +66,22 @@ class AppServiceProvider extends ServiceProvider
             }
 
             $view->with('gymConfig', $gymConfig);
+        });
+
+        View::composer('layouts.app', function ($view): void {
+            $notificaciones = collect();
+            $notificacionesPendientes = 0;
+            $puedeVerNotificaciones = Auth::user()?->rol === 'admin';
+
+            if ($puedeVerNotificaciones && Schema::hasTable('alertas_sistema')) {
+                $notificacionesPendientes = AlertaSistema::where('estado', 'pendiente')->count();
+                $notificaciones = AlertaSistema::where('estado', 'pendiente')
+                    ->latest()
+                    ->limit(8)
+                    ->get();
+            }
+
+            $view->with(compact('notificaciones', 'notificacionesPendientes', 'puedeVerNotificaciones'));
         });
     }
 }

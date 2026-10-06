@@ -16,32 +16,78 @@ class DashboardController extends Controller
     {
         $today = Carbon::today();
 
-        // Determinar el rango de fechas basado en el filtro
-        $periodo = $request->input('periodo', 'mes');
-        $startDate = $today->copy();
-        $endDate = $today->copy()->endOfDay();
-        $labelPeriodo = 'del Mes';
+        $filtros = $request->validate([
+            'periodo' => 'nullable|in:mes,semana,rango',
+            'mes' => 'nullable|date_format:Y-m',
+            'semana' => 'nullable|date_format:Y-m-d',
+            'desde' => 'required_if:periodo,rango|nullable|date_format:Y-m-d',
+            'hasta' => 'required_if:periodo,rango|nullable|date_format:Y-m-d|after_or_equal:desde',
+        ]);
 
-        switch ($periodo) {
-            case 'dia':
-                $startDate = $today->copy();
-                $labelPeriodo = 'de Hoy';
-                break;
-            case 'semana':
-                $startDate = $today->copy()->startOfWeek();
-                $labelPeriodo = 'de la Semana';
-                break;
-            case 'ano':
-                $startDate = $today->copy()->startOfYear();
-                $labelPeriodo = 'del Año';
-                break;
-            case 'mes':
-            default:
-                $startDate = $today->copy()->startOfMonth();
-                $labelPeriodo = 'del Mes';
-                $periodo = 'mes';
-                break;
+        $periodo = $filtros['periodo'] ?? 'mes';
+        $mesSeleccionado = $filtros['mes'] ?? $today->format('Y-m');
+        $inicioMesSeleccionado = Carbon::createFromFormat('Y-m-d', $mesSeleccionado.'-01')->startOfMonth();
+        $finMesSeleccionado = $inicioMesSeleccionado->copy()->endOfMonth();
+        $mesesDisponibles = [];
+
+        for ($mesesAtras = 23; $mesesAtras >= 0; $mesesAtras--) {
+            $mes = $today->copy()->subMonths($mesesAtras)->startOfMonth();
+            $mesesDisponibles[$mes->format('Y-m')] = ucfirst($mes->locale('es')->isoFormat('MMMM YYYY'));
         }
+
+        $semanasDisponibles = [];
+        $inicioSemana = $inicioMesSeleccionado->copy();
+
+        while ($inicioSemana->lte($finMesSeleccionado)) {
+            $finSemana = $inicioSemana->copy()->endOfWeek(Carbon::SUNDAY);
+            if ($finSemana->gt($finMesSeleccionado)) {
+                $finSemana = $finMesSeleccionado->copy();
+            }
+
+            $semanasDisponibles[] = [
+                'inicio' => $inicioSemana->format('Y-m-d'),
+                'fin' => $finSemana->format('Y-m-d'),
+                'etiqueta' => $inicioSemana->format('j').'-'.$finSemana->format('j').' '.
+                    $inicioSemana->locale('es')->isoFormat('MMM'),
+            ];
+
+            $inicioSemana = $finSemana->copy()->addDay()->startOfDay();
+        }
+
+        $semanaActiva = collect($semanasDisponibles)->first(function (array $semana) use ($today, $filtros): bool {
+            if (isset($filtros['semana']) && $semana['inicio'] === $filtros['semana']) {
+                return true;
+            }
+
+            return ! isset($filtros['semana'])
+                && $today->greaterThanOrEqualTo(Carbon::parse($semana['inicio']))
+                && $today->lessThanOrEqualTo(Carbon::parse($semana['fin']));
+        });
+        $semanaActiva ??= $semanasDisponibles[0];
+        $semanaSeleccionada = $semanaActiva['inicio'];
+
+        if ($periodo === 'semana') {
+            $semana = collect($semanasDisponibles)->firstWhere('inicio', $semanaSeleccionada);
+            $startDate = Carbon::parse($semana['inicio'])->startOfDay();
+            $endDate = Carbon::parse($semana['fin'])->endOfDay();
+            $labelPeriodo = 'de la semana';
+        } elseif ($periodo === 'rango') {
+            $startDate = Carbon::parse($filtros['desde'])->startOfDay();
+            $endDate = Carbon::parse($filtros['hasta'])->endOfDay();
+            $labelPeriodo = 'del periodo seleccionado';
+        } else {
+            $startDate = $inicioMesSeleccionado;
+            $endDate = $finMesSeleccionado;
+            if ($inicioMesSeleccionado->isSameMonth($today)) {
+                $endDate = $today->copy()->endOfDay();
+            }
+            $labelPeriodo = 'de '.ucfirst($inicioMesSeleccionado->locale('es')->isoFormat('MMMM YYYY'));
+            $periodo = 'mes';
+        }
+
+        $desdeSeleccionado = $filtros['desde'] ?? '';
+        $hastaSeleccionado = $filtros['hasta'] ?? '';
+        $rangoFechas = $startDate->format('d/m/Y').' - '.$endDate->format('d/m/Y');
 
         // --- 1. Top KPIs ---
         // Ingresos filtrados por periodo
@@ -112,6 +158,13 @@ class DashboardController extends Controller
         return view('dashboard', compact(
             'periodo',
             'labelPeriodo',
+            'mesesDisponibles',
+            'mesSeleccionado',
+            'semanasDisponibles',
+            'semanaSeleccionada',
+            'desdeSeleccionado',
+            'hastaSeleccionado',
+            'rangoFechas',
             'ingresosPeriodo',
             'clientesActivos',
             'asistenciasPeriodo',

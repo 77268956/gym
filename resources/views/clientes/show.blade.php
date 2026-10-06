@@ -205,11 +205,16 @@
                                         <div class="ic-timeline mt-2">
                                             @foreach($cliente->asistencias as $asistencia)
                                             <div class="ic-timeline-item">
+                                                @php
+                                                    $puntosGanados = $asistencia->movimientosPuntos
+                                                        ->where('tipo_movimiento', 'ganado')
+                                                        ->sum('puntos');
+                                                @endphp
                                                 <div class="ic-timeline-date">{{ \Carbon\Carbon::parse($asistencia->fecha)->isoFormat('dddd, D [de] MMMM YYYY') }} • {{ \Carbon\Carbon::parse($asistencia->hora)->format('h:i A') }}</div>
                                                 <div class="ic-timeline-content d-flex justify-content-between align-items-center">
                                                     <span>Ingreso registrado en recepción.</span>
-                                                    @if($asistencia->puntos_otorgados > 0)
-                                                        <span class="badge badge-success text-white">+{{ $asistencia->puntos_otorgados }} pts</span>
+                                                    @if($puntosGanados > 0)
+                                                        <span class="badge badge-success text-white">+{{ number_format($puntosGanados) }} pts</span>
                                                     @endif
                                                 </div>
                                             </div>
@@ -239,6 +244,7 @@
                                                 <thead>
                                                     <tr>
                                                         <th>FECHA</th>
+                                                        <th>IMAGEN</th>
                                                         <th>PRODUCTO</th>
                                                         <th>PUNTOS USADOS</th>
                                                     </tr>
@@ -247,6 +253,15 @@
                                                     @foreach($cliente->canjes as $canje)
                                                     <tr>
                                                         <td>{{ \Carbon\Carbon::parse($canje->fecha)->format('d/m/Y') }}</td>
+                                                        <td>
+                                                            @if($canje->producto?->imagen)
+                                                                <img src="{{ asset('storage/' . $canje->producto->imagen) }}" alt="{{ $canje->producto->nombre }}" class="rounded" style="width: 48px; height: 48px; object-fit: cover;">
+                                                            @else
+                                                                <span class="d-inline-flex align-items-center justify-content-center bg-light rounded text-muted" style="width: 48px; height: 48px;" aria-label="Sin imagen">
+                                                                    <i class="fas fa-image" aria-hidden="true"></i>
+                                                                </span>
+                                                            @endif
+                                                        </td>
                                                         <td class="font-weight-bold text-dark">{{ $canje->producto->nombre ?? 'Producto Desconocido' }}</td>
                                                         <td class="text-danger font-weight-bold">-{{ $canje->puntos_utilizados }} pts</td>
                                                     </tr>

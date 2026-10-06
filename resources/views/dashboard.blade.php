@@ -16,7 +16,24 @@
         flex: 1; min-height: 0; display: flex; flex-direction: column;
         padding: 0 !important;
     }
-    .dashboard-toolbar { flex-shrink: 0; margin-bottom: 0.25rem !important; }
+    .dashboard-toolbar {
+        flex-shrink: 0; margin-bottom: 0.5rem !important; padding: .6rem .85rem;
+        border-radius: 10px; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,.04);
+        gap: .75rem;
+    }
+    .dashboard-filter-form { display: flex; align-items: flex-end; flex-wrap: wrap; gap: .45rem; }
+    .dashboard-filter-control { min-width: 145px; }
+    .dashboard-filter-control label { display: block; margin-bottom: .15rem; color: #64748b; font-size: .65rem; font-weight: 700; text-transform: uppercase; }
+    .dashboard-filter-form .form-control, .dashboard-filter-form .custom-select { height: 32px; border-radius: 6px; font-size: .78rem; }
+    .dashboard-filter-form .date-control { width: 145px; }
+    .dashboard-range-summary { color: #334155; font-size: .85rem; white-space: nowrap; }
+    .dashboard-range-summary i { color: var(--primary); }
+    @media (max-width: 767.98px) {
+        .dashboard-toolbar { align-items: stretch !important; flex-direction: column; }
+        .dashboard-filter-form { align-items: flex-end; }
+        .dashboard-filter-control { flex: 1 1 140px; min-width: 0; }
+        .dashboard-filter-form .date-control { width: 100%; }
+    }
 
     .kpi-card {
         border-radius: 10px; border: none; padding: 0.6rem 1rem; color: white;
@@ -83,19 +100,51 @@
     
     <div class="d-flex justify-content-between align-items-center dashboard-toolbar">
         <div>
-            <span class="text-muted">{{ \Carbon\Carbon::today()->locale('es')->isoFormat('dddd D [de] MMMM [de] YYYY') }}</span>
+            <span class="text-muted"><i class="far fa-calendar-alt mr-1 text-primary"></i>Fechas:</span>
+            <strong>{{ $rangoFechas }}</strong>
         </div>
         
-        <form method="GET" action="{{ route('dashboard') }}" class="form-inline">
-            <label class="mr-2 font-weight-bold text-muted small">Periodo:</label>
-            <select name="periodo" class="custom-select custom-select-sm" onchange="this.form.submit()">
-                <option value="dia" {{ $periodo === 'dia' ? 'selected' : '' }}>Hoy</option>
-                <option value="semana" {{ $periodo === 'semana' ? 'selected' : '' }}>Esta Semana</option>
-                <option value="mes" {{ $periodo === 'mes' ? 'selected' : '' }}>Este Mes</option>
-                <option value="ano" {{ $periodo === 'ano' ? 'selected' : '' }}>Este Año</option>
-            </select>
+        <form method="GET" action="{{ route('dashboard') }}" class="dashboard-filter-form">
+            <div class="dashboard-filter-control">
+                <label for="periodo">Periodo</label>
+                <select name="periodo" id="periodo" class="custom-select custom-select-sm" onchange="actualizarFiltrosDashboard()">
+                    <option value="mes" {{ $periodo === 'mes' ? 'selected' : '' }}>Mes completo</option>
+                    <option value="semana" {{ $periodo === 'semana' ? 'selected' : '' }}>Semana del mes</option>
+                    <option value="rango" {{ $periodo === 'rango' ? 'selected' : '' }}>Rango personalizado</option>
+                </select>
+            </div>
+
+            <div id="filtroMes" class="dashboard-filter-control {{ $periodo === 'rango' ? 'd-none' : '' }}">
+                <label for="mes">Mes</label>
+                <select name="mes" id="mes" class="custom-select custom-select-sm">
+                    @foreach($mesesDisponibles as $valorMes => $etiquetaMes)
+                        <option value="{{ $valorMes }}" {{ $mesSeleccionado === $valorMes ? 'selected' : '' }}>{{ $etiquetaMes }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div id="filtroSemana" class="dashboard-filter-control {{ $periodo === 'semana' ? '' : 'd-none' }}">
+                <label for="semana">Semana</label>
+                <select name="semana" id="semana" class="custom-select custom-select-sm">
+                    @foreach($semanasDisponibles as $semana)
+                        <option value="{{ $semana['inicio'] }}" {{ $semanaSeleccionada === $semana['inicio'] ? 'selected' : '' }}>{{ $semana['etiqueta'] }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div id="filtroFechas" class="dashboard-filter-control {{ $periodo === 'rango' ? '' : 'd-none' }}">
+                <label for="desde">Desde</label>
+                <input type="date" name="desde" id="desde" class="form-control form-control-sm date-control" value="{{ $desdeSeleccionado }}">
+            </div>
+            <div id="filtroHasta" class="dashboard-filter-control {{ $periodo === 'rango' ? '' : 'd-none' }}">
+                <label for="hasta">Hasta</label>
+                <input type="date" name="hasta" id="hasta" class="form-control form-control-sm date-control" value="{{ $hastaSeleccionado }}">
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm font-weight-bold"><i class="fas fa-filter mr-1"></i>Aplicar</button>
         </form>
     </div>
+
+    @if($errors->has('desde') || $errors->has('hasta'))
+        <div class="alert alert-danger py-2 mb-2 small">{{ $errors->first('desde') ?: $errors->first('hasta') }}</div>
+    @endif
 
     <!-- KPI Cards -->
     <div class="row dashboard-row dashboard-kpis">
@@ -270,6 +319,14 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <script>
+function actualizarFiltrosDashboard() {
+    const periodo = document.getElementById('periodo').value;
+    document.getElementById('filtroMes').classList.toggle('d-none', periodo === 'rango');
+    document.getElementById('filtroSemana').classList.toggle('d-none', periodo !== 'semana');
+    document.getElementById('filtroFechas').classList.toggle('d-none', periodo !== 'rango');
+    document.getElementById('filtroHasta').classList.toggle('d-none', periodo !== 'rango');
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const primaryColor = getComputedStyle(document.documentElement)
         .getPropertyValue('--primary').trim() || '#2563EB';

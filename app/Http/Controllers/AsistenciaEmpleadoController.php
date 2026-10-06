@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AlertaSistema;
 use App\Models\AsistenciaEmpleado;
 use App\Models\Empleado;
 use Carbon\Carbon;
@@ -102,13 +103,22 @@ class AsistenciaEmpleadoController extends Controller
                 $tardanza = true;
             }
 
-            AsistenciaEmpleado::create([
+            $asistencia = AsistenciaEmpleado::create([
                 'empleado_id' => $empleado->id,
                 'fecha' => $hoy->format('Y-m-d'),
                 'hora_entrada' => $ahora->format('H:i:s'),
                 'tardanza' => $tardanza,
                 'metodo_registro' => 'facial',
             ]);
+
+            if ($tardanza) {
+                AlertaSistema::registrar(
+                    'entrada_tardia',
+                    'asistencias_empleados',
+                    $asistencia->id,
+                    "{$empleado->nombre} registró entrada tarde a las {$ahora->format('H:i')}."
+                );
+            }
 
             return response()->json([
                 'status' => 'success',
@@ -142,6 +152,15 @@ class AsistenciaEmpleadoController extends Controller
                 'salida_temprana' => $salidaTemprana,
                 'horas_trabajadas' => $horasTrabajadas,
             ]);
+
+            if ($salidaTemprana) {
+                AlertaSistema::registrar(
+                    'salida_temprana',
+                    'asistencias_empleados',
+                    $asistencia->id,
+                    "{$empleado->nombre} registró salida antes de su hora de turno."
+                );
+            }
 
             return response()->json([
                 'status' => 'success',

@@ -185,7 +185,7 @@
                                         @else
                                             <div class="ic-avatar mr-2">{{ strtoupper(substr($empleado->nombre, 0, 2)) }}</div>
                                         @endif
-                                        <div class="font-weight-bold text-dark">{{ $empleado->nombre }}</div>
+                                        <a href="{{ route('empleados.show', $empleado) }}" class="font-weight-bold text-dark">{{ $empleado->nombre }}</a>
                                     </div>
                                 </td>
                                 <td class="text-muted">{{ $empleado->usuario }}</td>
@@ -205,6 +205,7 @@
                                     <div class="dropdown">
                                         <button class="btn btn-sm btn-light py-0 px-2" type="button" data-toggle="dropdown"><i class="fas fa-ellipsis-v"></i></button>
                                         <div class="dropdown-menu dropdown-menu-right" style="font-size:0.8rem;">
+                                            <a class="dropdown-item py-1" href="{{ route('empleados.show', $empleado) }}"><i class="fas fa-id-card text-info mr-2"></i> Ver expediente</a>
                                             <a class="dropdown-item py-1" href="{{ route('empleados.edit', $empleado) }}"><i class="fas fa-pen text-primary mr-2"></i> Editar</a>
                                             <form action="{{ route('empleados.toggleStatus', $empleado) }}" method="POST" class="d-inline">
                                                 @csrf @method('PATCH')

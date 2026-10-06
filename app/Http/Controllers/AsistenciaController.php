@@ -2,15 +2,34 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AlertaSistema;
 use App\Models\AsistenciaCliente;
 use App\Models\Cliente;
 use App\Models\ConfiguracionPunto;
+use App\Models\IntentoEscaner;
 use App\Models\MovimientoPunto;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class AsistenciaController extends Controller
 {
+    public function registrarIntentoDesconocido(): JsonResponse
+    {
+        $intento = IntentoEscaner::create();
+
+        if (IntentoEscaner::where('created_at', '>=', now()->subMinute())->count() === 6) {
+            AlertaSistema::registrar(
+                'intentos_escaner',
+                'intentos_escaner',
+                $intento->id,
+                'Se detectaron más de 5 intentos fallidos de reconocimiento facial en un minuto.'
+            );
+        }
+
+        return response()->json(['status' => 'recorded']);
+    }
+
     public function index(Request $request)
     {
         // KPIs (Hoy)
@@ -60,7 +79,7 @@ class AsistenciaController extends Controller
         ])->findOrFail($request->cliente_id);
 
         if ($cliente->estado !== 'activo') {
-            AsistenciaCliente::create([
+            $intento = AsistenciaCliente::create([
                 'cliente_id' => $cliente->id,
                 'empleado_valida_id' => auth()->id() ?? null,
                 'fecha' => date('Y-m-d'),
@@ -70,6 +89,7 @@ class AsistenciaController extends Controller
                 'motivo_rechazo' => 'Cliente inactivo',
                 'puntos_otorgados' => false,
             ]);
+            $this->alertarIntentosFallidos($cliente, $intento);
 
             return response()->json([
                 'status' => 'warning',
@@ -82,7 +102,7 @@ class AsistenciaController extends Controller
 
         $membresiaActiva = $cliente->membresias->first();
         if (! $membresiaActiva) {
-            AsistenciaCliente::create([
+            $intento = AsistenciaCliente::create([
                 'cliente_id' => $cliente->id,
                 'empleado_valida_id' => auth()->id() ?? null,
                 'fecha' => date('Y-m-d'),
@@ -92,6 +112,7 @@ class AsistenciaController extends Controller
                 'motivo_rechazo' => 'Sin membresía activa',
                 'puntos_otorgados' => false,
             ]);
+            $this->alertarIntentosFallidos($cliente, $intento);
 
             return response()->json([
                 'status' => 'warning',
@@ -164,5 +185,22 @@ class AsistenciaController extends Controller
             'membresia_vence' => Carbon::parse($membresiaActiva->fecha_vencimiento)->format('d/m/Y'),
             'foto' => $cliente->foto_referencia ? asset('storage/'.$cliente->foto_referencia) : null,
         ]);
+    }
+
+    private function alertarIntentosFallidos(Cliente $cliente, AsistenciaCliente $intento): void
+    {
+        $intentosUltimoMinuto = AsistenciaCliente::where('cliente_id', $cliente->id)
+            ->where('created_at', '>=', now()->subMinute())
+            ->where('exitoso', false)
+            ->count();
+
+        if ($intentosUltimoMinuto === 6) {
+            AlertaSistema::registrar(
+                'intentos_escaner',
+                'asistencias_clientes',
+                $intento->id,
+                "{$cliente->nombre} acumula más de 5 intentos fallidos en el escáner en un minuto."
+            );
+        }
     }
 }

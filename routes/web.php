@@ -9,8 +9,10 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\MembresiaClienteController;
+use App\Http\Controllers\NotificacionController;
 use App\Http\Controllers\PagoController;
 use App\Http\Controllers\ProductoEcogimController;
+use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\TiendaController;
 use App\Http\Controllers\TipoMembresiaController;
 use App\Http\Controllers\UserController;
@@ -25,6 +27,9 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // Escáner facial público para recepción
 Route::get('/escanear-publico', [AsistenciaController::class, 'escanear'])->name('asistencias.publico');
 Route::post('/escanear-publico/registrar', [AsistenciaController::class, 'registrarEscaneo'])->name('asistencias.publico.registrar');
+Route::post('/escanear-publico/intento-fallido', [AsistenciaController::class, 'registrarIntentoDesconocido'])
+    ->middleware('throttle:30,1')
+    ->name('asistencias.publico.intento-fallido');
 
 // Escáner facial público para empleados
 Route::get('/escanear-empleados', [AsistenciaEmpleadoController::class, 'escanear'])->name('asistencias_empleados.publico');
@@ -49,6 +54,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/pagos', [PagoController::class, 'index'])->name('pagos.index');
     Route::get('/pagos/nuevo', [PagoController::class, 'create'])->name('pagos.create');
     Route::post('/pagos', [PagoController::class, 'store'])->name('pagos.store');
+    Route::get('/pagos/{pago}/ticket', [PagoController::class, 'ticket'])->name('pagos.ticket');
     Route::get('/pagos/cliente/{cliente}/info', [PagoController::class, 'clienteInfo'])->name('pagos.clienteInfo');
     Route::get('/pagos/buscar-clientes', [PagoController::class, 'buscarClientes'])->name('pagos.buscarClientes');
 
@@ -66,11 +72,19 @@ Route::middleware('auth')->group(function () {
     // Tienda EcoGim (Canjes por Recepción)
     Route::get('/tienda', [TiendaController::class, 'index'])->name('tienda.index');
     Route::post('/tienda/canjear', [TiendaController::class, 'canjear'])->name('tienda.canjear');
+    Route::get('/tienda/canjes/{canje}/ticket', [TiendaController::class, 'ticket'])->name('tienda.ticket');
     Route::get('/tienda/cliente/{cliente}/info', [TiendaController::class, 'clienteInfo'])->name('tienda.clienteInfo');
     Route::get('/tienda/buscar-clientes', [TiendaController::class, 'buscarClientes'])->name('tienda.buscarClientes');
 
     // Rutas Exclusivas de Administrador
     Route::middleware('admin')->group(function () {
+        Route::get('/reportes', [ReporteController::class, 'index'])->name('reportes.index');
+        Route::get('/reportes/pdf', [ReporteController::class, 'pdf'])->name('reportes.pdf');
+
+        Route::get('/notificaciones', [NotificacionController::class, 'index'])->name('notificaciones.index');
+        Route::patch('/notificaciones/{alerta}/atender', [NotificacionController::class, 'atender'])
+            ->name('notificaciones.atender');
+
         // Acciones destructivas o administrativas sobre Clientes
         Route::delete('/clientes/{cliente}', [ClienteController::class, 'destroy'])->name('clientes.destroy');
         Route::patch('/clientes/{cliente}/toggle', [ClienteController::class, 'toggleStatus'])->name('clientes.toggleStatus');
@@ -79,6 +93,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/empleados', [EmpleadoController::class, 'index'])->name('empleados');
         Route::get('/empleados/crear', [EmpleadoController::class, 'create'])->name('empleados.create');
         Route::post('/empleados', [EmpleadoController::class, 'store'])->name('empleados.store');
+        Route::get('/empleados/{empleado}', [EmpleadoController::class, 'show'])->name('empleados.show');
         Route::get('/empleados/{empleado}/editar', [EmpleadoController::class, 'edit'])->name('empleados.edit');
         Route::put('/empleados/{empleado}', [EmpleadoController::class, 'update'])->name('empleados.update');
         Route::delete('/empleados/{empleado}', [EmpleadoController::class, 'destroy'])->name('empleados.destroy');

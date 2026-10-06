@@ -101,9 +101,14 @@ class ClienteController extends Controller
 
     public function show(Cliente $cliente)
     {
-        $cliente->load(['membresias.tipoMembresia', 'asistencias' => function ($q) {
-            $q->orderBy('fecha', 'desc')->orderBy('hora', 'desc')->take(30);
-        }, 'canjes.producto']);
+        $cliente->load([
+            'membresias.tipoMembresia',
+            'asistencias' => function ($query) {
+                $query->orderBy('fecha', 'desc')->orderBy('hora', 'desc')->take(30);
+            },
+            'asistencias.movimientosPuntos',
+            'canjes.producto',
+        ]);
 
         $membresiaActiva = $cliente->membresias()->latest('fecha_vencimiento')->first();
 

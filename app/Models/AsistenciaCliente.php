@@ -5,6 +5,7 @@ namespace App\Models;
 use Database\Factories\AsistenciaClienteFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class AsistenciaCliente extends Model
@@ -41,8 +42,9 @@ class AsistenciaCliente extends Model
         return $this->belongsTo(Empleado::class, 'empleado_valida_id');
     }
 
-    public function movimientosPuntos()
+    public function movimientosPuntos(): HasMany
     {
-        return $this->morphMany(MovimientoPunto::class, 'origen');
+        return $this->hasMany(MovimientoPunto::class, 'origen_id')
+            ->where('origen_tabla', $this->getTable());
     }
 }

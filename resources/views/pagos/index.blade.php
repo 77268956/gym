@@ -478,6 +478,7 @@
                                 <th class="text-uppercase"><i class="fas fa-credit-card mr-1 text-primary"></i> Método</th>
                                 <th class="text-uppercase"><i class="fas fa-dollar-sign mr-1 text-primary"></i> Monto</th>
                                 <th class="text-uppercase"><i class="fas fa-user-tie mr-1 text-primary"></i> Cajero</th>
+                                <th class="text-uppercase text-center"><i class="fas fa-print mr-1 text-primary"></i> Ticket</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -526,6 +527,11 @@
                                 </td>
                                 <td class="text-muted" style="font-size: 0.8rem;">
                                     {{ $pago->empleado->nombre ?? 'Sistema' }}
+                                </td>
+                                <td class="text-center">
+                                    <a href="{{ route('pagos.ticket', $pago) }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary" title="Imprimir ticket">
+                                        <i class="fas fa-print"></i>
+                                    </a>
                                 </td>
                             </tr>
                             @endforeach

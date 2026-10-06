@@ -460,9 +460,23 @@ function confirmarCanje() {
     .then(r => r.json())
     .then(data => {
         $('#modalCanje').modal('hide');
-        Swal.fire({ icon: data.ok ? 'success' : 'error', title: data.ok ? '¡Éxito!' : 'No se pudo canjear', text: data.mensaje, confirmButtonColor: getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() });
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-check mr-1"></i>Confirmar Canje';
+        Swal.fire({
+            icon: data.ok ? 'success' : 'error',
+            title: data.ok ? '¡Canje exitoso!' : 'No se pudo canjear',
+            text: data.mensaje,
+            confirmButtonText: data.ok ? 'Imprimir ticket' : 'Aceptar',
+            cancelButtonText: 'Seguir en tienda',
+            showCancelButton: data.ok,
+            confirmButtonColor: getComputedStyle(document.documentElement).getPropertyValue('--primary').trim()
+        }).then(result => {
+            if (data.ok && result.isConfirmed && data.ticket_url) {
+                window.location.assign(data.ticket_url);
+                return;
+            }
+
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-check mr-1"></i>Confirmar Canje';
+        });
     })
     .catch(() => {
         Swal.fire({ icon: 'error', title: 'Error', text: 'Ocurrió un error inesperado.' });

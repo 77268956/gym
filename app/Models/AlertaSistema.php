@@ -26,4 +26,19 @@ class AlertaSistema extends Model
     {
         return $this->morphTo(__FUNCTION__, 'referencia_tabla', 'referencia_id');
     }
+
+    public static function registrar(string $tipo, string $tabla, int $id, string $mensaje): self
+    {
+        return static::firstOrCreate(
+            [
+                'tipo_alerta' => $tipo,
+                'referencia_tabla' => $tabla,
+                'referencia_id' => $id,
+            ],
+            [
+                'mensaje' => $mensaje,
+                'estado' => 'pendiente',
+            ],
+        );
+    }
 }

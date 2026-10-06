@@ -473,7 +473,35 @@
         </div>
 
         <div class="topbar-right">
-            <!-- Empty for now, can add notifications or clock here later -->
+            @if($puedeVerNotificaciones)
+            <div class="dropdown">
+                <button class="btn btn-light position-relative" type="button" id="notificationsDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Notificaciones">
+                    <i class="fas fa-bell"></i>
+                    @if($notificacionesPendientes > 0)
+                        <span class="badge badge-danger position-absolute" style="top: -5px; right: -5px;">{{ $notificacionesPendientes > 99 ? '99+' : $notificacionesPendientes }}</span>
+                    @endif
+                </button>
+                <div class="dropdown-menu dropdown-menu-right p-0 shadow" aria-labelledby="notificationsDropdown" style="width: min(360px, 90vw); max-height: 420px; overflow-y: auto;">
+                    <div class="px-3 py-2 border-bottom font-weight-bold">Notificaciones</div>
+                    @forelse($notificaciones as $notificacion)
+                        <div class="px-3 py-2 border-bottom">
+                            <div class="small text-dark">{{ $notificacion->mensaje }}</div>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <small class="text-muted">{{ $notificacion->created_at->diffForHumans() }}</small>
+                                <form method="POST" action="{{ route('notificaciones.atender', $notificacion) }}">
+                                    @csrf
+                                    @method('PATCH')
+                                    <button class="btn btn-sm btn-outline-primary py-0">Atender</button>
+                                </form>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="px-3 py-4 text-center small text-muted">No hay notificaciones pendientes.</div>
+                    @endforelse
+                    <a class="d-block text-center small font-weight-bold py-2" href="{{ route('notificaciones.index') }}">Ver todas las alertas</a>
+                </div>
+            </div>
+            @endif
         </div>
     </header>
 
@@ -567,6 +595,12 @@
                         <a class="nav-link {{ request()->routeIs('asistencias_empleados.*') ? 'active' : '' }}" href="{{ route('asistencias_empleados.index') }}" title="Asistencias Empleados">
                             <i class="fas fa-user-clock"></i>
                             <span class="sidebar-label">Asistencias Staff</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('reportes.*') ? 'active' : '' }}" href="{{ route('reportes.index') }}" title="Reportes">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                            <span class="sidebar-label">Reportes</span>
                         </a>
                     </li>
                     <li class="nav-item">

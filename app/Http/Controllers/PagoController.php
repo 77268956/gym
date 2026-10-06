@@ -3,12 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cliente;
-use App\Models\Empleado;
 use App\Models\Membresia;
 use App\Models\Pago;
 use App\Models\TipoMembresia;
 use Carbon\Carbon;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class PagoController extends Controller
 {
@@ -46,7 +47,7 @@ class PagoController extends Controller
         return view('pagos.create', compact('clientes', 'tiposMembresia', 'clienteSeleccionado'));
     }
 
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         $request->validate([
             'cliente_id' => 'required|exists:clientes,id',
@@ -56,8 +57,7 @@ class PagoController extends Controller
             'tipo_membresia_id' => 'required_if:tipo_pago,membresia|nullable|exists:tipos_membresia,id',
         ]);
 
-        $empleado = Empleado::first();
-        $empleado_id = $empleado ? $empleado->id : 1;
+        $empleadoId = (int) $request->user()->getAuthIdentifier();
 
         $membresia_id = null;
 
@@ -103,9 +103,9 @@ class PagoController extends Controller
             Cliente::where('id', $request->cliente_id)->update(['estado' => 'activo']);
         }
 
-        Pago::create([
+        $pago = Pago::create([
             'cliente_id' => $request->cliente_id,
-            'empleado_id' => $empleado_id,
+            'empleado_id' => $empleadoId,
             'membresia_id' => $membresia_id,
             'tipo_pago' => $request->tipo_pago,
             'metodo_pago' => $request->metodo_pago,
@@ -113,7 +113,18 @@ class PagoController extends Controller
             'fecha_pago' => Carbon::now(),
         ]);
 
-        return redirect()->route('pagos.index')->with('success', 'Pago procesado exitosamente.');
+        return redirect()->route('pagos.ticket', $pago)->with('success', 'Pago procesado exitosamente.');
+    }
+
+    public function ticket(Pago $pago): View
+    {
+        $pago->load([
+            'cliente:id,nombre,cedula,telefono',
+            'empleado:id,nombre',
+            'membresia.tipoMembresia:id,nombre,duracion_dias',
+        ]);
+
+        return view('pagos.ticket', compact('pago'));
     }
 
     /** AJAX: devuelve info de membresía del cliente seleccionado */
