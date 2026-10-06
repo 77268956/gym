@@ -6,12 +6,37 @@ use App\Models\Membresia;
 use App\Models\TipoMembresia;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class MembresiaClienteController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request): View|string
     {
+        $availableStates = ['todas', 'activas', 'recien_compradas', 'por_vencer', 'vencidas'];
+        $filters = $request->validate([
+            'estado' => [
+                'nullable',
+                'string',
+                function (string $attribute, mixed $value, \Closure $fail) use ($availableStates): void {
+                    $requestedStates = preg_split('/\s+/', trim($value)) ?: [];
+
+                    foreach (array_filter($requestedStates) as $requestedState) {
+                        if (! in_array($requestedState, $availableStates, true)) {
+                            $fail('El filtro de estado seleccionado no es válido.');
+
+                            return;
+                        }
+                    }
+                },
+            ],
+            'tipo_membresia' => ['nullable', 'integer', Rule::exists('tipos_membresia', 'id')->where('estado', 'activo')],
+            'fecha_desde' => ['nullable', 'date_format:Y-m-d'],
+            'fecha_hasta' => ['nullable', 'date_format:Y-m-d'],
+            'busqueda' => ['nullable', 'string', 'max:150'],
+            'vista' => ['nullable', Rule::in(['tabla', 'cards'])],
+        ]);
+
         $today = Carbon::now();
 
         // KPIs (clientes únicos)
@@ -49,15 +74,12 @@ class MembresiaClienteController extends Controller
             ->distinct('cliente_id')
             ->count('cliente_id');
 
-        // Query base con relaciones
-        // El filtro por estado ahora se maneja vía JS (DataTables) en la vista
-        $estado = $request->input('estado', 'todas');
-
         // Traer todas las membresías y quedarnos con la más relevante por cliente:
         // Prioridad 0: Activa actualmente (ya inició y no ha vencido)
         // Prioridad 1: Activa en el futuro (aún no inicia)
         // Prioridad 2: Vencidas o inactivas
         $membresias = Membresia::with(['cliente', 'tipoMembresia'])
+            ->matchingOverviewFilters($filters, $today)
             ->orderByRaw("
                 CASE 
                     WHEN estado = 'activa' AND fecha_inicio <= ? AND fecha_vencimiento >= ? THEN 0 
@@ -88,7 +110,7 @@ class MembresiaClienteController extends Controller
         $tiposMembresia = TipoMembresia::where('estado', 'activo')->get();
 
         // Vista (tabla o cards)
-        $vista = $request->input('vista', 'tabla');
+        $vista = $filters['vista'] ?? 'tabla';
 
         return view('membresias-clientes.index', compact(
             'membresias',
@@ -98,8 +120,11 @@ class MembresiaClienteController extends Controller
             'porVencer',
             'vencidas',
             'tiposMembresia',
-            'estado',
+            'filters',
             'vista'
-        ));
+        ))->fragmentIf(
+            $request->header('X-Fragment-Name') === 'membership-results',
+            'membership-results'
+        );
     }
 }

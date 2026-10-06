@@ -56,28 +56,35 @@
     .ic-card-title { font-weight: 700; font-size: 0.8rem; color: var(--sidebar-bg); margin-bottom: 0.5rem; text-transform: uppercase; }
 
     /* Table panel */
-    .table-panel { flex: 1; min-height: 0; overflow-y: auto; }
-    .dataTables_wrapper { display: flex; flex-direction: column; height: 100%; }
-    .dataTables_wrapper > .row:first-child,
-    .dataTables_wrapper > .row:last-child { flex-shrink: 0; }
-    .dataTables_wrapper > .row:nth-child(2) { flex: 1; min-height: 0; overflow-y: auto; }
+    .table-panel { flex: 1 1 0; min-height: 0; min-width: 0; overflow: hidden; padding-right: 5px; display: flex; flex-direction: column; }
+    .dataTables_wrapper { display: flex; flex: 1 1 0; min-height: 0; flex-direction: column; height: 100%; }
+    .dataTables_wrapper .row { margin-left: 0; margin-right: 0; }
+    .dataTables_scroll { flex: 1 1 0; overflow: hidden; display: flex; flex-direction: column; min-height: 0; margin-top: .5rem; margin-bottom: .5rem; }
+    .dataTables_scrollBody { flex: 1 1 auto; min-height: 180px; height: calc(100vh - 430px) !important; max-height: calc(100vh - 430px) !important; overflow-y: scroll !important; padding-bottom: 1rem; box-sizing: border-box; }
+    #mainTable_wrapper { flex: 1 1 auto; min-height: 0; }
+    #mainTable_wrapper .dataTables_scroll { min-height: 0; }
+    #mainTable_wrapper .dataTables_scrollHead table,
+    #mainTable_wrapper .dataTables_scrollBody table { width: 100% !important; }
     .dataTables_wrapper .dataTables_length select,
     .dataTables_wrapper .dataTables_filter input {
         border: 1px solid var(--card-color); border-radius: 6px;
         color: var(--card-color); font-size: 0.8rem;
     }
     .dataTables_wrapper .dataTables_paginate .page-link {
-        color: var(--card-color); border-color: #E2E8F0; font-size: 0.8rem;
+        color: var(--primary); border-color: #E2E8F0; font-size: 0.8rem;
     }
     .dataTables_wrapper .dataTables_paginate .page-item.active .page-link,
     .dataTables_wrapper .dataTables_paginate .page-link:hover {
-        background-color: var(--card-color); border-color: var(--card-color); color: #fff;
+        background-color: var(--primary); border-color: var(--primary); color: #fff;
     }
     .dataTables_wrapper .dataTables_paginate .page-item.disabled .page-link {
         color: #94A3B8; background-color: #F8FAFC;
     }
 
-    .ic-table thead th { font-size: 0.75rem; font-weight: 700; color: #4e73df; background: #eaecf4; border-bottom: 2px solid #4e73df; padding: 0.75rem 0.5rem; letter-spacing: 0.5px; text-transform: uppercase; position: sticky; top: 0; z-index: 10; }
+    .ic-table thead th { font-size: 0.75rem; font-weight: 700; color: var(--primary); background: #eaecf4; border-bottom: 2px solid var(--primary); padding: 0.75rem 0.5rem; letter-spacing: 0.5px; text-transform: uppercase; white-space: nowrap; }
+    #mainTable_wrapper .pagination .page-item.active .page-link { background-color: var(--primary); border-color: var(--primary); color: #fff; }
+    #mainTable_wrapper .pagination .page-link { color: var(--primary); }
+    #mainTable_wrapper .pagination .page-item:not(.disabled):not(.active) .page-link:hover { background-color: var(--primary); border-color: var(--primary); color: #fff; }
     .ic-table td { font-size: 0.85rem; vertical-align: middle; white-space: nowrap; border-top: 1px solid #e3e6f0; padding: 0.6rem 0.5rem; color: #5a5c69; }
     .ic-avatar { width: 30px; height: 30px; background: var(--card-color); color: white; font-weight: bold; font-size:0.7rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
 
@@ -92,7 +99,7 @@
     .progress-bar.bg-success { background-color: var(--duration-good) !important; }
     .progress-bar.bg-warning { background-color: var(--duration-warning) !important; }
     .progress-bar.bg-danger { background-color: var(--duration-critical) !important; }
-    
+
     .progress-sm { height: 6px; border-radius: 3px; background-color: #E2E8F0; overflow: hidden; margin-top: 4px; }
     .progress-sm .progress-bar { transition: width 0.4s ease; }
 
@@ -106,9 +113,21 @@
     .filters-panel .form-control, .filters-panel .custom-select {
         font-size: 0.8rem; height: 32px; border-radius: 6px;
     }
+    .memberships-toolbar { gap: .75rem; }
+    .memberships-toolbar-main,
+    .memberships-toolbar-count { min-width: 0; }
+    .memberships-toolbar-main { flex: 1 1 420px; }
+    .memberships-toolbar-main .input-group { flex: 1 1 220px; min-width: 180px; }
+    .filter-fields { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)) auto; gap: 0.75rem; align-items: end; }
+    .filter-field { min-width: 0; }
+    .filter-actions-buttons { display: flex; align-items: center; justify-content: flex-end; gap: 0.35rem; white-space: nowrap; }
+    .view-toggle .btn { min-height: 32px; padding: 0.35rem 0.5rem; font-size: 0.75rem; }
+    .ic-color-btn { color: var(--card-color) !important; border-color: var(--card-color) !important; }
+    .ic-color-btn:hover, .ic-color-btn.active { background-color: var(--card-color) !important; color: #fff !important; border-color: var(--card-color) !important; }
 
     /* Card View */
     .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 0.75rem; overflow-y: auto; padding: 2px 5px 2px 2px; }
+    .card-grid-empty { grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100%; text-align: center; }
     .member-card {
         background: #fff; border-radius: 10px; padding: 0.85rem;
         box-shadow: 0 2px 5px rgba(0,0,0,0.04); border-left: 4px solid var(--ic-green);
@@ -146,13 +165,96 @@
     .member-card-actions .btn-outline-info:hover,
     .member-card-actions .btn-outline-primary:hover { background: var(--primary); color: #fff; }
 
-    /* Toggle View Buttons */
-    .view-toggle .btn {
-        min-height: 29px; padding: 0.2rem 0.4rem; font-size: 0.72rem;
-        line-height: 1.25; font-weight: 600;
+    @media (max-width: 991.98px) {
+        .filter-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .filter-actions-buttons { grid-column: 1 / -1; }
     }
-    .ic-color-btn { color: var(--card-color) !important; border-color: var(--card-color) !important; }
-    .ic-color-btn:hover, .ic-color-btn.active { background-color: var(--card-color) !important; color: #fff !important; border-color: var(--card-color) !important; }
+
+    @media (max-width: 575.98px) {
+        .filter-fields { grid-template-columns: 1fr; }
+        .filter-actions-buttons { grid-column: auto; justify-content: flex-start; flex-wrap: wrap; }
+    }
+
+    @media (max-width: 991.98px) {
+        body, html { overflow: auto; height: auto; }
+        #page-wrapper main {
+            height: auto;
+            min-height: calc(100vh - 60px);
+            overflow: visible;
+            padding: .75rem !important;
+        }
+        .main-container { overflow: visible; min-height: auto; }
+        .main-container > .flex-grow-1 {
+            height: auto !important;
+            min-height: 0;
+            overflow: visible !important;
+        }
+        .filters-panel { margin-bottom: .75rem; }
+        .filters-panel .row > [class*="col-"] { margin-bottom: .6rem; }
+        .filters-panel .row > [class*="col-"]:last-child { margin-bottom: 0; }
+        .ic-card.h-100 { height: auto !important; min-height: 0; }
+        .memberships-toolbar {
+            gap: .75rem;
+            flex-wrap: wrap;
+        }
+        .memberships-toolbar-main,
+        .memberships-toolbar-count {
+            width: 100%;
+        }
+        .memberships-toolbar-main { flex-wrap: wrap; }
+        .memberships-toolbar-main .input-group {
+            width: 100% !important;
+            margin-top: .5rem;
+        }
+        .table-panel {
+            flex: 0 0 470px;
+            height: 470px;
+            min-height: 470px;
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+        #mainTable_wrapper {
+            width: 1100px;
+            min-width: 1100px;
+        }
+        #mainTable_wrapper .dataTables_scrollBody {
+            height: 360px !important;
+            max-height: 360px !important;
+        }
+        #mainTable_wrapper > .row:last-child {
+            min-width: 0;
+            width: 100%;
+            margin-left: 0;
+            margin-right: 0;
+        }
+        #mainTable_wrapper .dataTables_length,
+        #mainTable_wrapper .dataTables_info,
+        #mainTable_wrapper .dataTables_paginate {
+            width: 100%;
+            text-align: center;
+        }
+        #mainTable_wrapper .pagination {
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 0;
+        }
+        .card-grid {
+            height: auto !important;
+            overflow-y: visible;
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 575.98px) {
+        .main-container > .row.tight > [class*="col-"] { margin-bottom: .75rem; }
+        .main-container > .row.tight > [class*="col-"]:last-child { margin-bottom: 0; }
+        .kpi-card { min-height: 64px; }
+        .kpi-value { font-size: 1.2rem; }
+        .kpi-label { font-size: .62rem; }
+        .ic-card { padding: .65rem; }
+        .ic-card-title { font-size: .72rem; }
+        #mainTable_wrapper { width: 1100px; min-width: 1100px; }
+    }
 </style>
 @endpush
 
@@ -195,59 +297,61 @@
 
     {{-- Filters --}}
     <div class="filters-panel">
-        <div id="filtersForm">
+        <form id="filtersForm" method="GET" action="{{ route('membresias-clientes.index') }}">
             <input type="hidden" name="vista" value="{{ $vista }}">
-            <div class="row align-items-end">
-                <div class="col-md-2">
+            <div class="filter-fields">
+                <div class="filter-field">
                     <label class="small font-weight-bold mb-1">Estado</label>
-                    <select name="estado" class="custom-select js-filter-input">
-                        <option value="todas" {{ $estado === 'todas' ? 'selected' : '' }}>Todas</option>
-                        <option value="recien_compradas" {{ $estado === 'recien_compradas' ? 'selected' : '' }}>Recién Compradas</option>
-                        <option value="activas" {{ $estado === 'activas' ? 'selected' : '' }}>Activas</option>
-                        <option value="por_vencer" {{ $estado === 'por_vencer' ? 'selected' : '' }}>Por Vencer</option>
-                        <option value="vencidas" {{ $estado === 'vencidas' ? 'selected' : '' }}>Inactivas / Vencidas</option>
+                    <select name="estado" class="custom-select">
+                        <option value="todas" {{ ($filters['estado'] ?? 'todas') === 'todas' ? 'selected' : '' }}>Todas</option>
+                        <option value="recien_compradas" {{ ($filters['estado'] ?? '') === 'recien_compradas' ? 'selected' : '' }}>Recién Compradas</option>
+                        <option value="activas" {{ ($filters['estado'] ?? '') === 'activas' ? 'selected' : '' }}>Activas</option>
+                        <option value="por_vencer" {{ ($filters['estado'] ?? '') === 'por_vencer' ? 'selected' : '' }}>Por Vencer</option>
+                        <option value="vencidas" {{ ($filters['estado'] ?? '') === 'vencidas' ? 'selected' : '' }}>Inactivas / Vencidas</option>
                     </select>
                 </div>
-                <div class="col-md-2">
+                <div class="filter-field">
                     <label class="small font-weight-bold mb-1">Plan</label>
-                    <select name="tipo_membresia" class="custom-select js-filter-input">
+                    <select name="tipo_membresia" class="custom-select">
                         <option value="">Todos</option>
                         @foreach($tiposMembresia as $tipo)
-                            <option value="{{ $tipo->id }}" {{ request('tipo_membresia') == $tipo->id ? 'selected' : '' }}>{{ $tipo->nombre }}</option>
+                            <option value="{{ $tipo->id }}" {{ ($filters['tipo_membresia'] ?? '') == $tipo->id ? 'selected' : '' }}>{{ $tipo->nombre }}</option>
                         @endforeach
                     </select>
                 </div>
-                <div class="col-md-2">
+                <div class="filter-field">
                     <label class="small font-weight-bold mb-1">Desde</label>
-                    <input type="date" name="fecha_desde" class="form-control js-filter-input" value="{{ request('fecha_desde') }}">
+                    <input type="date" name="fecha_desde" class="form-control" value="{{ $filters['fecha_desde'] ?? '' }}">
                 </div>
-                <div class="col-md-2">
+                <div class="filter-field">
                     <label class="small font-weight-bold mb-1">Hasta</label>
-                    <input type="date" name="fecha_hasta" class="form-control js-filter-input" value="{{ request('fecha_hasta') }}">
+                    <input type="date" name="fecha_hasta" class="form-control" value="{{ $filters['fecha_hasta'] ?? '' }}">
                 </div>
-                <div class="col-md-2">
+                <div class="filter-field">
                     <label class="small font-weight-bold mb-1">Buscar</label>
-                    <input type="text" name="busqueda" class="form-control js-filter-input" placeholder="Nombre, DUI..." value="{{ request('busqueda') }}">
+                    <input type="text" name="busqueda" class="form-control" placeholder="Nombre, DUI..." value="{{ $filters['busqueda'] ?? '' }}">
                 </div>
-                <div class="col-md-2 d-flex align-items-end gap-1 mt-2 mt-md-0">
-                    <button type="button" class="btn btn-sm btn-outline-secondary js-clear-filters" style="font-size:0.8rem;" title="Limpiar"><i class="fas fa-redo"></i></button>
-                    <div class="view-toggle btn-group btn-group-sm ml-1" role="group">
-                        <a href="{{ route('membresias-clientes.index', ['vista' => 'tabla']) }}" class="btn btn-outline-primary ic-color-btn {{ $vista === 'tabla' ? 'active' : '' }}" title="Vista Tabla"><i class="fas fa-list mr-1"></i>Tabla</a>
-                        <a href="{{ route('membresias-clientes.index', ['vista' => 'cards']) }}" class="btn btn-outline-primary ic-color-btn {{ $vista === 'cards' ? 'active' : '' }}" title="Vista Tarjetas"><i class="fas fa-th-large mr-1"></i>Tarjetas</a>
+                <div class="filter-actions-buttons">
+                    <button type="submit" class="btn btn-sm btn-primary" title="Aplicar filtros"><i class="fas fa-filter"></i></button>
+                    <a href="{{ route('membresias-clientes.index', ['vista' => $vista]) }}" class="btn btn-sm btn-outline-secondary" data-clear-filters title="Limpiar filtros"><i class="fas fa-redo"></i></a>
+                    <div class="view-toggle btn-group btn-group-sm" role="group">
+                        <a href="{{ route('membresias-clientes.index', array_merge(request()->query(), ['vista' => 'tabla'])) }}" class="btn btn-outline-primary ic-color-btn {{ $vista === 'tabla' ? 'active' : '' }}" data-ajax-view title="Vista Tabla"><i class="fas fa-list mr-1"></i>Tabla</a>
+                        <a href="{{ route('membresias-clientes.index', array_merge(request()->query(), ['vista' => 'cards'])) }}" class="btn btn-outline-primary ic-color-btn {{ $vista === 'cards' ? 'active' : '' }}" data-ajax-view title="Vista Tarjetas"><i class="fas fa-th-large mr-1"></i>Tarjetas</a>
                     </div>
                 </div>
             </div>
-        </div>
+        </form>
     </div>
 
     {{-- Main Content --}}
-    <div class="flex-grow-1" style="min-height: 0; overflow: hidden;">
+    @fragment('membership-results')
+    <div id="membershipResults" class="flex-grow-1" style="min-height: 0; overflow: hidden;">
 
         @if($vista === 'tabla')
         {{-- TABLE VIEW --}}
         <div class="ic-card h-100 d-flex flex-column">
-            <div class="d-flex justify-content-between align-items-center mb-2 flex-shrink-0">
-                <div class="d-flex align-items-center">
+            <div class="memberships-toolbar d-flex justify-content-between align-items-center mb-2 flex-shrink-0 flex-wrap">
+                <div class="memberships-toolbar-main d-flex align-items-center flex-wrap">
                     <h5 class="ic-card-title mb-0 mr-3"><i class="fas fa-id-card-alt text-primary mr-2"></i> Control de Membresías</h5>
                     <div class="input-group input-group-sm" style="width: 220px;">
                         <div class="input-group-prepend">
@@ -256,7 +360,7 @@
                         <input type="text" id="customSearchMemClientes" class="form-control border-left-0" placeholder="Buscar cliente..." style="background-color: #F8FAFC;">
                     </div>
                 </div>
-                <span class="badge badge-light text-muted">{{ $membresias->count() }} registros</span>
+                <span class="memberships-toolbar-count badge badge-light text-muted">{{ $membresias->count() }} registros</span>
             </div>
 
             <div class="table-panel">
@@ -280,32 +384,22 @@
                             if (!$cliente) continue;
                             $minutosTotales = max(1, $membresia->fecha_inicio->diffInMinutes($membresia->fecha_vencimiento));
                             $minutosTranscurridos = max(0, min($minutosTotales, $membresia->fecha_inicio->diffInMinutes(now(), false)));
-                            
+
                             $horasRestantes = max(0, (int) ceil(now()->diffInMinutes($membresia->fecha_vencimiento, false) / 60));
                             $diasRestantes = (int) ceil($horasRestantes / 24);
-                            
+
                             $estaActiva = $membresia->estado === 'activa' && $membresia->fecha_inicio <= now() && $membresia->fecha_vencimiento >= now();
                             $estaPorVencer = $estaActiva && $diasRestantes <= 7;
                             $estaVencida = $membresia->fecha_vencimiento < now() || $membresia->estado === 'vencida';
-                            $esReciente = $estaActiva && $membresia->fecha_inicio >= now()->subDays(7) && $membresia->fecha_inicio <= now();
-                            
+
                             $porcentajeRestante = 100 - (($minutosTranscurridos / $minutosTotales) * 100);
                             $colorClass = 'bg-danger';
                             if ($porcentajeRestante > 75) $colorClass = 'bg-purple';
                             elseif ($porcentajeRestante > 50) $colorClass = 'bg-info';
                             elseif ($porcentajeRestante > 25) $colorClass = 'bg-success';
                             elseif ($porcentajeRestante > 5) $colorClass = 'bg-warning';
-                            
-                            $estadoRows = ['todas'];
-                            if ($estaVencida) {
-                                $estadoRows[] = 'vencidas';
-                            } else {
-                                if ($estaPorVencer) $estadoRows[] = 'por_vencer';
-                                if ($estaActiva) $estadoRows[] = 'activas';
-                                if ($esReciente) $estadoRows[] = 'recien_compradas';
-                            }
                         @endphp
-                        <tr class="js-filterable-item" data-estado="{{ implode(' ', $estadoRows) }}" data-plan="{{ $membresia->tipo_membresia_id }}" data-inicio="{{ $membresia->fecha_inicio->format('Y-m-d') }}" data-vencimiento="{{ $membresia->fecha_vencimiento->format('Y-m-d') }}" data-search="{{ strtolower($cliente->nombre . ' ' . $cliente->cedula . ' ' . $cliente->telefono) }}">
+                        <tr>
                             <td>
                                 <div class="d-flex align-items-center">
                                     @if($cliente->foto_referencia)
@@ -319,8 +413,8 @@
                                     </div>
                                 </div>
                             </td>
-                            <td>{{ $cliente->telefono ?? '—' }}</td>
-                            <td><span class="ic-badge-plan">{{ $membresia->tipoMembresia->nombre ?? '—' }}</span></td>
+                            <td>{{ $cliente->telefono ?? 'â€”' }}</td>
+                            <td><span class="ic-badge-plan">{{ $membresia->tipoMembresia->nombre ?? 'â€”' }}</span></td>
                             <td>{{ $membresia->fecha_inicio->format('d/m/Y') }}</td>
                             <td>{{ $membresia->fecha_vencimiento->format('d/m/Y') }}</td>
                             <td style="width: 120px;">
@@ -382,30 +476,20 @@
                 $diasTotales = max(1, $membresia->fecha_inicio->diffInDays($membresia->fecha_vencimiento));
                 $diasTranscurridos = max(0, min($diasTotales, $membresia->fecha_inicio->diffInDays(now(), false)));
                 $diasRestantes = max(0, now()->startOfDay()->diffInDays($membresia->fecha_vencimiento, false));
-                
+
                 $estaActiva = $membresia->estado === 'activa' && $membresia->fecha_inicio <= now() && $membresia->fecha_vencimiento >= now();
                 $estaPorVencer = $estaActiva && $diasRestantes <= 7;
                 $estaVencida = $membresia->fecha_vencimiento < now() || $membresia->estado === 'vencida';
-                $esReciente = $estaActiva && $membresia->fecha_inicio >= now()->subDays(7) && $membresia->fecha_inicio <= now();
                 $statusClass = $estaVencida ? 'status-expired' : ($estaPorVencer ? 'status-warn' : '');
-                
+
                 $porcentajeRestante = 100 - (($diasTranscurridos / $diasTotales) * 100);
                 $colorClass = 'bg-danger';
                 if ($porcentajeRestante > 75) $colorClass = 'bg-purple';
                 elseif ($porcentajeRestante > 50) $colorClass = 'bg-info';
                 elseif ($porcentajeRestante > 25) $colorClass = 'bg-success';
                 elseif ($porcentajeRestante > 5) $colorClass = 'bg-warning';
-                
-                $estadoRows = ['todas'];
-                if ($estaVencida) {
-                    $estadoRows[] = 'vencidas';
-                } else {
-                    if ($estaPorVencer) $estadoRows[] = 'por_vencer';
-                    if ($estaActiva) $estadoRows[] = 'activas';
-                    if ($esReciente) $estadoRows[] = 'recien_compradas';
-                }
             @endphp
-            <div class="member-card js-filterable-item {{ $statusClass }}" data-estado="{{ implode(' ', $estadoRows) }}" data-plan="{{ $membresia->tipo_membresia_id }}" data-inicio="{{ $membresia->fecha_inicio->format('Y-m-d') }}" data-vencimiento="{{ $membresia->fecha_vencimiento->format('Y-m-d') }}" data-search="{{ strtolower($cliente->nombre . ' ' . $cliente->cedula . ' ' . $cliente->telefono) }}">
+            <div class="member-card {{ $statusClass }}">
                 <div class="member-card-header">
                     @if($cliente->foto_referencia)
                         <img src="{{ asset('storage/' . $cliente->foto_referencia) }}" class="member-card-avatar" alt="{{ $cliente->nombre }}">
@@ -429,7 +513,7 @@
                 <div class="member-card-body">
                     <div class="member-card-row">
                         <span class="member-card-label">Plan</span>
-                        <span class="member-card-value"><span class="ic-badge-plan">{{ $membresia->tipoMembresia->nombre ?? '—' }}</span></span>
+                        <span class="member-card-value"><span class="ic-badge-plan">{{ $membresia->tipoMembresia->nombre ?? 'â€”' }}</span></span>
                     </div>
                     <div class="member-card-row">
                         <span class="member-card-label">Inicio / Vencimiento</span>
@@ -465,8 +549,8 @@
                 </div>
             </div>
             @empty
-            <div class="text-center text-muted py-5 w-100">
-                <i class="fas fa-search fa-3x mb-3 d-block opacity-50"></i>
+            <div class="card-grid-empty text-muted py-5">
+                <i class="fas fa-search fa-3x mb-3 opacity-50"></i>
                 <p>No se encontraron membresías con los filtros seleccionados.</p>
             </div>
             @endforelse
@@ -474,6 +558,7 @@
         @endif
 
     </div>
+    @endfragment
 </div>
 @endsection
 
@@ -482,61 +567,21 @@
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
 <script>
 $(document).ready(function() {
+    var $form = $('#filtersForm');
+    var activeRequest = null;
     var table = null;
-    var $estado = $('select[name="estado"]');
-    var $plan = $('select[name="tipo_membresia"]');
-    var $desde = $('input[name="fecha_desde"]');
-    var $hasta = $('input[name="fecha_hasta"]');
-    var $busqueda = $('input[name="busqueda"]');
-    var $busquedaTabla = $('#customSearchMemClientes');
-    var $mainTable = $('#mainTable');
+    var tableSearchValue = '';
 
-    function cumplirFiltros($elem) {
-        var estado = $estado.val() || 'todas';
-        var estadosFiltro = String(estado).split(/\s+/).filter(Boolean);
-        var estadosElemento = String($elem.attr('data-estado') || '').split(/\s+/).filter(Boolean);
-        var plan = String($plan.val() || '');
-        var desde = $desde.val() || '';
-        var hasta = $hasta.val() || '';
-        var fechaInicio = String($elem.attr('data-inicio') || '');
-        var fechaVencimiento = String($elem.attr('data-vencimiento') || '');
-        var busquedas = [$busqueda.val(), $busquedaTabla.val()]
-            .filter(Boolean)
-            .map(function(value) { return String(value).trim().toLowerCase(); });
-        var texto = String($elem.attr('data-search') || '').toLowerCase();
+    function initializeTable() {
+        var $mainTable = $('#mainTable');
 
-        if (estadosFiltro.length && estadosFiltro.indexOf('todas') === -1 && !estadosFiltro.some(function(estadoFiltro) {
-            return estadosElemento.indexOf(estadoFiltro) !== -1;
-        })) {
-            return false;
+        if (!$mainTable.length) {
+            table = null;
+            return;
         }
 
-        if (plan && String($elem.attr('data-plan') || '') !== plan) {
-            return false;
-        }
-
-        if ((desde && (!fechaInicio || fechaInicio < desde)) ||
-            (hasta && (!fechaVencimiento || fechaVencimiento > hasta))) {
-            return false;
-        }
-
-        return busquedas.every(function(busqueda) {
-            return !busqueda || texto.indexOf(busqueda) !== -1;
-        });
-    }
-
-    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-        if (!settings.nTable || settings.nTable.id !== 'mainTable') {
-            return true;
-        }
-
-        var row = settings.aoData[dataIndex] && settings.aoData[dataIndex].nTr;
-        return row ? cumplirFiltros($(row)) : true;
-    });
-
-    if ($mainTable.length) {
         table = $mainTable.DataTable({
-            language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json' },
+            language: { url: '//cdn.datatables.net/1.13.6/i18n/es-ES.json' },
             pageLength: 25,
             paging: true,
             searching: true,
@@ -551,51 +596,126 @@ $(document).ready(function() {
         });
 
         table.columns.adjust();
-        $(window).on('resize.memberships', function() {
+        $(window).off('resize.memberships').on('resize.memberships', function() {
             table.columns.adjust();
         });
 
-        $busquedaTabla.on('input.memberships keyup.memberships search.memberships', function() {
-            table.search(this.value).draw();
-        });
-    }
+        $('#customSearchMemClientes').val(tableSearchValue).off('.memberships')
+            .on('input.memberships keyup.memberships search.memberships', function() {
+                table.search(this.value).draw();
+            });
 
-    function applyFilters() {
-        $('.member-card.js-filterable-item').each(function() {
-            $(this).toggle(cumplirFiltros($(this)));
-        });
-
-        if (table) {
-            table.draw();
+        if (tableSearchValue) {
+            table.search(tableSearchValue).draw();
         }
     }
 
-    $('.js-filter-input')
-        .off('.memberships')
-        .on('change.memberships keyup.memberships input.memberships', applyFilters);
+    function syncFormWithUrl(url) {
+        var parameters = new URL(url, window.location.href).searchParams;
 
-    $('.js-clear-filters').on('click.memberships', function(event) {
-        event.preventDefault();
+        ['estado', 'tipo_membresia', 'fecha_desde', 'fecha_hasta', 'busqueda'].forEach(function(name) {
+            var input = $form[0].elements.namedItem(name);
+            input.value = parameters.get(name) || (name === 'estado' ? 'todas' : '');
+        });
 
-        $('.js-filter-input').each(function() {
-            if ($(this).is(':checkbox, :radio')) {
-                $(this).prop('checked', false);
-            } else if ($(this).attr('name') === 'estado') {
-                $(this).val('todas');
-            } else {
-                $(this).val('');
+        $form.find('input[name="vista"]').val(parameters.get('vista') || 'tabla');
+        $('[data-ajax-view]').each(function() {
+            var view = new URL(this.href, window.location.href).searchParams.get('vista');
+            $(this).toggleClass('active', view === (parameters.get('vista') || 'tabla'));
+        });
+    }
+
+    async function updateResults(url, addHistoryEntry) {
+        if (activeRequest) {
+            activeRequest.abort();
+        }
+
+        activeRequest = new AbortController();
+        var request = activeRequest;
+        $form.attr('aria-busy', 'true');
+
+        try {
+            var response = await fetch(url, {
+                headers: {
+                    'Accept': 'text/html',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-Fragment-Name': 'membership-results'
+                },
+                signal: request.signal
+            });
+
+            if (!response.ok) {
+                throw new Error('La solicitud no pudo completarse.');
             }
-        });
 
-        $busquedaTabla.val('');
-        if (table) {
-            table.search('');
+            var responseMarkup = await response.text();
+            if (request !== activeRequest) {
+                return;
+            }
+
+            var responseDocument = new DOMParser().parseFromString(responseMarkup, 'text/html');
+            var updatedResults = responseDocument.querySelector('#membershipResults');
+            var currentResults = document.querySelector('#membershipResults');
+
+            if (!updatedResults || !currentResults) {
+                throw new Error('No se pudieron cargar los resultados.');
+            }
+
+            tableSearchValue = $('#customSearchMemClientes').val() || '';
+            if (table) {
+                table.destroy();
+                table = null;
+            }
+            $(window).off('resize.memberships');
+
+            currentResults.replaceWith(updatedResults);
+            syncFormWithUrl(url);
+            initializeTable();
+
+            if (addHistoryEntry) {
+                window.history.pushState({}, '', url);
+            }
+        } catch (error) {
+            if (error.name !== 'AbortError') {
+                console.error('No se pudieron actualizar los resultados.', error);
+            }
+        } finally {
+            if (activeRequest === request) {
+                activeRequest = null;
+                $form.removeAttr('aria-busy');
+            }
         }
+    }
 
-        $('.js-filter-input').first().trigger('change');
+    function getFormUrl() {
+        var url = new URL($form.attr('action'), window.location.href);
+        url.search = new URLSearchParams(new FormData($form[0])).toString();
+
+        return url.toString();
+    }
+
+    $form.on('submit.memberships', function(event) {
+        event.preventDefault();
+        updateResults(getFormUrl(), true);
     });
 
-    applyFilters();
+    $form.on('click.memberships', '[data-clear-filters]', function(event) {
+        event.preventDefault();
+        $form.find('[name="estado"]').val('todas');
+        $form.find('[name="tipo_membresia"], [name="fecha_desde"], [name="fecha_hasta"], [name="busqueda"]').val('');
+        updateResults(getFormUrl(), true);
+    });
+
+    $form.on('click.memberships', '[data-ajax-view]', function(event) {
+        event.preventDefault();
+        updateResults(this.href, true);
+    });
+
+    window.addEventListener('popstate', function() {
+        updateResults(window.location.href, false);
+    });
+
+    initializeTable();
 });
 </script>
 @endpush
