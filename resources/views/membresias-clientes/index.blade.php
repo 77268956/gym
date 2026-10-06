@@ -482,106 +482,119 @@
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
 <script>
 $(document).ready(function() {
-    // Variables de filtros
-    var table;
+    var table = null;
     var $estado = $('select[name="estado"]');
     var $plan = $('select[name="tipo_membresia"]');
     var $desde = $('input[name="fecha_desde"]');
     var $hasta = $('input[name="fecha_hasta"]');
     var $busqueda = $('input[name="busqueda"]');
+    var $busquedaTabla = $('#customSearchMemClientes');
+    var $mainTable = $('#mainTable');
 
-    // Configurar DataTables
-    if ($('#mainTable').length) {
-        table = $('#mainTable').DataTable({
+    function cumplirFiltros($elem) {
+        var estado = $estado.val() || 'todas';
+        var estadosFiltro = String(estado).split(/\s+/).filter(Boolean);
+        var estadosElemento = String($elem.attr('data-estado') || '').split(/\s+/).filter(Boolean);
+        var plan = String($plan.val() || '');
+        var desde = $desde.val() || '';
+        var hasta = $hasta.val() || '';
+        var fechaInicio = String($elem.attr('data-inicio') || '');
+        var fechaVencimiento = String($elem.attr('data-vencimiento') || '');
+        var busquedas = [$busqueda.val(), $busquedaTabla.val()]
+            .filter(Boolean)
+            .map(function(value) { return String(value).trim().toLowerCase(); });
+        var texto = String($elem.attr('data-search') || '').toLowerCase();
+
+        if (estadosFiltro.length && estadosFiltro.indexOf('todas') === -1 && !estadosFiltro.some(function(estadoFiltro) {
+            return estadosElemento.indexOf(estadoFiltro) !== -1;
+        })) {
+            return false;
+        }
+
+        if (plan && String($elem.attr('data-plan') || '') !== plan) {
+            return false;
+        }
+
+        if ((desde && (!fechaInicio || fechaInicio < desde)) ||
+            (hasta && (!fechaVencimiento || fechaVencimiento > hasta))) {
+            return false;
+        }
+
+        return busquedas.every(function(busqueda) {
+            return !busqueda || texto.indexOf(busqueda) !== -1;
+        });
+    }
+
+    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+        if (!settings.nTable || settings.nTable.id !== 'mainTable') {
+            return true;
+        }
+
+        var row = settings.aoData[dataIndex] && settings.aoData[dataIndex].nTr;
+        return row ? cumplirFiltros($(row)) : true;
+    });
+
+    if ($mainTable.length) {
+        table = $mainTable.DataTable({
             language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json' },
             pageLength: 25,
             paging: true,
             searching: true,
             info: true,
             order: [],
-            dom: "<'row dataTables_scroll'<'col-sm-12'tr>>" +
+            scrollY: window.innerWidth <= 991
+                ? '360px'
+                : Math.max(240, window.innerHeight - 430) + 'px',
+            scrollCollapse: true,
+            dom: "<'row table-data-row'<'col-sm-12'tr>>" +
                  "<'row mt-2 align-items-center'<'col-sm-12 col-md-4'l><'col-sm-12 col-md-4'i><'col-sm-12 col-md-4'p>>"
         });
 
-        // Custom search
-        $('#customSearchMemClientes').on('keyup', function() {
+        table.columns.adjust();
+        $(window).on('resize.memberships', function() {
+            table.columns.adjust();
+        });
+
+        $busquedaTabla.on('input.memberships keyup.memberships search.memberships', function() {
             table.search(this.value).draw();
         });
     }
 
-    // Filtro unificado
-    function checkFilters(estado, plan, desde, hasta, search, el) {
-        var $el = $(el);
-        
-        // Estado
-        if (estado && estado !== 'todas') {
-            var st = $el.attr('data-estado');
-            if (!st || !st.split(' ').includes(estado)) return false;
-        }
-        
-        // Plan
-        if (plan) {
-            if ($el.attr('data-plan') !== plan) return false;
-        }
-        
-        // Fechas (se filtra si fecha_inicio >= desde y fecha_vencimiento <= hasta)
-        if (desde) {
-            if ($el.attr('data-inicio') < desde) return false;
-        }
-        if (hasta) {
-            if ($el.attr('data-vencimiento') > hasta) return false;
-        }
-        
-        // Búsqueda (ya lo hace DataTables por defecto, pero para cards lo hacemos manual)
-        if (search && $el.hasClass('member-card')) {
-            var searchData = $el.attr('data-search') || '';
-            if (searchData.indexOf(search.toLowerCase()) === -1) return false;
-        }
-        
-        return true;
-    }
-
-    // Filtro para DataTables
-    $.fn.dataTable.ext.search.push(
-        function(settings, data, dataIndex, rowData, counter) {
-            return checkFilters(
-                $estado.val(),
-                $plan.val(),
-                $desde.val(),
-                $hasta.val(),
-                $busqueda.val(), // DataTables search is mapped below, but we can do it here too or let DataTables handle it
-                settings.aoData[dataIndex].nTr
-            );
-        }
-    );
-
     function applyFilters() {
+        $('.member-card.js-filterable-item').each(function() {
+            $(this).toggle(cumplirFiltros($(this)));
+        });
+
         if (table) {
-            // DataTables buscar (el text input)
-            table.search($busqueda.val()).draw();
-        }
-        if ($('.card-grid').length) {
-            $('.member-card').hide().filter(function() {
-                return checkFilters($estado.val(), $plan.val(), $desde.val(), $hasta.val(), $busqueda.val(), this);
-            }).show();
+            table.draw();
         }
     }
 
-    // Eventos
-    $('.js-filter-input').on('change keyup', function() {
-        applyFilters();
+    $('.js-filter-input')
+        .off('.memberships')
+        .on('change.memberships keyup.memberships input.memberships', applyFilters);
+
+    $('.js-clear-filters').on('click.memberships', function(event) {
+        event.preventDefault();
+
+        $('.js-filter-input').each(function() {
+            if ($(this).is(':checkbox, :radio')) {
+                $(this).prop('checked', false);
+            } else if ($(this).attr('name') === 'estado') {
+                $(this).val('todas');
+            } else {
+                $(this).val('');
+            }
+        });
+
+        $busquedaTabla.val('');
+        if (table) {
+            table.search('');
+        }
+
+        $('.js-filter-input').first().trigger('change');
     });
 
-    $('.js-clear-filters').on('click', function() {
-        $estado.val('todas');
-        $plan.val('');
-        $desde.val('');
-        $hasta.val('');
-        $busqueda.val('');
-        applyFilters();
-    });
-
-    // Filtro inicial
     applyFilters();
 });
 </script>
