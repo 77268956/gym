@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ $gymConfig->nombre_gimnasio ?? 'GymX' }} - Reporte {{ $rangoFechas }}</title>
+    <title>{{ $gymConfig->nombre_gimnasio ?? 'GymX' }} - Reporte {{ $rangoFechas ?? '' }}</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
@@ -92,7 +92,7 @@
                     <p>Resumen financiero, clientes, empleados y sistema</p>
                 </div>
             </div>
-            <div class="report-period"><small>Periodo del reporte</small><strong>{{ $rangoFechas }}</strong></div>
+            <div class="report-period"><small>Periodo del reporte</small><strong>{{ $rangoFechas ?? '' }}</strong></div>
         </header>
         <p class="report-generated">Generado el {{ now()->format('d/m/Y H:i') }}</p>
     @include('reportes.partials.content')

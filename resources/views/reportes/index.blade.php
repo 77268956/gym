@@ -46,7 +46,7 @@
             <h1 class="h5 font-weight-bold text-dark mb-1"><i class="fas fa-chart-pie text-primary mr-2"></i>Centro de Reportes</h1>
             <p class="small text-muted mb-0">Consulta el rendimiento financiero, la actividad y las incidencias del gimnasio.</p>
         </div>
-        <span class="small text-muted mt-2 mt-md-0"><i class="far fa-calendar-alt mr-1 text-primary"></i>{{ $rangoFechas }}</span>
+        <span class="small text-muted mt-2 mt-md-0"><i class="far fa-calendar-alt mr-1 text-primary"></i>{{ $rangoFechas ?? '' }}</span>
     </div>
 
     <div class="ic-card reports-toolbar mb-3">

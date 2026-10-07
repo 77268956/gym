@@ -167,7 +167,7 @@
     <div class="d-flex justify-content-between align-items-center dashboard-toolbar">
         <div>
             <span class="text-muted"><i class="far fa-calendar-alt mr-1 text-primary"></i>Fechas:</span>
-            <strong>{{ $rangoFechas }}</strong>
+            <strong>{{ $rangoFechas ?? '' }}</strong>
         </div>
         
         <form method="GET" action="{{ route('dashboard') }}" class="dashboard-filter-form">
