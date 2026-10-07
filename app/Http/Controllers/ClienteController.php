@@ -8,6 +8,7 @@ use App\Models\Cliente;
 use App\Models\Membresia;
 use App\Models\Pago;
 use App\Models\TipoMembresia;
+use App\Services\MembresiaPeriodService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -103,7 +104,7 @@ class ClienteController extends Controller
         return redirect()->route('user')->with('success', "Cliente {$cliente->nombre} registrado con membresía {$tipo->nombre}.");
     }
 
-    public function show(Cliente $cliente)
+    public function show(Cliente $cliente, MembresiaPeriodService $periodService)
     {
         $cliente->load([
             'membresias.tipoMembresia',
@@ -114,7 +115,30 @@ class ClienteController extends Controller
             'canjes.producto',
         ]);
 
-        $membresiaActiva = $cliente->membresias()->latest('fecha_vencimiento')->first();
+        $now = now();
+        $membresias = $cliente->membresias;
+        $membresiaActiva = $membresias
+            ->filter(fn (Membresia $membresia): bool => $membresia->estado === 'activa'
+                && $membresia->fecha_inicio->copy()->startOfDay() <= $now
+                && $membresia->fecha_vencimiento->copy()->endOfDay() >= $now)
+            ->sortBy('fecha_inicio')
+            ->first();
+
+        if (! $membresiaActiva) {
+            $membresiaActiva = $membresias
+                ->filter(fn (Membresia $membresia): bool => $membresia->estado === 'activa'
+                    && $membresia->fecha_inicio->copy()->startOfDay() > $now)
+                ->sortBy('fecha_inicio')
+                ->first();
+        }
+
+        $membresiaActiva ??= $membresias->sortByDesc('fecha_vencimiento')->first();
+
+        if ($membresiaActiva) {
+            $periodoAcumulado = $periodService->accumulatedPeriod($membresiaActiva, $membresias);
+            $membresiaActiva->setAttribute('fecha_inicio_acumulada', $periodoAcumulado['fecha_inicio']);
+            $membresiaActiva->setAttribute('fecha_vencimiento_acumulada', $periodoAcumulado['fecha_vencimiento']);
+        }
 
         // Calculate attendance stats
         $mesActual = now()->month;

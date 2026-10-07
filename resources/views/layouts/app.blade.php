@@ -302,7 +302,9 @@
             font-weight: bold;
             font-size: 1.1rem;
             flex-shrink: 0;
+            overflow: hidden;
         }
+        .sidebar-user-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
         .sidebar-user-info {
             margin-left: 12px;
             overflow: hidden;
@@ -629,7 +631,11 @@
         <div class="sidebar-footer">
             <a href="{{ route('perfil') }}" class="sidebar-user sidebar-user-link" title="Ver perfil">
                 <div class="sidebar-user-avatar shadow-sm">
-                    {{ strtoupper(substr(Auth::user()->usuario ?? 'A', 0, 1)) }}
+                    @if(Auth::user() && Auth::user()->foto_referencia)
+                        <img src="{{ asset('storage/' . Auth::user()->foto_referencia) }}" alt="Foto de perfil de {{ Auth::user()->nombre ?? 'usuario' }}">
+                    @else
+                        {{ strtoupper(substr(Auth::user()->nombre ?? Auth::user()->usuario ?? 'A', 0, 1)) }}
+                    @endif
                 </div>
                 <div class="sidebar-user-info">
                     <span class="sidebar-user-name">{{ Auth::user()->nombre ?? 'Administrador' }}</span>

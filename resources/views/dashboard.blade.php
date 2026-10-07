@@ -5,21 +5,23 @@
 @push('styles')
 <style>
     :root { --card-color: var(--sidebar-bg); }
-    html, body { height: 100%; overflow: hidden; }
+    html, body { width: 100%; height: 100%; overflow: hidden; }
+    #page-wrapper { height: calc(100vh - var(--navbar-h)); min-height: 0; }
     #page-wrapper main {
-        height: calc(100vh - var(--navbar-h));
+        box-sizing: border-box; height: 100%; min-height: 0;
         display: flex; flex-direction: column; overflow: hidden;
-        padding: 0.5rem 1.25rem !important;
+        padding: 0.5rem 1rem !important;
     }
-    .page-header { margin-bottom: 0.5rem !important; }
     .dashboard-container {
-        flex: 1; min-height: 0; display: flex; flex-direction: column;
-        padding: 0 !important;
+        box-sizing: border-box; width: 100%; height: 100%; min-height: 0;
+        display: grid;
+        grid-template-rows: auto auto auto minmax(0, 1.1fr) minmax(0, 0.9fr) minmax(0, 1fr);
+        gap: 0.45rem; overflow: hidden; padding: 0 !important;
     }
     .dashboard-toolbar {
-        flex-shrink: 0; margin-bottom: 0.5rem !important; padding: .6rem .85rem;
+        grid-column: 1 / -1; min-height: 42px; margin: 0 !important; padding: .35rem .65rem;
         border-radius: 10px; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,.04);
-        gap: .75rem;
+        gap: .5rem;
     }
     .dashboard-filter-form { display: flex; align-items: flex-end; flex-wrap: wrap; gap: .45rem; }
     .dashboard-filter-control { min-width: 145px; }
@@ -28,12 +30,7 @@
     .dashboard-filter-form .date-control { width: 145px; }
     .dashboard-range-summary { color: #334155; font-size: .85rem; white-space: nowrap; }
     .dashboard-range-summary i { color: var(--primary); }
-    @media (max-width: 767.98px) {
-        .dashboard-toolbar { align-items: stretch !important; flex-direction: column; }
-        .dashboard-filter-form { align-items: flex-end; }
-        .dashboard-filter-control { flex: 1 1 140px; min-width: 0; }
-        .dashboard-filter-form .date-control { width: 100%; }
-    }
+    .dashboard-toolbar > div { font-size: 0.78rem; white-space: nowrap; }
 
     .kpi-card {
         border-radius: 10px; border: none; padding: 0.6rem 1rem; color: white;
@@ -62,16 +59,50 @@
     }
     .ic-table td { vertical-align: middle; font-size: 0.8rem; padding: 0.5rem; border-top: 1px solid #F1F5F9; }
     .card-footer { padding: 0.5rem; }
-    .chart-container { position: relative; height: 175px; width: 100%; }
-    .dashboard-row { margin-bottom: 0.5rem; }
-    .dashboard-kpis { flex-shrink: 0; }
-    .dashboard-charts { height: 235px; flex-shrink: 0; }
-    .dashboard-charts > [class*="col-"] { height: 100%; }
-    .dashboard-charts .card-body { padding: 0.6rem 0.75rem; }
-    .dashboard-tables { flex: 1; min-height: 0; }
-    .dashboard-tables > [class*="col-"] { height: 100%; }
-    .dashboard-tables .table-responsive { overflow-y: auto; min-height: 0; }
-    .dashboard-tables .card-footer { flex-shrink: 0; }
+    .chart-container { position: relative; flex: 1 1 auto; height: 100%; min-height: 0; width: 100%; }
+    .dashboard-row { min-width: 0; margin: 0; }
+    .dashboard-kpis {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        gap: 0.45rem; min-height: 0;
+    }
+    .dashboard-kpis > [class*="col-"] {
+        width: auto;
+        max-width: none;
+        padding: 0;
+        margin: 0 !important;
+    }
+    .dashboard-kpis .kpi-card { min-height: 56px; gap: 0.35rem; padding: 0.45rem 0.6rem; }
+    .dashboard-kpis .kpi-card > div { min-width: 0; }
+    .dashboard-kpis .kpi-value { font-size: clamp(0.78rem, 1.2vw, 1.15rem); white-space: nowrap; }
+    .dashboard-kpis .kpi-label { line-height: 1.25; }
+    .dashboard-kpis .kpi-icon { flex-shrink: 0; font-size: 1.2rem; }
+    .dashboard-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.45rem; }
+    .dashboard-summary > [class*="col-"] { width: auto; max-width: none; padding: 0; min-width: 0; }
+    .dashboard-summary .ic-card { height: 100%; min-height: 48px; padding: 0.4rem 0.6rem !important; }
+    .dashboard-summary .ic-card small { display: block; font-size: 0.62rem; line-height: 1.15; }
+    .dashboard-summary .ic-card .h5 { font-size: 0.9rem; line-height: 1.15; }
+    .dashboard-primary-charts { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
+    .dashboard-secondary-charts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .dashboard-charts { min-height: 0; gap: 0.45rem; }
+    .dashboard-charts > [class*="col-"] { width: auto; max-width: none; height: 100%; min-height: 0; padding: 0; }
+    .dashboard-charts .ic-card { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+    .dashboard-charts .ic-card-header { flex: 0 0 auto; padding: 0.4rem 0.55rem; font-size: 0.66rem; }
+    .dashboard-charts .card-body { display: flex; flex: 1 1 auto; min-height: 0; padding: 0.25rem 0.4rem; }
+    .dashboard-tables { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); min-height: 0; gap: 0.45rem; }
+    .dashboard-tables > [class*="col-"] { width: auto; max-width: none; height: 100%; min-height: 0; padding: 0; }
+    .dashboard-tables .ic-table-container { height: 100%; min-height: 0; overflow: hidden; }
+    .dashboard-tables .table-responsive { flex: 1 1 auto; min-height: 0; overflow: auto; }
+    .dashboard-tables .ic-card-header { flex: 0 0 auto; padding: 0.4rem 0.55rem; font-size: 0.66rem; }
+    .dashboard-tables .ic-table th, .dashboard-tables .ic-table td { padding: 0.22rem 0.35rem; font-size: 0.65rem; line-height: 1.15; }
+    #vencimientosTable { width: 100%; table-layout: fixed; }
+    #vencimientosTable th:nth-child(1), #vencimientosTable td:nth-child(1) { width: 48%; }
+    #vencimientosTable th:nth-child(2), #vencimientosTable td:nth-child(2) { width: 26%; }
+    #vencimientosTable th:nth-child(3), #vencimientosTable td:nth-child(3) { width: 26%; }
+    #vencimientosTable td:first-child div { white-space: normal; overflow-wrap: anywhere; }
+    #vencimientosTable td:nth-child(3) { white-space: nowrap; }
+    .dashboard-tables .card-footer { flex: 0 0 auto; padding: 0.25rem !important; }
+    .dashboard-tables .card-footer .btn { padding: 0.2rem 0.45rem; font-size: 0.65rem; }
     .payment-badge {
         color: #fff; padding: 0.3rem 0.6rem; border-radius: 50px;
         font-size: 0.72rem; font-weight: 600;
@@ -83,14 +114,49 @@
     .payment-section-icon { color: var(--primary); }
     .expiration-section-icon { color: var(--primary); }
 
+    .dashboard-summary, .dashboard-primary-charts, .dashboard-secondary-charts, .dashboard-tables { min-width: 0; }
+    @media (max-height: 800px) {
+        .dashboard-container { gap: 0.3rem; grid-template-rows: auto auto auto minmax(0, 1.1fr) minmax(0, 0.9fr) minmax(0, 1fr); }
+        .dashboard-toolbar { min-height: 36px; padding: 0.2rem 0.5rem; }
+        .dashboard-kpis .kpi-card { min-height: 48px; padding: 0.3rem 0.45rem; }
+        .dashboard-summary .ic-card { min-height: 42px; padding: 0.3rem 0.45rem !important; }
+        .dashboard-charts .ic-card-header, .dashboard-tables .ic-card-header { padding: 0.3rem 0.45rem; }
+    }
     @media (max-width: 991.98px) {
-        html, body { overflow: auto; }
-        #page-wrapper main { height: auto; min-height: calc(100vh - var(--navbar-h)); overflow: visible; }
-        .dashboard-container { display: block; }
-        .dashboard-charts { height: auto; }
-        .dashboard-charts > [class*="col-"], .dashboard-tables > [class*="col-"] { height: auto; }
-        .chart-container { height: 220px; }
-        .dashboard-tables .table-responsive { overflow: auto; }
+        #page-wrapper main { padding: 0.4rem 0.55rem !important; }
+        .dashboard-toolbar { align-items: stretch !important; flex-direction: column; }
+        .dashboard-filter-form { justify-content: flex-start; align-items: flex-end; }
+        .dashboard-filter-control { flex: 1 1 110px; min-width: 0; }
+        .dashboard-kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+        .dashboard-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .dashboard-primary-charts { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); }
+    }
+    @media (max-width: 575.98px) {
+        .dashboard-container { gap: 0.25rem; }
+        .dashboard-kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.25rem; }
+        .dashboard-kpis .kpi-card { min-height: 42px; padding: 0.25rem; }
+        .dashboard-kpis .kpi-icon { display: none; }
+        .dashboard-kpis .kpi-value { font-size: 0.75rem; }
+        .dashboard-kpis .kpi-label { font-size: 0.48rem; }
+        .dashboard-toolbar { padding: 0.25rem; }
+        .dashboard-toolbar > div { font-size: 0.62rem; }
+        .dashboard-filter-form { gap: 0.2rem; flex-wrap: wrap; }
+        .dashboard-filter-control { min-width: 0; }
+        .dashboard-filter-control label { font-size: 0.48rem; }
+        .dashboard-filter-form .form-control, .dashboard-filter-form .custom-select { height: 26px; padding: 0.15rem; font-size: 0.6rem; }
+        .dashboard-filter-form .date-control { width: 92px; }
+        .dashboard-filter-form .btn { padding: 0.2rem 0.35rem; font-size: 0.6rem; }
+        .dashboard-summary { gap: 0.25rem; }
+        .dashboard-summary .ic-card { min-height: 36px; padding: 0.2rem !important; }
+        .dashboard-summary .ic-card small { font-size: 0.48rem; }
+        .dashboard-summary .ic-card .h5 { font-size: 0.65rem; }
+        .dashboard-primary-charts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .dashboard-secondary-charts { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        .dashboard-charts .ic-card-header, .dashboard-tables .ic-card-header { padding: 0.2rem; font-size: 0.52rem; }
+        .dashboard-charts .card-body { padding: 0.1rem; }
+        .dashboard-tables { gap: 0.25rem; }
+        .dashboard-tables .ic-table th, .dashboard-tables .ic-table td { padding: 0.15rem; font-size: 0.52rem; }
+        .dashboard-tables .card-footer .btn { font-size: 0.52rem; }
     }
 </style>
 @endpush
@@ -189,7 +255,7 @@
         </div>
     </div>
 
-    <div class="row dashboard-row">
+    <div class="row dashboard-row dashboard-summary">
         <div class="col-md-3"><div class="ic-card p-3"><small class="text-muted">Ingresos del mes</small><div class="h5 mb-0 font-weight-bold">{{ $gymConfig->simbolo_moneda }} {{ number_format($ingresosMes, 2) }}</div></div></div>
         <div class="col-md-3"><div class="ic-card p-3"><small class="text-muted">Membresías activas / próximas a vencer</small><div class="h5 mb-0 font-weight-bold">{{ number_format($membresiasActivas) }} / {{ number_format($membresiasProximas) }}</div></div></div>
         <div class="col-md-3"><div class="ic-card p-3"><small class="text-muted">Puntos acumulados</small><div class="h5 mb-0 font-weight-bold">{{ number_format($puntosAcumulados) }} <i class="fas fa-star text-warning"></i></div></div></div>
@@ -197,7 +263,7 @@
     </div>
 
     <!-- Charts -->
-    <div class="row dashboard-row dashboard-charts">
+    <div class="row dashboard-row dashboard-charts dashboard-primary-charts">
         <div class="col-lg-8">
             <div class="ic-card h-100">
                 <div class="ic-card-header d-flex justify-content-between align-items-center">
@@ -225,7 +291,7 @@
         </div>
     </div>
 
-    <div class="row dashboard-row dashboard-charts">
+    <div class="row dashboard-row dashboard-charts dashboard-secondary-charts">
         <div class="col-lg-4"><div class="ic-card h-100"><div class="ic-card-header">Ingresos por mes</div><div class="card-body"><div class="chart-container"><canvas id="ingresosMensualesChart"></canvas></div></div></div></div>
         <div class="col-lg-4"><div class="ic-card h-100"><div class="ic-card-header">Membresías por estado</div><div class="card-body"><div class="chart-container"><canvas id="membresiasEstadoChart"></canvas></div></div></div></div>
         <div class="col-lg-4"><div class="ic-card h-100"><div class="ic-card-header">Asistencias y clientes nuevos</div><div class="card-body"><div class="chart-container"><canvas id="actividadMensualChart"></canvas></div></div></div></div>
@@ -240,7 +306,7 @@
                     <i class="fas fa-exclamation-triangle expiration-section-icon mr-2"></i>Vencimientos Próximos (7 días)
                 </div>
                 <div class="table-responsive flex-grow-1">
-                    <table class="table ic-table table-hover">
+                    <table id="vencimientosTable" class="table ic-table table-hover">
                         <thead>
                             <tr>
                                 <th>Cliente</th>
@@ -252,7 +318,7 @@
                             @forelse($vencimientosProximos as $vencimiento)
                             <tr>
                                 <td>
-                                    <div class="font-weight-bold">{{ $vencimiento->cliente?->nombre ?? 'Cliente no encontrado' }}</div>
+                                    <div class="font-weight-bold">{{ $vencimiento->cliente?->nombre_completo ?? 'Cliente no encontrado' }}</div>
                                     <div class="text-muted small">{{ $vencimiento->cliente?->telefono ?? 'Sin teléfono' }}</div>
                                 </td>
                                 <td>{{ $vencimiento->tipoMembresia->nombre ?? 'N/A' }}</td>

@@ -149,10 +149,18 @@ class PagoController extends Controller
             ->with('tipoMembresia')
             ->latest('fecha_inicio')
             ->first();
+        $fechaVencimientoActiva = $cliente->membresias()
+            ->where('estado', 'activa')
+            ->where('fecha_vencimiento', '>=', now())
+            ->orderByDesc('fecha_vencimiento')
+            ->value('fecha_vencimiento');
 
         $data = [
             'estado_cliente' => $cliente->estado,
             'membresia' => null,
+            'fecha_inicio_sugerida' => $fechaVencimientoActiva
+                ? Carbon::parse($fechaVencimientoActiva)->addDay()->toDateString()
+                : today()->toDateString(),
         ];
 
         if ($membresia) {
@@ -163,7 +171,7 @@ class PagoController extends Controller
                 'plan' => $membresia->tipoMembresia->nombre ?? 'Desconocido',
                 'estado' => $membresia->estado,
                 'fecha_vencimiento' => Carbon::parse($membresia->fecha_vencimiento)->format('d/m/Y'),
-                'fecha_vencimiento_raw' => $membresia->fecha_vencimiento,
+                'fecha_vencimiento_raw' => $membresia->fecha_vencimiento->toDateString(),
                 'dias_restantes' => (int) $diasRestantes,
                 'vencida' => $vencida,
                 'tiene_activa' => ! $vencida && $membresia->estado === 'activa',

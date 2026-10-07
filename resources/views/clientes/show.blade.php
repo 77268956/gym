@@ -100,24 +100,25 @@
                             @if($membresiaActiva)
                                 <div class="p-3 border rounded mb-3" style="background:#F0FDF4; border-color:#10B981 !important;">
                                     <h5 class="font-weight-bold" style="color:#065F46;">{{ $membresiaActiva->tipoMembresia->nombre ?? 'Plan Desconocido' }}</h5>
-                                    <div class="d-flex justify-content-between mt-2 text-sm" style="font-size: 0.85rem;">
-                                        <div class="text-muted">Inicio: <br><strong class="text-dark">{{ \Carbon\Carbon::parse($membresiaActiva->fecha_inicio)->format('d/m/Y') }}</strong></div>
-                                        <div class="text-right text-muted">Vence: <br><strong class="text-dark">{{ \Carbon\Carbon::parse($membresiaActiva->fecha_vencimiento)->format('d/m/Y') }}</strong></div>
-                                    </div>
                                     @php
-                                        $minutosTotales = max(1, \Carbon\Carbon::parse($membresiaActiva->fecha_inicio)->diffInMinutes(\Carbon\Carbon::parse($membresiaActiva->fecha_vencimiento)));
-                                        $minutosTranscurridos = max(0, min($minutosTotales, \Carbon\Carbon::parse($membresiaActiva->fecha_inicio)->diffInMinutes(now(), false)));
+                                        $fechaInicioMembresia = \Carbon\Carbon::parse($membresiaActiva->fecha_inicio_acumulada ?? $membresiaActiva->fecha_inicio)->startOfDay();
+                                        $fechaVencimientoMembresia = \Carbon\Carbon::parse($membresiaActiva->fecha_vencimiento_acumulada ?? $membresiaActiva->fecha_vencimiento)->endOfDay();
+                                        $minutosTotales = max(1, $fechaInicioMembresia->diffInMinutes($fechaVencimientoMembresia));
+                                        $minutosTranscurridos = max(0, min($minutosTotales, $fechaInicioMembresia->diffInMinutes(now(), false)));
                                         $porcentajeRestante = max(0, min(100, 100 - (($minutosTranscurridos / $minutosTotales) * 100)));
-                                        
-                                        $horasRestantes = (int) ceil(now()->diffInMinutes(\Carbon\Carbon::parse($membresiaActiva->fecha_vencimiento), false) / 60);
+                                        $horasRestantes = (int) ceil(now()->diffInMinutes($fechaVencimientoMembresia, false) / 60);
                                         $diasRestantes = (int) ceil($horasRestantes / 24);
 
                                         $colorClass = 'bg-danger';
-                                        if ($porcentajeRestante > 75) $colorClass = 'bg-primary'; // equivale a bg-purple
+                                        if ($porcentajeRestante > 75) $colorClass = 'bg-primary';
                                         elseif ($porcentajeRestante > 50) $colorClass = 'bg-info';
                                         elseif ($porcentajeRestante > 25) $colorClass = 'bg-success';
                                         elseif ($porcentajeRestante > 5) $colorClass = 'bg-warning';
                                     @endphp
+                                    <div class="d-flex justify-content-between mt-2 text-sm" style="font-size: 0.85rem;">
+                                        <div class="text-muted">Inicio: <br><strong class="text-dark">{{ $fechaInicioMembresia->format('d/m/Y') }}</strong></div>
+                                        <div class="text-right text-muted">Vence: <br><strong class="text-dark">{{ $fechaVencimientoMembresia->format('d/m/Y') }}</strong></div>
+                                    </div>
                                     <div class="progress mt-3" style="height: 6px;">
                                         <div class="progress-bar {{ $colorClass }}" role="progressbar" style="width: {{ $porcentajeRestante }}%"></div>
                                     </div>

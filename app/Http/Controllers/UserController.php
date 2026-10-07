@@ -28,10 +28,25 @@ class UserController extends Controller
             ->where('fecha_vencimiento', '<=', now()->addDays(7))
             ->count();
 
-        $clientes = Cliente::with(['membresias' => function ($q) {
-            $q->where('estado', 'activa');
-            $q->with('tipoMembresia');
-        }])->orderBy('id', 'desc')->get();
+        $clientes = Cliente::with(['membresias' => function ($query): void {
+            $query->where('estado', 'activa')
+                ->where('fecha_inicio', '<=', now())
+                ->where('fecha_vencimiento', '>=', now())
+                ->with('tipoMembresia')
+                ->orderByDesc('fecha_vencimiento');
+        }])->withExists([
+            'membresias as tiene_membresia_programada' => function ($query): void {
+                $query->where('estado', 'activa')
+                    ->where('fecha_inicio', '>', now())
+                    ->where('fecha_vencimiento', '>=', now());
+            },
+            'membresias as tiene_membresia_vencida' => function ($query): void {
+                $query->where(function ($membershipQuery): void {
+                    $membershipQuery->where('estado', 'vencida')
+                        ->orWhere('fecha_vencimiento', '<', now());
+                });
+            },
+        ])->orderBy('id', 'desc')->get();
 
         // 1. Membresías por vencer detallado
         $porVencer = Membresia::with(['cliente', 'tipoMembresia'])

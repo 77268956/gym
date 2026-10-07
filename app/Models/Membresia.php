@@ -52,7 +52,8 @@ class Membresia extends Model
                                 ->where('fecha_vencimiento', '>=', $now),
                             'por_vencer' => $query->where('estado', 'activa')
                                 ->where('fecha_inicio', '<=', $now)
-                                ->whereBetween('fecha_vencimiento', [$now, $now->copy()->addDays(7)]),
+                                ->whereDate('fecha_vencimiento', '>=', $now->toDateString())
+                                ->whereDate('fecha_vencimiento', '<=', $now->copy()->addDays(7)->toDateString()),
                             'vencidas' => $query->where(function (Builder $query) use ($now): void {
                                 $query->where('estado', 'vencida')
                                     ->orWhere('fecha_vencimiento', '<', $now);

@@ -151,7 +151,7 @@ class DashboardController extends Controller
             ->where('fecha_vencimiento', '>=', $today)
             ->where('fecha_vencimiento', '<=', $today->copy()->addDays(7))
             ->orderBy('fecha_vencimiento', 'asc')
-            ->take(6)
+            ->take(3)
             ->get();
 
         // Pagos Recientes
@@ -159,7 +159,7 @@ class DashboardController extends Controller
             ->where('estado', 'pagado')
             ->whereBetween('fecha_pago', [$startDate, $endDate])
             ->orderBy('fecha_pago', 'desc')
-            ->limit(10)
+            ->limit(4)
             ->get();
 
         $clientesTotales = Cliente::count();

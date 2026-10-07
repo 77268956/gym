@@ -40,14 +40,25 @@
         padding: 0.85rem; display: flex; flex-direction: column; margin-bottom: 0 !important;
     }
     .ic-card-title { font-weight: 700; font-size: 0.8rem; color: var(--sidebar-bg); margin-bottom: 0.5rem; text-transform: uppercase; }
-    .table-panel { flex: 1; min-height: 0; overflow-y: auto; padding-right: 5px; }
+    .table-panel { flex: 1 1 0; min-height: 0; min-width: 0; overflow: hidden; padding-right: 5px; display: flex; flex-direction: column; }
 
-    .dataTables_wrapper { display: flex; flex-direction: column; height: 100%; }
+    .dataTables_wrapper { display: flex; flex: 1 1 0; min-height: 0; flex-direction: column; height: 100%; }
     .dataTables_wrapper .row { margin-left: 0; margin-right: 0; }
-    .dataTables_scroll { flex-grow: 1; overflow: hidden; display: flex; flex-direction: column; min-height: 0; margin-top: 0.5rem; margin-bottom: 0.5rem; }
-    .dataTables_scrollBody { flex-grow: 1; min-height: 0; overflow-y: auto !important; max-height: none !important; height: auto !important; }
+    .dt-table-region { flex: 1 1 0; min-height: 0; overflow: hidden; margin-top: 0.5rem; margin-bottom: 0.5rem; }
+    .dt-table-region > .col-sm-12 { display: flex; min-height: 0; }
+    .dataTables_scroll { flex: 1 1 0; overflow: hidden; display: flex; flex-direction: column; min-height: 0; margin-top: 0.5rem; margin-bottom: 0.5rem; }
+    .dataTables_scrollBody { flex: 1 1 auto; min-height: 180px; height: calc(100vh - 350px) !important; max-height: calc(100vh - 350px) !important; overflow-y: scroll !important; padding-bottom: 1rem; box-sizing: border-box; }
+    #asistenciasEmpleadosTable_wrapper { flex: 1 1 auto; min-height: 0; }
+    #asistenciasEmpleadosTable_wrapper .dataTables_scroll { min-height: 0; }
+    #asistenciasEmpleadosTable_wrapper .dataTables_scrollHead table,
+    #asistenciasEmpleadosTable_wrapper .dataTables_scrollBody table { width: 100% !important; }
+    #asistenciasEmpleadosTable_wrapper .dataTables_scrollBody { min-height: 120px; }
+    #asistenciasEmpleadosTable_wrapper .pagination .page-item.active .page-link { background-color: var(--primary); border-color: var(--primary); color: #fff; }
+    #asistenciasEmpleadosTable_wrapper .pagination .page-link { color: var(--primary); }
+    #asistenciasEmpleadosTable_wrapper .pagination .page-item:not(.disabled):not(.active) .page-link:hover { background-color: var(--primary); border-color: var(--primary); color: #fff; }
 
-    .ic-table thead th { font-size: 0.7rem; color: #64748B; background: #F8FAFC; border-bottom: 2px solid #E2E8F0; padding: 0.4rem 0.5rem; }
+    .ic-table thead th { font-size: 0.75rem; font-weight: 700; color: var(--primary); background: #eaecf4; border-bottom: 2px solid var(--primary); padding: 0.75rem 0.5rem; letter-spacing: 0.5px; text-transform: uppercase; white-space: nowrap; }
+    .ic-table thead th i { display: inline-block; vertical-align: middle; }
     .ic-table td { font-size: 0.85rem; vertical-align: middle; white-space: nowrap; border-top: 1px solid #e3e6f0; padding: 0.6rem 0.5rem; color: #5a5c69; }
     .ic-avatar { width: 30px; height: 30px; background: var(--card-color); color: white; font-weight: bold; font-size: 0.7rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
 
@@ -57,6 +68,56 @@
     .badge-salida-t { background: #FEE2E2; color: #DC2626; padding: 3px 9px; border-radius: 50px; font-size: 0.7rem; font-weight: 700; }
 
     .row.tight { margin-bottom: 0.75rem; }
+    .filters-panel { background: #fff; border-radius: 10px; padding: .75rem 1rem; box-shadow: 0 2px 5px rgba(0,0,0,.04); margin-bottom: .75rem; flex-shrink: 0; }
+    .filters-panel .form-control, .filters-panel .custom-select { font-size: .8rem; height: 32px; border-radius: 6px; }
+    .attendance-filter-fields { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)) auto; gap: .75rem; align-items: end; }
+    .attendance-filter-field { min-width: 0; }
+    .attendance-filter-field label { display: block; color: #475569; }
+    .attendance-filter-actions { display: flex; align-items: center; justify-content: flex-end; gap: .35rem; white-space: nowrap; }
+    .attendance-filter-actions .btn { width: 34px; min-height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center; }
+    .attendance-toolbar { gap: .75rem; }
+    .attendance-toolbar-main { flex: 1 1 420px; min-width: 0; }
+    .attendance-search { flex: 1 1 220px; min-width: 180px; }
+    .attendance-toolbar-count { flex-shrink: 0; }
+    .attendance-filter-summary { display: flex; align-items: center; flex-wrap: wrap; gap: .4rem; margin-top: .55rem; font-size: .75rem; }
+    .attendance-filter-summary .badge { padding: .35rem .55rem; border-radius: 50px; color: #475569; }
+
+    @media (max-width: 991.98px) {
+        body, html { overflow: auto; height: auto; }
+        #page-wrapper main { height: auto; min-height: calc(100vh - 60px); overflow: visible; padding: .75rem !important; }
+        .main-container { overflow: visible; min-height: auto; }
+        .main-container > .row.flex-grow-1 { height: auto; flex: none !important; }
+        .main-container > .row.flex-grow-1 > [class*="col-"] { height: auto !important; min-height: 0; padding-bottom: .75rem !important; }
+        .main-container > .row.flex-grow-1 > .col-12 > .ic-card { min-height: 640px; }
+        .table-panel { overflow-x: auto; overflow-y: visible; height: auto; min-height: 450px; flex: none; }
+        #asistenciasEmpleadosTable_wrapper { width: 100%; min-width: 0; height: auto; min-height: 430px; }
+        #asistenciasEmpleadosTable_wrapper .dataTables_scroll { min-width: 900px; height: auto; overflow: visible; }
+        #asistenciasEmpleadosTable_wrapper .dataTables_scrollBody { height: 420px !important; max-height: 420px !important; min-height: 0; }
+        .ic-card > .d-flex.justify-content-between.align-items-center { flex-wrap: wrap; gap: .65rem; }
+        .ic-card > .d-flex.justify-content-between.align-items-center > div { display: flex; flex-wrap: wrap; gap: .5rem; }
+        .ic-card > .d-flex.justify-content-between.align-items-center > div:last-child { width: 100%; }
+        .ic-card > .d-flex.justify-content-between.align-items-center > div:last-child .btn { flex: 1 1 auto; margin: 0 !important; }
+        .main-container > .row.flex-grow-1 { height: auto; flex: none !important; }
+        .filters-panel { margin-bottom: .75rem; }
+        .attendance-filter-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .attendance-filter-actions { grid-column: 1 / -1; justify-content: flex-start; flex-wrap: wrap; }
+        .attendance-toolbar { gap: .75rem; flex-wrap: wrap; }
+        .attendance-toolbar-main, .attendance-toolbar-count { width: 100%; }
+        .attendance-toolbar-main { flex-wrap: wrap; }
+        .attendance-search { width: 100%; margin-top: .5rem; }
+    }
+
+    @media (max-width: 575.98px) {
+        .kpi-card { min-height: 64px; }
+        .kpi-value { font-size: 1.2rem; }
+        .kpi-label { font-size: .62rem; }
+        .ic-card { padding: .65rem; }
+        .ic-card-title { font-size: .72rem; }
+        .attendance-filter-fields { grid-template-columns: 1fr; }
+        .attendance-filter-actions { grid-column: auto; justify-content: flex-start; }
+        .attendance-toolbar-count { text-align: left; }
+        #asistenciasEmpleadosTable_wrapper .dataTables_scrollBody { height: 360px !important; max-height: 360px !important; }
+    }
 </style>
 @endpush
 
@@ -103,98 +164,86 @@
         </div>
     </div>
 
-    {{-- Table --}}
+    {{-- Filters --}}
+    <div class="filters-panel">
+        <form method="GET" action="{{ route('asistencias_empleados.index') }}">
+            <div class="attendance-filter-fields">
+                <div class="attendance-filter-field">
+                    <label class="small font-weight-bold mb-1">Empleado</label>
+                    <select name="empleado_id" class="custom-select">
+                        <option value="">Todos</option>
+                        @foreach($empleados as $emp)
+                            <option value="{{ $emp->id }}" {{ request('empleado_id') == $emp->id ? 'selected' : '' }}>{{ $emp->nombre }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="attendance-filter-field">
+                    <label class="small font-weight-bold mb-1">Desde</label>
+                    <input type="date" name="fecha_desde" class="form-control" value="{{ request('fecha_desde') }}">
+                </div>
+                <div class="attendance-filter-field">
+                    <label class="small font-weight-bold mb-1">Hasta</label>
+                    <input type="date" name="fecha_hasta" class="form-control" value="{{ request('fecha_hasta') }}">
+                </div>
+                <div class="attendance-filter-field">
+                    <label class="small font-weight-bold mb-1">Estado</label>
+                    <select name="estado" class="custom-select">
+                        <option value="">Todos</option>
+                        <option value="completo" {{ request('estado') === 'completo' ? 'selected' : '' }}>Completo</option>
+                        <option value="en_turno" {{ request('estado') === 'en_turno' ? 'selected' : '' }}>En turno</option>
+                        <option value="ausente" {{ request('estado') === 'ausente' ? 'selected' : '' }}>Ausente</option>
+                        <option value="tardanza" {{ request('estado') === 'tardanza' ? 'selected' : '' }}>Tardanza</option>
+                        <option value="salida_temp" {{ request('estado') === 'salida_temp' ? 'selected' : '' }}>Salida Temprana</option>
+                        <option value="cerrado_auto" {{ request('estado') === 'cerrado_auto' ? 'selected' : '' }}>Cerrado Auto</option>
+                    </select>
+                </div>
+                <div class="attendance-filter-actions">
+                    <button type="submit" class="btn btn-sm btn-primary" title="Aplicar filtros"><i class="fas fa-filter"></i></button>
+                    <a href="{{ route('asistencias_empleados.index') }}" class="btn btn-sm btn-outline-secondary" title="Limpiar filtros"><i class="fas fa-redo"></i></a>
+                    <a href="{{ route('asistencias_empleados.escanear') }}" class="btn btn-sm btn-outline-primary" title="Escáner Interno"><i class="fas fa-camera"></i></a>
+                    <a href="{{ route('asistencias_empleados.publico') }}" class="btn btn-sm btn-outline-primary" target="_blank" title="Endpoint Público"><i class="fas fa-external-link-alt"></i></a>
+                </div>
+            </div>
+            @if(request('fecha_desde') || request('fecha_hasta') || request('estado'))
+                <div class="attendance-filter-summary">
+                    @if(request('fecha_desde') || request('fecha_hasta'))
+                        <span class="badge badge-light border">{{ request('fecha_desde', '…') }} → {{ request('fecha_hasta', '…') }}</span>
+                    @endif
+                    @if(request('estado'))
+                        <span class="badge badge-light border">{{ str_replace('_', ' ', request('estado')) }}</span>
+                    @endif
+                </div>
+            @endif
+        </form>
+    </div>
+
+    {{-- Attendance history --}}
     <div class="row flex-grow-1" style="min-height: 0;">
         <div class="col-12 h-100 pb-1">
             <div class="ic-card h-100 d-flex flex-column">
-                <div class="d-flex justify-content-between align-items-center mb-1 flex-shrink-0">
-                    <h5 class="ic-card-title mb-0">
-                        <i class="fas fa-clipboard-list text-primary mr-2"></i> Historial de Asistencias — Empleados
-                    </h5>
-                    <div>
-                        <a href="{{ route('asistencias_empleados.escanear') }}" class="btn btn-sm btn-primary mr-2">
-                            <i class="fas fa-camera mr-1"></i> Escáner Interno
-                        </a>
-                        <a href="{{ route('asistencias_empleados.publico') }}" class="btn btn-sm btn-outline-primary" target="_blank">
-                            <i class="fas fa-external-link-alt mr-1"></i> Endpoint Público
-                        </a>
+                <div class="attendance-toolbar d-flex justify-content-between align-items-center mb-2 flex-shrink-0 flex-wrap">
+                    <div class="attendance-toolbar-main d-flex align-items-center flex-wrap">
+                        <h5 class="ic-card-title mb-0 mr-3"><i class="fas fa-clipboard-list text-primary mr-2"></i> Historial de Asistencias — Empleados</h5>
+                        <div class="input-group input-group-sm attendance-search">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text bg-light border-right-0"><i class="fas fa-search text-muted"></i></span>
+                            </div>
+                            <input type="text" id="searchAsistenciasEmpleados" class="form-control border-left-0" placeholder="Buscar asistencia..." style="background-color: #F8FAFC;">
+                        </div>
                     </div>
+                    <span class="attendance-toolbar-count badge badge-light text-muted">{{ $asistencias->count() }} registros</span>
                 </div>
-                {{-- Filter Bar --}}
-                <form method="GET" action="{{ route('asistencias_empleados.index') }}" class="mb-2 flex-shrink-0">
-                    <div class="row align-items-end" style="gap: 0.25rem 0;">
-                        <div class="col-md-3 col-6 mb-1">
-                            <label class="small font-weight-bold text-muted mb-0" style="font-size:0.7rem;">EMPLEADO</label>
-                            <select name="empleado_id" class="form-control form-control-sm">
-                                <option value="">Todos</option>
-                                @foreach($empleados as $emp)
-                                    <option value="{{ $emp->id }}" {{ request('empleado_id') == $emp->id ? 'selected' : '' }}>
-                                        {{ $emp->nombre }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-md-2 col-6 mb-1">
-                            <label class="small font-weight-bold text-muted mb-0" style="font-size:0.7rem;">DESDE</label>
-                            <input type="date" name="fecha_desde" class="form-control form-control-sm" value="{{ request('fecha_desde') }}">
-                        </div>
-                        <div class="col-md-2 col-6 mb-1">
-                            <label class="small font-weight-bold text-muted mb-0" style="font-size:0.7rem;">HASTA</label>
-                            <input type="date" name="fecha_hasta" class="form-control form-control-sm" value="{{ request('fecha_hasta') }}">
-                        </div>
-                        <div class="col-md-2 col-6 mb-1">
-                            <label class="small font-weight-bold text-muted mb-0" style="font-size:0.7rem;">ESTADO</label>
-                            <select name="estado" class="form-control form-control-sm">
-                                <option value="">Todos</option>
-                                <option value="completo"     {{ request('estado') === 'completo'     ? 'selected' : '' }}>Completo</option>
-                                <option value="en_turno"     {{ request('estado') === 'en_turno'     ? 'selected' : '' }}>En turno</option>
-                                <option value="ausente"      {{ request('estado') === 'ausente'      ? 'selected' : '' }}>Ausente</option>
-                                <option value="tardanza"     {{ request('estado') === 'tardanza'     ? 'selected' : '' }}>Tardanza</option>
-                                <option value="salida_temp"  {{ request('estado') === 'salida_temp'  ? 'selected' : '' }}>Salida Temprana</option>
-                                <option value="cerrado_auto" {{ request('estado') === 'cerrado_auto' ? 'selected' : '' }}>Cerrado Auto</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3 col-12 mb-1 d-flex align-items-end" style="gap:0.4rem;">
-                            <button type="submit" class="btn btn-primary btn-sm font-weight-bold flex-grow-1">
-                                <i class="fas fa-filter mr-1"></i> Filtrar
-                            </button>
-                            @if(request()->hasAny(['empleado_id','fecha_desde','fecha_hasta','estado']))
-                                <a href="{{ route('asistencias_empleados.index') }}" class="btn btn-outline-secondary btn-sm" title="Limpiar filtros">
-                                    <i class="fas fa-times"></i>
-                                </a>
-                            @endif
-                        </div>
-                    </div>
-
-                    {{-- Resultado activo --}}
-                    <div class="d-flex align-items-center mt-1" style="gap:0.4rem; font-size:0.75rem;">
-                        <span class="text-muted">
-                            <strong>{{ $asistencias->count() }}</strong> registro(s) encontrado(s)
-                        </span>
-                        @if(request()->hasAny(['empleado_id','fecha_desde','fecha_hasta','estado']))
-                            @if(request('fecha_desde') || request('fecha_hasta'))
-                                <span class="badge badge-light border">
-                                    📅 {{ request('fecha_desde', '…') }} → {{ request('fecha_hasta', '…') }}
-                                </span>
-                            @endif
-                            @if(request('estado'))
-                                <span class="badge badge-light border">{{ request('estado') }}</span>
-                            @endif
-                        @endif
-                    </div>
-                </form>
-
                 <div class="table-panel">
                     <table id="asistenciasEmpleadosTable" class="table ic-table w-100">
                         <thead>
                             <tr>
-                                <th>FECHA</th>
-                                <th>EMPLEADO</th>
-                                <th>ENTRADA</th>
-                                <th>SALIDA</th>
-                                <th>HORAS</th>
-                                <th>ESTADO</th>
-                                <th>MÉTODO</th>
+                                <th><i class="fas fa-calendar-alt mr-1 text-primary"></i> Fecha</th>
+                                <th><i class="fas fa-user-tie mr-1 text-primary"></i> Empleado</th>
+                                <th><i class="fas fa-sign-in-alt mr-1 text-primary"></i> Entrada</th>
+                                <th><i class="fas fa-sign-out-alt mr-1 text-primary"></i> Salida</th>
+                                <th><i class="fas fa-hourglass-half mr-1 text-primary"></i> Horas</th>
+                                <th><i class="fas fa-toggle-on mr-1 text-primary"></i> Estado</th>
+                                <th><i class="fas fa-fingerprint mr-1 text-primary"></i> Método</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -292,16 +341,19 @@
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
 <script>
 $(document).ready(function() {
-    $('#asistenciasEmpleadosTable').DataTable({
+    var tableAsistencias = $('#asistenciasEmpleadosTable').DataTable({
         language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json' },
         pageLength: 25,
-        scrollY: '100%',
+        scrollY: 'calc(100vh - 350px)',
         scrollCollapse: true,
         info: true,
         order: [[0, 'desc']],
-        dom: "<'row mb-2'<'col-sm-12 text-right'f>>" +
-             "<'row dataTables_scroll'<'col-sm-12'tr>>" +
+        dom: "<'row dt-table-region'<'col-sm-12'tr>>" +
              "<'row mt-2 align-items-center'<'col-sm-12 col-md-4'l><'col-sm-12 col-md-4'i><'col-sm-12 col-md-4'p>>"
+    });
+
+    $('#searchAsistenciasEmpleados').on('keyup', function() {
+        tableAsistencias.search(this.value).draw();
     });
 });
 </script>

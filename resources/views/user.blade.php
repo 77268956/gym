@@ -360,10 +360,11 @@
                                         $membActiva = $cliente->membresias->first();
                                         if ($membActiva) {
                                             $mLabel = 'ACTIVA'; $mClass = 'ic-badge-active';
+                                        } elseif ($cliente->tiene_membresia_programada) {
+                                            $mLabel = 'PROGRAMADA'; $mClass = 'ic-badge-warn';
                                         } else {
-                                            $tieneVencida = $cliente->membresias()->where('estado', 'vencida')->exists();
-                                            $mLabel = $tieneVencida ? 'VENCIDA' : 'SIN MEMBRESÍA';
-                                            $mClass = $tieneVencida ? 'ic-badge-critical' : 'ic-badge-inactive';
+                                            $mLabel = $cliente->tiene_membresia_vencida ? 'VENCIDA' : 'SIN MEMBRESÍA';
+                                            $mClass = $cliente->tiene_membresia_vencida ? 'ic-badge-critical' : 'ic-badge-inactive';
                                         }
                                     @endphp
                                     <span class="{{ $mClass }}">{{ $mLabel }}</span>

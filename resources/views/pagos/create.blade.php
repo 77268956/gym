@@ -268,12 +268,7 @@
         $.getJSON('/pagos/cliente/' + clienteId + '/info', function(data) {
             clienteMembresiaRaw = data.membresia;
             if (!fechaInicioEditada) {
-                var fechaMinima = new Date().toISOString().slice(0, 10);
-                if (data.membresia && !data.membresia.vencida && data.membresia.fecha_vencimiento_raw) {
-                    var vencimiento = new Date(data.membresia.fecha_vencimiento_raw + 'T00:00:00');
-                    vencimiento.setDate(vencimiento.getDate() + 1);
-                    fechaMinima = vencimiento.toISOString().slice(0, 10);
-                }
+                var fechaMinima = data.fecha_inicio_sugerida || $('#fecha_inicio').attr('min');
                 $('#fecha_inicio').attr('min', fechaMinima).val(fechaMinima);
             }
             var html = '';

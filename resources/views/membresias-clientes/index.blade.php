@@ -382,17 +382,19 @@
                         @php
                             $cliente = $membresia->cliente;
                             if (!$cliente) continue;
-                            $minutosTotales = max(1, $membresia->fecha_inicio->diffInMinutes($membresia->fecha_vencimiento));
-                            $minutosTranscurridos = max(0, min($minutosTotales, $membresia->fecha_inicio->diffInMinutes(now(), false)));
+                            $fechaInicio = ($membresia->fecha_inicio_acumulada ?? $membresia->fecha_inicio)->copy()->startOfDay();
+                            $fechaVencimiento = ($membresia->fecha_vencimiento_acumulada ?? $membresia->fecha_vencimiento)->copy()->endOfDay();
+                            $minutosTotales = max(1, $fechaInicio->diffInMinutes($fechaVencimiento));
+                            $minutosTranscurridos = max(0, min($minutosTotales, $fechaInicio->diffInMinutes(now(), false)));
+                            $porcentajeRestante = max(0, min(100, 100 - (($minutosTranscurridos / $minutosTotales) * 100)));
 
-                            $horasRestantes = max(0, (int) ceil(now()->diffInMinutes($membresia->fecha_vencimiento, false) / 60));
+                            $horasRestantes = (int) ceil(now()->diffInMinutes($fechaVencimiento, false) / 60);
                             $diasRestantes = (int) ceil($horasRestantes / 24);
 
-                            $estaActiva = $membresia->estado === 'activa' && $membresia->fecha_inicio <= now() && $membresia->fecha_vencimiento >= now();
+                            $estaActiva = $membresia->estado === 'activa' && $fechaInicio <= now() && $fechaVencimiento >= now();
                             $estaPorVencer = $estaActiva && $diasRestantes <= 7;
-                            $estaVencida = $membresia->fecha_vencimiento < now() || $membresia->estado === 'vencida';
+                            $estaVencida = $fechaVencimiento < now() || $membresia->estado === 'vencida';
 
-                            $porcentajeRestante = 100 - (($minutosTranscurridos / $minutosTotales) * 100);
                             $colorClass = 'bg-danger';
                             if ($porcentajeRestante > 75) $colorClass = 'bg-purple';
                             elseif ($porcentajeRestante > 50) $colorClass = 'bg-info';
@@ -415,8 +417,8 @@
                             </td>
                             <td>{{ $cliente->telefono ?? 'â€”' }}</td>
                             <td><span class="ic-badge-plan">{{ $membresia->tipoMembresia->nombre ?? 'â€”' }}</span></td>
-                            <td>{{ $membresia->fecha_inicio->format('d/m/Y') }}</td>
-                            <td>{{ $membresia->fecha_vencimiento->format('d/m/Y') }}</td>
+                            <td>{{ $fechaInicio->format('d/m/Y') }}</td>
+                            <td>{{ $fechaVencimiento->format('d/m/Y') }}</td>
                             <td style="width: 120px;">
                                 <div class="d-flex justify-content-between align-items-center mb-1" style="font-size:0.75rem;">
                                     <span>{{ $estaVencida ? 'Vencida' : ($horasRestantes < 48 ? $horasRestantes . ' hrs' : $diasRestantes . ' d') }}</span>
@@ -448,7 +450,7 @@
                                                     '@usuario' => $cliente->nombre,
                                                     '@plan' => $membresia->tipoMembresia->nombre ?? 'Sin plan',
                                                     '@dias' => (string) $diasRestantes,
-                                                    '@fecha_vencimiento' => $membresia->fecha_vencimiento->format('d/m/Y'),
+                                                    '@fecha_vencimiento' => $fechaVencimiento->format('d/m/Y'),
                                                     '@gimnasio' => $gymConfig->nombre_gimnasio,
                                                 ]);
                                                 $whatsappUrl = 'https://wa.me/' . preg_replace('/[^0-9]/', '', $cliente->telefono) . '?text=' . rawurlencode($mensajeWhatsApp);
@@ -473,16 +475,19 @@
             @php
                 $cliente = $membresia->cliente;
                 if (!$cliente) continue;
-                $diasTotales = max(1, $membresia->fecha_inicio->diffInDays($membresia->fecha_vencimiento));
-                $diasTranscurridos = max(0, min($diasTotales, $membresia->fecha_inicio->diffInDays(now(), false)));
-                $diasRestantes = max(0, now()->startOfDay()->diffInDays($membresia->fecha_vencimiento, false));
+                $fechaInicio = ($membresia->fecha_inicio_acumulada ?? $membresia->fecha_inicio)->copy()->startOfDay();
+                $fechaVencimiento = ($membresia->fecha_vencimiento_acumulada ?? $membresia->fecha_vencimiento)->copy()->endOfDay();
+                $minutosTotales = max(1, $fechaInicio->diffInMinutes($fechaVencimiento));
+                $minutosTranscurridos = max(0, min($minutosTotales, $fechaInicio->diffInMinutes(now(), false)));
+                $porcentajeRestante = max(0, min(100, 100 - (($minutosTranscurridos / $minutosTotales) * 100)));
+                $horasRestantes = (int) ceil(now()->diffInMinutes($fechaVencimiento, false) / 60);
+                $diasRestantes = (int) ceil($horasRestantes / 24);
 
-                $estaActiva = $membresia->estado === 'activa' && $membresia->fecha_inicio <= now() && $membresia->fecha_vencimiento >= now();
+                $estaActiva = $membresia->estado === 'activa' && $fechaInicio <= now() && $fechaVencimiento >= now();
                 $estaPorVencer = $estaActiva && $diasRestantes <= 7;
-                $estaVencida = $membresia->fecha_vencimiento < now() || $membresia->estado === 'vencida';
+                $estaVencida = $fechaVencimiento < now() || $membresia->estado === 'vencida';
                 $statusClass = $estaVencida ? 'status-expired' : ($estaPorVencer ? 'status-warn' : '');
 
-                $porcentajeRestante = 100 - (($diasTranscurridos / $diasTotales) * 100);
                 $colorClass = 'bg-danger';
                 if ($porcentajeRestante > 75) $colorClass = 'bg-purple';
                 elseif ($porcentajeRestante > 50) $colorClass = 'bg-info';
@@ -517,12 +522,12 @@
                     </div>
                     <div class="member-card-row">
                         <span class="member-card-label">Inicio / Vencimiento</span>
-                        <span class="member-card-value">{{ $membresia->fecha_inicio->format('d/m/Y') }} - {{ $membresia->fecha_vencimiento->format('d/m/Y') }}</span>
+                        <span class="member-card-value">{{ $fechaInicio->format('d/m/Y') }} - {{ $fechaVencimiento->format('d/m/Y') }}</span>
                     </div>
                     <div>
                         <div class="d-flex justify-content-between align-items-center mb-1" style="font-size:0.75rem;">
                             <span class="member-card-label">Duración</span>
-                            <span class="font-weight-bold">{{ $estaVencida ? 'Vencida' : $diasRestantes . ' días rest.' }}</span>
+                            <span class="font-weight-bold">{{ $estaVencida ? 'Vencida' : ($horasRestantes < 48 ? $horasRestantes . ' hrs' : $diasRestantes . ' días rest.') }}</span>
                         </div>
                         <div class="progress progress-sm">
                             <div class="progress-bar {{ $colorClass }}" style="width: {{ $porcentajeRestante }}%"></div>
@@ -538,7 +543,7 @@
                                 '@usuario' => $cliente->nombre,
                                 '@plan' => $membresia->tipoMembresia->nombre ?? 'Sin plan',
                                 '@dias' => (string) $diasRestantes,
-                                '@fecha_vencimiento' => $membresia->fecha_vencimiento->format('d/m/Y'),
+                                '@fecha_vencimiento' => $fechaVencimiento->format('d/m/Y'),
                                 '@gimnasio' => $gymConfig->nombre_gimnasio,
                             ]);
                             $whatsappUrl = 'https://wa.me/' . preg_replace('/[^0-9]/', '', $cliente->telefono) . '?text=' . rawurlencode($mensajeWhatsApp);

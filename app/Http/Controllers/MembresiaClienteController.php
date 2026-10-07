@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Membresia;
 use App\Models\TipoMembresia;
+use App\Services\MembresiaPeriodService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -11,7 +12,7 @@ use Illuminate\View\View;
 
 class MembresiaClienteController extends Controller
 {
-    public function index(Request $request): View|string
+    public function index(Request $request, MembresiaPeriodService $periodService): View|string
     {
         $availableStates = ['todas', 'activas', 'recien_compradas', 'por_vencer', 'vencidas'];
         $filters = $request->validate([
@@ -53,8 +54,9 @@ class MembresiaClienteController extends Controller
             ->distinct('cliente_id')
             ->count('cliente_id');
         $porVencer = Membresia::where('estado', 'activa')
-            ->where('fecha_vencimiento', '>=', $today)
-            ->where('fecha_vencimiento', '<=', $today->copy()->addDays(7))
+            ->where('fecha_inicio', '<=', $today)
+            ->whereDate('fecha_vencimiento', '>=', $today->toDateString())
+            ->whereDate('fecha_vencimiento', '<=', $today->copy()->addDays(7)->toDateString())
             ->distinct('cliente_id')
             ->count('cliente_id');
         $vencidas = Membresia::where(function ($q) use ($today) {
@@ -105,6 +107,34 @@ class MembresiaClienteController extends Controller
                 }
             })
             ->values();
+
+        $periodosPorCliente = Membresia::query()
+            ->whereIn('cliente_id', $membresias->pluck('cliente_id')->unique())
+            ->whereIn('estado', ['activa', 'vencida'])
+            ->get(['cliente_id', 'fecha_inicio', 'fecha_vencimiento', 'estado'])
+            ->groupBy('cliente_id');
+
+        $membresias = $membresias->map(function (Membresia $membresia) use ($periodService, $periodosPorCliente): Membresia {
+            $periodoAcumulado = $periodService->accumulatedPeriod(
+                $membresia,
+                $periodosPorCliente->get($membresia->cliente_id, collect())
+            );
+
+            $membresia->setAttribute('fecha_inicio_acumulada', $periodoAcumulado['fecha_inicio']);
+            $membresia->setAttribute('fecha_vencimiento_acumulada', $periodoAcumulado['fecha_vencimiento']);
+
+            return $membresia;
+        });
+
+        $requestedStates = preg_split('/\s+/', trim((string) ($filters['estado'] ?? 'todas'))) ?: [];
+
+        if (count($requestedStates) === 1 && $requestedStates[0] === 'por_vencer') {
+            $fechaLimite = $today->copy()->addDays(7)->endOfDay();
+
+            $membresias = $membresias
+                ->filter(fn (Membresia $membresia): bool => $membresia->fecha_vencimiento_acumulada->between($today, $fechaLimite))
+                ->values();
+        }
 
         // Tipos de membresía para el filtro
         $tiposMembresia = TipoMembresia::where('estado', 'activo')->get();
