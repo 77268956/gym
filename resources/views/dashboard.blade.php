@@ -180,19 +180,19 @@
                 </select>
             </div>
 
-            <div id="filtroMes" class="dashboard-filter-control {{ $periodo === 'rango' ? 'd-none' : '' }}">
+            <div id="filtroMes" class="dashboard-filter-control {{ ($periodo ?? '') === 'rango' ? 'd-none' : '' }}">
                 <label for="mes">Mes</label>
                 <select name="mes" id="mes" class="custom-select custom-select-sm">
-                    @foreach($mesesDisponibles as $valorMes => $etiquetaMes)
-                        <option value="{{ $valorMes }}" {{ $mesSeleccionado === $valorMes ? 'selected' : '' }}>{{ $etiquetaMes }}</option>
+                    @foreach($mesesDisponibles ?? [] as $valorMes => $etiquetaMes)
+                        <option value="{{ $valorMes }}" {{ ($mesSeleccionado ?? '') === $valorMes ? 'selected' : '' }}>{{ $etiquetaMes }}</option>
                     @endforeach
                 </select>
             </div>
-            <div id="filtroSemana" class="dashboard-filter-control {{ $periodo === 'semana' ? '' : 'd-none' }}">
+            <div id="filtroSemana" class="dashboard-filter-control {{ ($periodo ?? '') === 'semana' ? '' : 'd-none' }}">
                 <label for="semana">Semana</label>
                 <select name="semana" id="semana" class="custom-select custom-select-sm">
-                    @foreach($semanasDisponibles as $semana)
-                        <option value="{{ $semana['inicio'] }}" {{ $semanaSeleccionada === $semana['inicio'] ? 'selected' : '' }}>{{ $semana['etiqueta'] }}</option>
+                    @foreach($semanasDisponibles ?? [] as $semana)
+                        <option value="{{ $semana['inicio'] }}" {{ ($semanaSeleccionada ?? '') === $semana['inicio'] ? 'selected' : '' }}>{{ $semana['etiqueta'] }}</option>
                     @endforeach
                 </select>
             </div>
