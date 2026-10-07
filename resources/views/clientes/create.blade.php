@@ -2,7 +2,11 @@
 
 @php
     $editando = $cliente !== null;
-    $valor = fn (string $campo, mixed $default = '') => old($campo, $editando ? ($cliente->{$campo} ?? $default) : $default);
+    $valor = function (string $campo, mixed $default = '') use ($cliente, $editando): mixed {
+        $value = old($campo, $editando ? ($cliente->{$campo} ?? $default) : $default);
+
+        return $value instanceof \DateTimeInterface ? $value->format('Y-m-d') : $value;
+    };
 @endphp
 
 @section('title', $editando ? 'Editar Socio / Cliente' : 'Nuevo Socio / Cliente')
@@ -106,31 +110,52 @@
                             <div class="config-section-title"><i class="fas fa-address-card mr-2"></i> 1. Información Personal</div>
                             <div class="row">
                                 <div class="col-md-6 form-group mb-3">
-                                    <label class="config-label">Nombre Completo <span class="text-danger">*</span></label>
+                                    <label class="config-label">Nombre <span class="text-danger">*</span></label>
                                     <div class="input-group input-group-sm">
                                         <div class="input-group-prepend"><span class="input-group-text"><i class="fas fa-user"></i></span></div>
-                                        <input type="text" name="nombre" class="form-control @error('nombre') is-invalid @enderror" value="{{ $valor('nombre') }}" placeholder="Ej: Carlos Martínez" required>
+                                        <input type="text" name="nombre" class="form-control @error('nombre') is-invalid @enderror" value="{{ $valor('nombre') }}" placeholder="Ej: Carlos" required>
                                     </div>
                                     @error('nombre')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                                 </div>
                                 <div class="col-md-6 form-group mb-3">
-                                    <label class="config-label">Identificación <span class="text-danger">*</span></label>
+                                    <label class="config-label">Apellido <span class="text-danger">*</span></label>
+                                    <input type="text" name="apellido" class="form-control @error('apellido') is-invalid @enderror" value="{{ $valor('apellido') }}" required>
+                                    @error('apellido')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                                </div>
+                                <div class="col-md-6 form-group mb-3">
+                                    <label class="config-label">DUI <span class="text-danger">*</span></label>
                                     <div class="input-group input-group-sm">
                                         <div class="input-group-prepend"><span class="input-group-text"><i class="fas fa-id-card"></i></span></div>
-                                        <input type="text" name="cedula" id="cedula" class="form-control @error('cedula') is-invalid @enderror" value="{{ $valor('cedula') }}" placeholder="Ej: 0801-1990-12345" required>
+                                        <input type="text" name="cedula" id="cedula" class="form-control @error('cedula') is-invalid @enderror" value="{{ $valor('cedula') }}" placeholder="00000000-0" required>
                                     </div>
                                     @error('cedula')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                                 </div>
                                 <div class="col-md-6 form-group mb-2">
-                                    <label class="config-label">Teléfono</label>
+                                    <label class="config-label">Teléfono <span class="text-danger">*</span></label>
                                     <div class="input-group input-group-sm">
                                         <div class="input-group-prepend"><span class="input-group-text"><i class="fas fa-phone"></i></span></div>
-                                        <input type="text" name="telefono" id="telefono" class="form-control @error('telefono') is-invalid @enderror" value="{{ $valor('telefono') }}" placeholder="Ej: 9999-9999">
+                                        <input type="text" name="telefono" id="telefono" class="form-control @error('telefono') is-invalid @enderror" value="{{ $valor('telefono') }}" placeholder="0000-0000" required>
                                     </div>
+                                    @error('telefono')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                                 </div>
                                 <div class="col-md-6 form-group mb-2">
-                                    <label class="config-label">Historial Médico / Notas</label>
-                                    <textarea name="historial_medico" class="form-control form-control-sm @error('historial_medico') is-invalid @enderror" rows="1" placeholder="Alergias, lesiones, etc.">{{ $valor('historial_medico') }}</textarea>
+                                    <label class="config-label">Correo electrónico <span class="text-danger">*</span></label>
+                                    <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" value="{{ $valor('email') }}" required>
+                                    @error('email')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                                </div>
+                                <div class="col-md-6 form-group mb-2">
+                                    <label class="config-label">Fecha de nacimiento <span class="text-danger">*</span></label>
+                                    <input type="date" name="fecha_nacimiento" class="form-control @error('fecha_nacimiento') is-invalid @enderror" value="{{ $valor('fecha_nacimiento') }}" max="{{ now()->subDay()->toDateString() }}" required>
+                                    @error('fecha_nacimiento')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                                </div>
+                                <div class="col-md-6 form-group mb-2">
+                                    <label class="config-label">Dirección <span class="text-danger">*</span></label>
+                                    <textarea name="direccion" class="form-control @error('direccion') is-invalid @enderror" rows="2" required>{{ $valor('direccion') }}</textarea>
+                                    @error('direccion')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                                </div>
+                                <div class="col-md-6 form-group mb-2">
+                                    <label class="config-label">Historial médico / notas</label>
+                                    <textarea name="historial_medico" class="form-control form-control-sm @error('historial_medico') is-invalid @enderror" rows="2" placeholder="Alergias, lesiones, etc.">{{ $valor('historial_medico') }}</textarea>
                                 </div>
                                 @if($editando)
                                     <div class="col-md-12 form-group mb-0 mt-2">
@@ -148,6 +173,21 @@
                         {{-- SECCIÓN 2: MEMBRESÍA --}}
                         <div class="config-section">
                             <div class="config-section-title"><i class="fas fa-dumbbell mr-2"></i> 2. Membresía <span class="text-danger">*</span></div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="config-label">Fecha de inicio</label>
+                                    <input type="date" name="fecha_inicio" class="form-control @error('fecha_inicio') is-invalid @enderror" value="{{ old('fecha_inicio', now()->toDateString()) }}" required>
+                                    @error('fecha_inicio')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="config-label">Método de pago</label>
+                                    <select name="metodo_pago" class="form-control" required>
+                                        <option value="efectivo" @selected(old('metodo_pago', 'efectivo') === 'efectivo')>Efectivo</option>
+                                        <option value="tarjeta" @selected(old('metodo_pago') === 'tarjeta')>Tarjeta</option>
+                                        <option value="transferencia" @selected(old('metodo_pago') === 'transferencia')>Transferencia</option>
+                                    </select>
+                                </div>
+                            </div>
                             
                             <div id="membresiaSeleccionadaBox" class="d-none p-3 border rounded mb-2" style="background:color-mix(in srgb, var(--primary) 10%, white);border-color:var(--primary) !important;">
                                 <div class="d-flex justify-content-between align-items-center">
@@ -400,7 +440,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     if (document.getElementById('telefono')) new Cleave('#telefono', { delimiters: ['-'], blocks: [4, 4], numericOnly: true });
-    if (document.getElementById('cedula')) new Cleave('#cedula', { delimiters: ['-', '-'], blocks: [4, 4, 5], numericOnly: true });
+    if (document.getElementById('cedula')) new Cleave('#cedula', { delimiter: '-', blocks: [8, 1], numericOnly: true });
 });
 </script>
 @endpush

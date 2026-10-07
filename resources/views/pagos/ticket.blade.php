@@ -70,12 +70,12 @@
 
             <section class="ticket-details" aria-label="Datos del pago">
                 <div class="ticket-line"><span>Fecha</span><strong>{{ $pago->fecha_pago?->format('d/m/Y h:i A') }}</strong></div>
-                <div class="ticket-line"><span>Cliente</span><strong>{{ $pago->cliente?->nombre ?? 'Cliente no disponible' }}</strong></div>
+                <div class="ticket-line"><span>Cliente</span><strong>{{ trim(($pago->cliente?->nombre ?? '').' '.($pago->cliente?->apellido ?? '')) ?: 'Cliente no disponible' }}</strong></div>
                 @if($pago->cliente?->cedula)
                     <div class="ticket-line"><span>Cédula</span><strong>{{ $pago->cliente->cedula }}</strong></div>
                 @endif
                 <div class="ticket-line"><span>Atendido por</span><strong>{{ $pago->empleado?->nombre ?? 'Personal' }}</strong></div>
-                <div class="ticket-line"><span>Concepto</span><strong>{{ $pago->tipo_pago === 'membresia' ? 'Membresía' : 'Pase diario' }}</strong></div>
+                <div class="ticket-line"><span>Concepto</span><strong>{{ $pago->concepto ?? ($pago->tipo_pago === 'membresia' ? 'Membresía' : 'Pase diario') }}</strong></div>
                 <div class="ticket-line"><span>Método</span><strong>{{ ucfirst($pago->metodo_pago) }}</strong></div>
             </section>
 

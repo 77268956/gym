@@ -462,6 +462,8 @@
                             <option value="Tarjeta">Tarjeta</option>
                             <option value="Transferencia">Transferencia</option>
                         </select>
+                        <input type="date" id="filterFechaDesde" class="form-control form-control-sm mr-2" aria-label="Fecha inicial">
+                        <input type="date" id="filterFechaHasta" class="form-control form-control-sm mr-2" aria-label="Fecha final">
                         <button type="button" class="btn btn-sm btn-primary font-weight-bold px-3" data-toggle="modal" data-target="#modalClientes" title="Procesar nuevo cobro">
                             <i class="fas fa-cash-register mr-1"></i> Procesar Cobro
                         </button>
@@ -478,25 +480,26 @@
                                 <th class="text-uppercase"><i class="fas fa-credit-card mr-1 text-primary"></i> Método</th>
                                 <th class="text-uppercase"><i class="fas fa-dollar-sign mr-1 text-primary"></i> Monto</th>
                                 <th class="text-uppercase"><i class="fas fa-user-tie mr-1 text-primary"></i> Cajero</th>
+                                <th class="text-uppercase"><i class="fas fa-flag mr-1 text-primary"></i> Estado</th>
                                 <th class="text-uppercase text-center"><i class="fas fa-print mr-1 text-primary"></i> Ticket</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($pagos as $pago)
                             <tr>
-                                <td>
-                                    <span class="d-block font-weight-bold text-dark">{{ \Carbon\Carbon::parse($pago->fecha_pago)->format('d/m/Y') }}</span>
+                                <td data-order="{{ $pago->fecha_pago->format('Y-m-d H:i:s') }}">
+                                    <span class="d-block font-weight-bold text-dark">{{ $pago->fecha_pago->format('d/m/Y') }}</span>
                                     <small class="text-muted">{{ \Carbon\Carbon::parse($pago->fecha_pago)->format('h:i A') }}</small>
                                 </td>
                                 <td>
                                     @if($pago->cliente)
                                         <div class="d-flex align-items-center">
                                             <div class="ic-avatar mr-2">
-                                                {{ strtoupper(substr($pago->cliente->nombre, 0, 2)) }}
+                                                {{ strtoupper(substr($pago->cliente->nombre_completo, 0, 2)) }}
                                             </div>
                                             <div class="font-weight-bold text-dark">
                                                 <a href="{{ route('clientes.show', $pago->cliente) }}" class="text-dark">
-                                                {{ $pago->cliente->nombre }}
+                                                {{ $pago->cliente->nombre_completo }}
                                                 </a>
                                             </div>
                                         </div>
@@ -528,6 +531,7 @@
                                 <td class="text-muted" style="font-size: 0.8rem;">
                                     {{ $pago->empleado->nombre ?? 'Sistema' }}
                                 </td>
+                                <td><span class="ic-status-active">{{ ucfirst($pago->estado) }}</span></td>
                                 <td class="text-center">
                                     <a href="{{ route('pagos.ticket', $pago) }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary" title="Imprimir ticket">
                                         <i class="fas fa-print"></i>
@@ -605,6 +609,18 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
 $(document).ready(function() {
+    $.fn.dataTable.ext.search.push(function(settings, data) {
+        if (settings.nTable.id !== 'pagosTable') return true;
+
+        var displayedDate = $('<div>').html(data[0]).text().trim().split(/\s+/)[0];
+        var dateParts = displayedDate.split('/');
+        var paymentDate = dateParts.length === 3 ? dateParts[2] + '-' + dateParts[1] + '-' + dateParts[0] : '';
+        var startDate = $('#filterFechaDesde').val();
+        var endDate = $('#filterFechaHasta').val();
+
+        return (!startDate || paymentDate >= startDate) && (!endDate || paymentDate <= endDate);
+    });
+
     var table = $('#pagosTable').DataTable({
         language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json' },
         order: [[0, 'desc']],
@@ -628,6 +644,10 @@ $(document).ready(function() {
 
     $('#filterMetodoPago').on('change', function() {
         table.column(3).search(this.value).draw();
+    });
+
+    $('#filterFechaDesde, #filterFechaHasta').on('change', function() {
+        table.draw();
     });
 
     $(window).on('resize', function() {

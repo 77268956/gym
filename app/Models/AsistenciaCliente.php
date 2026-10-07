@@ -20,6 +20,7 @@ class AsistenciaCliente extends Model
         'empleado_valida_id',
         'fecha',
         'hora',
+        'hora_salida',
         'metodo_registro',
         'puntos_otorgados',
         'exitoso',

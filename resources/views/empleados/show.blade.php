@@ -60,7 +60,7 @@
                 <div class="d-flex flex-wrap align-items-center mb-2" style="gap:.5rem 1rem; font-size:.85rem; color:rgba(255,255,255,.9);">
                     <span><i class="fas fa-id-card mr-1"></i>{{ $empleado->cedula }}</span>
                     <span><i class="fas fa-user mr-1"></i>{{ $empleado->usuario }}</span>
-                    <span><i class="fas fa-user-tag mr-1"></i>{{ $empleado->rol === 'admin' ? 'Administrador' : 'Recepción' }}</span>
+                    <span><i class="fas fa-user-tag mr-1"></i>{{ $empleado->rol === 'admin' ? 'Administrador' : 'Recepcionista' }}</span>
                 </div>
                 <span class="employee-status {{ $empleado->estado === 'activo' ? 'active' : 'inactive' }}">
                     <i class="fas {{ $empleado->estado === 'activo' ? 'fa-check-circle' : 'fa-times-circle' }} mr-1"></i>{{ strtoupper($empleado->estado) }}
@@ -101,8 +101,9 @@
                 <div class="ic-card-header"><h3 class="h6 font-weight-bold text-primary mb-0"><i class="fas fa-address-card mr-2"></i>Datos del empleado</h3></div>
                 <div class="card-body">
                     <div class="d-flex justify-content-between py-2 border-bottom"><span class="text-muted">Usuario</span><strong>{{ $empleado->usuario }}</strong></div>
+                    <div class="d-flex justify-content-between py-2 border-bottom"><span class="text-muted">Correo</span><strong>{{ $empleado->email }}</strong></div>
                     <div class="d-flex justify-content-between py-2 border-bottom"><span class="text-muted">Cédula</span><strong>{{ $empleado->cedula }}</strong></div>
-                    <div class="d-flex justify-content-between py-2 border-bottom"><span class="text-muted">Rol</span><strong>{{ $empleado->rol === 'admin' ? 'Administrador' : 'Recepción' }}</strong></div>
+                    <div class="d-flex justify-content-between py-2 border-bottom"><span class="text-muted">Rol</span><strong>{{ $empleado->rol === 'admin' ? 'Administrador' : 'Recepcionista' }}</strong></div>
                     <div class="d-flex justify-content-between py-2 border-bottom"><span class="text-muted">Entrada</span><strong>{{ $empleado->hora_entrada_turno ? \Carbon\Carbon::parse($empleado->hora_entrada_turno)->format('h:i A') : 'No definida' }}</strong></div>
                     <div class="d-flex justify-content-between py-2"><span class="text-muted">Salida</span><strong>{{ $empleado->hora_salida_turno ? \Carbon\Carbon::parse($empleado->hora_salida_turno)->format('h:i A') : 'No definida' }}</strong></div>
                     <div class="small text-muted mt-2">Registrado el {{ $empleado->created_at?->format('d/m/Y') ?? '—' }}</div>

@@ -23,7 +23,8 @@ class EmpleadoController extends Controller
             $query->where(function ($q) use ($buscar) {
                 $q->where('nombre', 'like', "%{$buscar}%")
                     ->orWhere('cedula', 'like', "%{$buscar}%")
-                    ->orWhere('usuario', 'like', "%{$buscar}%");
+                    ->orWhere('usuario', 'like', "%{$buscar}%")
+                    ->orWhere('email', 'like', "%{$buscar}%");
             });
         }
 
@@ -136,6 +137,7 @@ class EmpleadoController extends Controller
             'nombre' => 'required|string|max:100',
             'cedula' => 'required|string|max:20|unique:empleados,cedula',
             'usuario' => 'required|string|max:50|unique:empleados,usuario',
+            'email' => 'required|email|max:255|unique:empleados,email',
             'password' => 'required|string|min:6',
             'rol' => 'required|in:admin,empleado',
             'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
@@ -148,6 +150,8 @@ class EmpleadoController extends Controller
             'cedula.required' => 'La cédula de identidad es obligatoria.',
             'cedula.unique' => 'Esta cédula ya se encuentra registrada.',
             'usuario.required' => 'El usuario de acceso es obligatorio.',
+            'email.required' => 'El correo electrónico es obligatorio.',
+            'email.unique' => 'Este correo ya está asignado a otro usuario.',
             'usuario.unique' => 'Este nombre de usuario ya está ocupado.',
             'password.required' => 'La contraseña es obligatoria.',
             'password.min' => 'La contraseña debe tener al menos 6 caracteres.',
@@ -176,6 +180,7 @@ class EmpleadoController extends Controller
             'nombre' => $validated['nombre'],
             'cedula' => $validated['cedula'],
             'usuario' => $validated['usuario'],
+            'email' => $validated['email'],
             'password_hash' => Hash::make($validated['password']),
             'rol' => $validated['rol'],
             'foto_referencia' => $fotoPath,
@@ -200,6 +205,7 @@ class EmpleadoController extends Controller
             'nombre' => 'required|string|max:100',
             'cedula' => ['required', 'string', 'max:20', Rule::unique('empleados', 'cedula')->ignore($empleado->id)],
             'usuario' => ['required', 'string', 'max:50', Rule::unique('empleados', 'usuario')->ignore($empleado->id)],
+            'email' => ['required', 'email', 'max:255', Rule::unique('empleados', 'email')->ignore($empleado->id)],
             'password' => 'nullable|string|min:6',
             'rol' => 'required|in:admin,empleado',
             'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
@@ -220,6 +226,7 @@ class EmpleadoController extends Controller
             'nombre' => $validated['nombre'],
             'cedula' => $validated['cedula'],
             'usuario' => $validated['usuario'],
+            'email' => $validated['email'],
             'rol' => $validated['rol'],
             'hora_entrada_turno' => $validated['hora_entrada_turno'] ?? $empleado->hora_entrada_turno,
             'hora_salida_turno' => $validated['hora_salida_turno'] ?? $empleado->hora_salida_turno,

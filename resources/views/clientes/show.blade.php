@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Expediente del Cliente - ' . $cliente->nombre)
+    @section('title', 'Expediente del Cliente - ' . $cliente->nombre_completo)
 
 @section('skeleton')
     <div class="skel-box" style="height: 32px; width: 300px; margin-bottom: 1.5rem;"></div>
@@ -37,7 +37,7 @@
             <nav aria-label="breadcrumb" class="mb-3 d-flex justify-content-between align-items-center">
                 <ol class="breadcrumb bg-transparent p-0 mb-0">
                     <li class="breadcrumb-item"><a href="{{ route('user') }}"><i class="fas fa-users mr-1"></i> Socios / Clientes</a></li>
-                    <li class="breadcrumb-item active">Expediente: {{ $cliente->nombre }}</li>
+                    <li class="breadcrumb-item active">Expediente: {{ $cliente->nombre_completo }}</li>
                 </ol>
                 <a href="{{ route('clientes.edit', $cliente) }}" class="btn btn-sm btn-outline-primary bg-white font-weight-bold">
                     <i class="fas fa-pen mr-1"></i> Editar Perfil
@@ -49,7 +49,7 @@
                 <div class="row align-items-center position-relative" style="z-index: 1;">
                     <div class="col-md-auto text-center mb-3 mb-md-0">
                         @if($cliente->foto_referencia)
-                            <img src="{{ asset('storage/' . $cliente->foto_referencia) }}" alt="{{ $cliente->nombre }}" class="ic-avatar-large">
+                            <img src="{{ asset('storage/' . $cliente->foto_referencia) }}" alt="{{ $cliente->nombre_completo }}" class="ic-avatar-large">
                         @else
                             <div class="ic-avatar-large mx-auto d-flex align-items-center justify-content-center bg-white text-primary" style="font-size: 2.5rem; font-weight: 700;">
                                 {{ collect(explode(' ', $cliente->nombre))->map(fn($p) => strtoupper($p[0] ?? ''))->take(2)->implode('') }}
@@ -57,10 +57,11 @@
                         @endif
                     </div>
                     <div class="col-md">
-                        <h3 class="font-weight-bold mb-1">{{ $cliente->nombre }}</h3>
+                        <h3 class="font-weight-bold mb-1">{{ $cliente->nombre_completo }}</h3>
                         <div class="d-flex flex-wrap align-items-center mb-2" style="gap: 15px; font-size: 0.9rem; color: rgba(255,255,255,0.9);">
                             <span><i class="fas fa-id-card mr-1"></i> {{ $cliente->cedula }}</span>
                             <span><i class="fas fa-phone mr-1"></i> {{ $cliente->telefono ?? 'Sin teléfono' }}</span>
+                            <span><i class="fas fa-envelope mr-1"></i> {{ $cliente->email }}</span>
                             <span><i class="fas fa-calendar-alt mr-1"></i> Registrado: {{ $cliente->created_at->format('d/m/Y') }}</span>
                         </div>
                         <div>

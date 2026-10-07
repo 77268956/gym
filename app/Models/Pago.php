@@ -19,6 +19,8 @@ class Pago extends Model
         'tipo_pago',
         'metodo_pago',
         'monto',
+        'concepto',
+        'estado',
         'fecha_pago',
     ];
 

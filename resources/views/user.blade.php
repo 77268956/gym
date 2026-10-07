@@ -265,7 +265,7 @@
         <div class="col-md-3">
             <div class="kpi-card">
                 <div>
-                    <h3 class="kpi-value">{{ number_format($totalClientes ?? 1842) }}</h3>
+                    <h3 class="kpi-value">{{ number_format($totalClientes ?? 0) }}</h3>
                     <div class="kpi-label">Total Clientes</div>
                 </div>
                 <i class="fas fa-users kpi-icon"></i>
@@ -274,7 +274,7 @@
         <div class="col-md-3">
             <div class="kpi-card">
                 <div>
-                    <h3 class="kpi-value">{{ number_format($clientesActivos ?? 1605) }}</h3>
+                    <h3 class="kpi-value">{{ number_format($clientesActivos ?? 0) }}</h3>
                     <div class="kpi-label">Activos Hoy</div>
                 </div>
                 <i class="fas fa-user-check kpi-icon"></i>
@@ -283,7 +283,7 @@
         <div class="col-md-3">
             <div class="kpi-card">
                 <div>
-                    <h3 class="kpi-value">{{ number_format($membresiasPorVencer ?? 37) }}</h3>
+                    <h3 class="kpi-value">{{ number_format($membresiasPorVencer ?? 0) }}</h3>
                     <div class="kpi-label">Por Vencer (7d)</div>
                 </div>
                 <i class="fas fa-exclamation-circle kpi-icon"></i>
@@ -292,7 +292,7 @@
         <div class="col-md-3">
             <div class="kpi-card">
                 <div>
-                    <h3 class="kpi-value">{{ number_format($nuevosClientes ?? 158) }}</h3>
+                    <h3 class="kpi-value">{{ number_format($nuevosClientes ?? 0) }}</h3>
                     <div class="kpi-label">Nuevos Este Mes</div>
                 </div>
                 <i class="fas fa-user-plus kpi-icon"></i>
@@ -348,9 +348,9 @@
                                         @if($cliente->foto_referencia)
                                             <img src="{{ asset('storage/' . $cliente->foto_referencia) }}" class="rounded-circle mr-2" style="width:30px;height:30px;object-fit:cover;">
                                         @else
-                                            <div class="ic-avatar mr-2">{{ strtoupper(substr($cliente->nombre, 0, 2)) }}</div>
+                                            <div class="ic-avatar mr-2">{{ strtoupper(substr($cliente->nombre_completo, 0, 2)) }}</div>
                                         @endif
-                                        <div class="font-weight-bold text-dark">{{ $cliente->nombre }}</div>
+                                        <div class="font-weight-bold text-dark">{{ $cliente->nombre_completo }}</div>
                                     </div>
                                 </td>
                                 <td>{{ $cliente->cedula }}</td>

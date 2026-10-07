@@ -135,10 +135,10 @@
             <form method="POST" action="{{ route('login') }}">
                 @csrf
                 <div class="form-group mb-3">
-                    <label for="usuario" class="form-label">Usuario</label>
+                    <label for="email" class="form-label">Correo electrónico o usuario</label>
                     <div class="input-wrap">
-                        <i class="fas fa-user"></i>
-                        <input type="text" class="form-control" id="usuario" name="usuario" value="{{ old('usuario') }}" placeholder="Escribe tu usuario" required autofocus autocomplete="username">
+                        <i class="fas fa-envelope"></i>
+                        <input type="text" class="form-control" id="email" name="email" value="{{ old('email') }}" placeholder="correo@ejemplo.com" required autofocus autocomplete="username">
                     </div>
                 </div>
                 <div class="form-group mb-4">

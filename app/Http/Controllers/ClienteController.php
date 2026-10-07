@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreClienteRequest;
+use App\Http\Requests\UpdateClienteRequest;
 use App\Models\Cliente;
-use App\Models\Empleado;
 use App\Models\Membresia;
 use App\Models\Pago;
 use App\Models\TipoMembresia;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class ClienteController extends Controller
@@ -29,16 +30,9 @@ class ClienteController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(StoreClienteRequest $request)
     {
-        $request->validate([
-            'nombre' => 'required|string|max:255',
-            'cedula' => 'required|string|max:50|unique:clientes,cedula',
-            'telefono' => 'nullable|string|max:20',
-            'historial_medico' => 'nullable|string|max:2000',
-            'foto' => 'nullable|image|max:2048',
-            'tipo_membresia_id' => 'required|exists:tipos_membresia,id',
-        ]);
+        $validated = $request->validated();
 
         $fotoPath = null;
         $descriptorFacial = null;
@@ -47,12 +41,15 @@ class ClienteController extends Controller
             $fotoPath = $request->file('foto')->store('fotos_clientes', 'public');
         } elseif ($request->filled('foto_base64')) {
             $base64Image = $request->input('foto_base64');
-            if (preg_match('/^data:image\/(\w+);base64,/', $base64Image, $type)) {
+            if (preg_match('/^data:image\/(jpeg|png|webp);base64,/', $base64Image, $type)) {
                 $data = substr($base64Image, strpos($base64Image, ',') + 1);
                 $ext = strtolower($type[1]);
                 $fileName = 'fotos_clientes/webcam_'.uniqid().'.'.$ext;
-                Storage::disk('public')->put($fileName, base64_decode($data));
-                $fotoPath = $fileName;
+                $decodedImage = base64_decode($data, true);
+                if ($decodedImage !== false) {
+                    Storage::disk('public')->put($fileName, $decodedImage);
+                    $fotoPath = $fileName;
+                }
             }
         }
 
@@ -60,41 +57,48 @@ class ClienteController extends Controller
             $descriptorFacial = $request->input('descriptor_facial');
         }
 
-        $cliente = Cliente::create([
-            'nombre' => $request->nombre,
-            'cedula' => $request->cedula,
-            'telefono' => $request->telefono,
-            'foto_referencia' => $fotoPath,
-            'descriptor_facial' => $descriptorFacial,
-            'historial_medico' => $request->historial_medico,
-            'puntos_ecogim' => 0,
-            'estado' => 'activo',
-            'ultima_actividad' => now(),
-        ]);
+        $tipo = TipoMembresia::where('estado', 'activo')->findOrFail($validated['tipo_membresia_id']);
+        $fechaInicio = Carbon::parse($validated['fecha_inicio'])->startOfDay();
+        $fechaVencimiento = $fechaInicio->copy()->addDays($tipo->duracion_dias - 1)->endOfDay();
+        $cliente = DB::transaction(function () use ($validated, $fotoPath, $descriptorFacial, $tipo, $fechaInicio, $fechaVencimiento, $request): Cliente {
+            $cliente = Cliente::create([
+                'nombre' => $validated['nombre'],
+                'apellido' => $validated['apellido'],
+                'cedula' => $validated['cedula'],
+                'telefono' => $validated['telefono'],
+                'email' => $validated['email'],
+                'fecha_nacimiento' => $validated['fecha_nacimiento'],
+                'direccion' => $validated['direccion'],
+                'foto_referencia' => $fotoPath,
+                'descriptor_facial' => $descriptorFacial,
+                'historial_medico' => $validated['historial_medico'] ?? null,
+                'puntos_ecogim' => 0,
+                'estado' => 'activo',
+                'ultima_actividad' => now(),
+            ]);
 
-        $tipo = TipoMembresia::findOrFail($request->tipo_membresia_id);
-        $fechaInicio = Carbon::now();
-        $fechaVencimiento = $fechaInicio->copy()->addDays($tipo->duracion_dias ?? 30);
+            $membresia = Membresia::create([
+                'cliente_id' => $cliente->id,
+                'tipo_membresia_id' => $tipo->id,
+                'fecha_inicio' => $fechaInicio,
+                'fecha_vencimiento' => $fechaVencimiento,
+                'estado' => 'activa',
+            ]);
 
-        $membresia = Membresia::create([
-            'cliente_id' => $cliente->id,
-            'tipo_membresia_id' => $tipo->id,
-            'fecha_inicio' => $fechaInicio,
-            'fecha_vencimiento' => $fechaVencimiento,
-            'estado' => 'activa',
-        ]);
+            Pago::create([
+                'cliente_id' => $cliente->id,
+                'empleado_id' => $request->user()->getAuthIdentifier(),
+                'membresia_id' => $membresia->id,
+                'tipo_pago' => 'membresia',
+                'metodo_pago' => $validated['metodo_pago'],
+                'monto' => $tipo->precio,
+                'concepto' => 'Membresía: '.$tipo->nombre,
+                'estado' => 'pagado',
+                'fecha_pago' => Carbon::now(),
+            ]);
 
-        // Registrar el pago automáticamente
-        $empleadoId = Empleado::first()?->id ?? 1;
-        Pago::create([
-            'cliente_id' => $cliente->id,
-            'empleado_id' => $empleadoId,
-            'membresia_id' => $membresia->id,
-            'tipo_pago' => 'membresia',
-            'metodo_pago' => 'efectivo',
-            'monto' => $tipo->precio,
-            'fecha_pago' => Carbon::now(),
-        ]);
+            return $cliente;
+        });
 
         return redirect()->route('user')->with('success', "Cliente {$cliente->nombre} registrado con membresía {$tipo->nombre}.");
     }
@@ -156,23 +160,20 @@ class ClienteController extends Controller
         return view('clientes.create', compact('cliente', 'tiposMembresia', 'membresiaActiva'));
     }
 
-    public function update(Request $request, Cliente $cliente)
+    public function update(UpdateClienteRequest $request, Cliente $cliente)
     {
-        $request->validate([
-            'nombre' => 'required|string|max:255',
-            'cedula' => 'required|string|max:50|unique:clientes,cedula,'.$cliente->id,
-            'telefono' => 'nullable|string|max:20',
-            'historial_medico' => 'nullable|string|max:2000',
-            'foto' => 'nullable|image|max:2048',
-            'estado' => 'required|in:activo,inactivo',
-        ]);
+        $validated = $request->validated();
 
         $data = [
-            'nombre' => $request->nombre,
-            'cedula' => $request->cedula,
-            'telefono' => $request->telefono,
-            'historial_medico' => $request->historial_medico,
-            'estado' => $request->estado,
+            'nombre' => $validated['nombre'],
+            'apellido' => $validated['apellido'],
+            'cedula' => $validated['cedula'],
+            'telefono' => $validated['telefono'],
+            'email' => $validated['email'],
+            'fecha_nacimiento' => $validated['fecha_nacimiento'],
+            'direccion' => $validated['direccion'],
+            'historial_medico' => $validated['historial_medico'] ?? null,
+            'estado' => $validated['estado'],
         ];
 
         if ($request->boolean('eliminar_foto')) {
@@ -195,8 +196,11 @@ class ClienteController extends Controller
                 }
                 $ext = strtolower($type[1]);
                 $fileName = 'fotos_clientes/webcam_'.uniqid().'.'.$ext;
-                Storage::disk('public')->put($fileName, base64_decode(substr($base64Image, strpos($base64Image, ',') + 1)));
-                $data['foto_referencia'] = $fileName;
+                $decodedImage = base64_decode(substr($base64Image, strpos($base64Image, ',') + 1), true);
+                if ($decodedImage !== false) {
+                    Storage::disk('public')->put($fileName, $decodedImage);
+                    $data['foto_referencia'] = $fileName;
+                }
             }
         }
 

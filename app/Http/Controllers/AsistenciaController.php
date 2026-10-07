@@ -8,9 +8,11 @@ use App\Models\Cliente;
 use App\Models\ConfiguracionPunto;
 use App\Models\IntentoEscaner;
 use App\Models\MovimientoPunto;
+use App\Models\PaseDiario;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AsistenciaController extends Controller
 {
@@ -69,6 +71,9 @@ class AsistenciaController extends Controller
             'cliente_id' => 'required|exists:clientes,id',
         ]);
 
+        $fechaActual = now()->toDateString();
+        $horaActual = now()->format('H:i:s');
+
         $cliente = Cliente::with([
             'membresias' => function ($q) {
                 $q->where('estado', 'activa')
@@ -82,8 +87,8 @@ class AsistenciaController extends Controller
             $intento = AsistenciaCliente::create([
                 'cliente_id' => $cliente->id,
                 'empleado_valida_id' => auth()->id() ?? null,
-                'fecha' => date('Y-m-d'),
-                'hora' => date('H:i:s'),
+                'fecha' => $fechaActual,
+                'hora' => $horaActual,
                 'metodo_registro' => 'facial',
                 'exitoso' => false,
                 'motivo_rechazo' => 'Cliente inactivo',
@@ -94,19 +99,24 @@ class AsistenciaController extends Controller
             return response()->json([
                 'status' => 'warning',
                 'message' => 'El cliente está inactivo.',
-                'cliente' => $cliente->nombre,
+                'cliente' => $cliente->nombre_completo,
                 'puntos' => $cliente->puntos_ecogim ?? 0,
                 'foto' => $cliente->foto_referencia ? asset('storage/'.$cliente->foto_referencia) : null,
             ]);
         }
 
         $membresiaActiva = $cliente->membresias->first();
-        if (! $membresiaActiva) {
+        $paseDiarioValido = PaseDiario::where('cliente_id', $cliente->id)
+            ->whereDate('fecha', today())
+            ->whereHas('pago', fn ($query) => $query->where('estado', 'pagado'))
+            ->exists();
+
+        if (! $membresiaActiva && ! $paseDiarioValido) {
             $intento = AsistenciaCliente::create([
                 'cliente_id' => $cliente->id,
                 'empleado_valida_id' => auth()->id() ?? null,
-                'fecha' => date('Y-m-d'),
-                'hora' => date('H:i:s'),
+                'fecha' => $fechaActual,
+                'hora' => $horaActual,
                 'metodo_registro' => 'facial',
                 'exitoso' => false,
                 'motivo_rechazo' => 'Sin membresía activa',
@@ -117,74 +127,76 @@ class AsistenciaController extends Controller
             return response()->json([
                 'status' => 'warning',
                 'message' => 'El cliente no tiene una membresía activa.',
-                'cliente' => $cliente->nombre,
+                'cliente' => $cliente->nombre_completo,
                 'puntos' => $cliente->puntos_ecogim ?? 0,
                 'foto' => $cliente->foto_referencia ? asset('storage/'.$cliente->foto_referencia) : null,
             ]);
         }
 
-        // Evitar duplicar asistencias exitosas durante el mismo día.
-        $ultimaAsistencia = AsistenciaCliente::where('cliente_id', $cliente->id)
-            ->where('fecha', date('Y-m-d'))
-            ->where('exitoso', true)
-            ->first();
+        return DB::transaction(function () use ($cliente, $membresiaActiva, $fechaActual, $horaActual): JsonResponse {
+            $cliente = Cliente::whereKey($cliente->id)->lockForUpdate()->firstOrFail();
 
-        if ($ultimaAsistencia) {
+            $ultimaAsistencia = AsistenciaCliente::where('cliente_id', $cliente->id)
+                ->whereDate('fecha', $fechaActual)
+                ->where('exitoso', true)
+                ->first();
+
+            if ($ultimaAsistencia) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => '¡Bienvenido! Tu asistencia ya estaba registrada hoy.',
+                    'cliente' => $cliente->nombre_completo,
+                    'puntos' => $cliente->puntos_ecogim ?? 0,
+                    'membresia_vence' => $membresiaActiva ? Carbon::parse($membresiaActiva->fecha_vencimiento)->format('d/m/Y') : null,
+                    'foto' => $cliente->foto_referencia ? asset('storage/'.$cliente->foto_referencia) : null,
+                ]);
+            }
+
+            $yaObtuvoPuntosHoy = AsistenciaCliente::where('cliente_id', $cliente->id)
+                ->whereDate('fecha', $fechaActual)
+                ->where('puntos_otorgados', true)
+                ->exists();
+
+            $config = ConfiguracionPunto::first();
+            $puntosAGanar = $config ? $config->puntos_por_visita : 1;
+
+            $otorgarPuntos = ! $yaObtuvoPuntosHoy && $puntosAGanar > 0;
+
+            $asistencia = AsistenciaCliente::create([
+                'cliente_id' => $cliente->id,
+                'empleado_valida_id' => auth()->id() ?? null,
+                'fecha' => $fechaActual,
+                'hora' => $horaActual,
+                'metodo_registro' => 'facial',
+                'exitoso' => true,
+                'puntos_otorgados' => $otorgarPuntos,
+            ]);
+
+            if ($otorgarPuntos) {
+                $cliente->increment('puntos_ecogim', $puntosAGanar);
+                $cliente->refresh();
+
+                MovimientoPunto::create([
+                    'cliente_id' => $cliente->id,
+                    'tipo_movimiento' => 'ganado',
+                    'puntos' => $puntosAGanar,
+                    'origen_tabla' => 'asistencias_clientes',
+                    'origen_id' => $asistencia->id,
+                    'fecha' => now(),
+                ]);
+            }
+
+            $cliente->update(['ultima_actividad' => now(), 'estado' => 'activo']);
+
             return response()->json([
                 'status' => 'success',
-                'message' => '¡Bienvenido! Tu asistencia ya estaba registrada hoy.',
-                'cliente' => $cliente->nombre,
-                'puntos' => $cliente->puntos_ecogim ?? 0,
-                'membresia_vence' => Carbon::parse($membresiaActiva->fecha_vencimiento)->format('d/m/Y'),
+                'message' => '¡Bienvenido! Asistencia registrada exitosamente.',
+                'puntos' => $cliente->puntos_ecogim,
+                'cliente' => $cliente->nombre_completo,
+                'membresia_vence' => $membresiaActiva ? Carbon::parse($membresiaActiva->fecha_vencimiento)->format('d/m/Y') : null,
                 'foto' => $cliente->foto_referencia ? asset('storage/'.$cliente->foto_referencia) : null,
             ]);
-        }
-
-        // Verificar si ya se le otorgaron puntos hoy
-        $yaObtuvoPuntosHoy = AsistenciaCliente::where('cliente_id', $cliente->id)
-            ->where('fecha', date('Y-m-d'))
-            ->where('puntos_otorgados', true)
-            ->exists();
-
-        // Obtener la cantidad de puntos configurada
-        $config = ConfiguracionPunto::first();
-        $puntosAGanar = $config ? $config->puntos_por_visita : 0;
-
-        $otorgarPuntos = ! $yaObtuvoPuntosHoy && $puntosAGanar > 0;
-
-        $asistencia = AsistenciaCliente::create([
-            'cliente_id' => $cliente->id,
-            'empleado_valida_id' => auth()->id() ?? null,
-            'fecha' => date('Y-m-d'),
-            'hora' => date('H:i:s'),
-            'metodo_registro' => 'facial',
-            'exitoso' => true,
-            'puntos_otorgados' => $otorgarPuntos,
-        ]);
-
-        if ($otorgarPuntos) {
-            $cliente->increment('puntos_ecogim', $puntosAGanar);
-            $cliente->refresh();
-
-            // Crear registro del movimiento de puntos
-            MovimientoPunto::create([
-                'cliente_id' => $cliente->id,
-                'tipo_movimiento' => 'ganado',
-                'puntos' => $puntosAGanar,
-                'origen_tabla' => 'asistencias_clientes',
-                'origen_id' => $asistencia->id,
-                'fecha' => now(),
-            ]);
-        }
-
-        return response()->json([
-            'status' => 'success',
-            'message' => '¡Bienvenido! Asistencia registrada exitosamente.',
-            'puntos' => $cliente->puntos_ecogim,
-            'cliente' => $cliente->nombre,
-            'membresia_vence' => Carbon::parse($membresiaActiva->fecha_vencimiento)->format('d/m/Y'),
-            'foto' => $cliente->foto_referencia ? asset('storage/'.$cliente->foto_referencia) : null,
-        ]);
+        });
     }
 
     private function alertarIntentosFallidos(Cliente $cliente, AsistenciaCliente $intento): void

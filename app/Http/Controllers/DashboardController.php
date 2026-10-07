@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AsistenciaCliente;
+use App\Models\Cliente;
 use App\Models\Membresia;
 use App\Models\Pago;
 use Carbon\Carbon;
@@ -91,7 +92,7 @@ class DashboardController extends Controller
 
         // --- 1. Top KPIs ---
         // Ingresos filtrados por periodo
-        $ingresosPeriodo = Pago::whereBetween('fecha_pago', [$startDate, $endDate])->sum('monto');
+        $ingresosPeriodo = Pago::where('estado', 'pagado')->whereBetween('fecha_pago', [$startDate, $endDate])->sum('monto');
 
         // Ingresos de Hoy (siempre útil mostrar el de hoy fijo, o lo cambiamos según filtro)
         // La tarjeta dirá "Ingresos (Periodo)" y la de al lado "Asistencias (Periodo)"
@@ -101,7 +102,7 @@ class DashboardController extends Controller
             ->count();
 
         // Clientes Activos (excluyendo clientes eliminados)
-        $clientesActivos = Membresia::whereHas('cliente') // <-- FIX: Solo clientes que no están en soft delete
+        $clientesActivos = Membresia::whereHas('cliente')
             ->where('estado', 'activa')
             ->where('fecha_inicio', '<=', $today)
             ->where('fecha_vencimiento', '>=', $today)
@@ -111,7 +112,7 @@ class DashboardController extends Controller
         // --- 2. Gráficos ---
 
         // Ingresos por Método de Pago (Periodo)
-        $pagosPorMetodo = Pago::whereBetween('fecha_pago', [$startDate, $endDate])
+        $pagosPorMetodo = Pago::where('estado', 'pagado')->whereBetween('fecha_pago', [$startDate, $endDate])
             ->selectRaw('metodo_pago, SUM(monto) as total')
             ->groupBy('metodo_pago')
             ->pluck('total', 'metodo_pago')
@@ -123,9 +124,13 @@ class DashboardController extends Controller
 
         // Asistencias por Hora (Periodo)
         // Agrupa las asistencias por hora para ver los horarios pico en ese periodo
+        $hourExpression = DB::connection()->getDriverName() === 'sqlite'
+            ? "CAST(strftime('%H', hora) AS INTEGER)"
+            : 'HOUR(hora)';
+
         $asistenciasPorHora = AsistenciaCliente::whereBetween('fecha', [$startDate, $endDate])
             ->where('exitoso', true)
-            ->select(DB::raw('HOUR(hora) as hora_dia'), DB::raw('count(*) as total'))
+            ->select(DB::raw($hourExpression.' as hora_dia'), DB::raw('count(*) as total'))
             ->groupBy('hora_dia')
             ->pluck('total', 'hora_dia')
             ->toArray();
@@ -151,9 +156,50 @@ class DashboardController extends Controller
 
         // Pagos Recientes
         $pagosRecientes = Pago::with(['cliente'])
+            ->where('estado', 'pagado')
             ->whereBetween('fecha_pago', [$startDate, $endDate])
             ->orderBy('fecha_pago', 'desc')
+            ->limit(10)
             ->get();
+
+        $clientesTotales = Cliente::count();
+        $clientesInactivos = Cliente::where('estado', 'inactivo')->count();
+        $membresiasActivas = Membresia::where('estado', 'activa')
+            ->where('fecha_inicio', '<=', $today)
+            ->where('fecha_vencimiento', '>=', $today)
+            ->count();
+        $membresiasProximas = Membresia::where('estado', 'activa')
+            ->whereBetween('fecha_vencimiento', [$today, $today->copy()->addDays(7)])
+            ->count();
+        $membresiasVencidas = Membresia::where(function ($query) use ($today): void {
+            $query->where('estado', 'vencida')->orWhere('fecha_vencimiento', '<', $today);
+        })->count();
+        $ingresosHoy = Pago::where('estado', 'pagado')->whereDate('fecha_pago', $today)->sum('monto');
+        $ingresosMes = Pago::where('estado', 'pagado')->whereYear('fecha_pago', $today->year)->whereMonth('fecha_pago', $today->month)->sum('monto');
+        $asistenciasHoy = AsistenciaCliente::whereDate('fecha', $today)->where('exitoso', true)->count();
+        $puntosAcumulados = Cliente::sum('puntos_ecogim');
+        $clienteMasPuntos = Cliente::orderByDesc('puntos_ecogim')->first(['id', 'nombre', 'apellido', 'puntos_ecogim']);
+
+        $chartMesesLabels = [];
+        $chartIngresosMensuales = [];
+        $chartAsistenciasMensuales = [];
+        $chartNuevosClientes = [];
+        for ($mesesAtras = 5; $mesesAtras >= 0; $mesesAtras--) {
+            $mes = $today->copy()->subMonths($mesesAtras);
+            $inicioMes = $mes->copy()->startOfMonth();
+            $finMes = $mes->copy()->endOfMonth();
+            $chartMesesLabels[] = ucfirst($mes->locale('es')->isoFormat('MMM YY'));
+            $chartIngresosMensuales[] = (float) Pago::where('estado', 'pagado')->whereBetween('fecha_pago', [$inicioMes, $finMes])->sum('monto');
+            $chartAsistenciasMensuales[] = AsistenciaCliente::whereBetween('fecha', [$inicioMes, $finMes])->where('exitoso', true)->count();
+            $chartNuevosClientes[] = Cliente::whereBetween('created_at', [$inicioMes, $finMes])->count();
+        }
+
+        $chartMembresiasLabels = ['Activas', 'Próximas a vencer', 'Vencidas'];
+        $chartMembresiasData = [
+            Membresia::where('estado', 'activa')->where('fecha_inicio', '<=', $today)->where('fecha_vencimiento', '>', $today->copy()->addDays(7))->count(),
+            Membresia::where('estado', 'activa')->whereBetween('fecha_vencimiento', [$today, $today->copy()->addDays(7)])->count(),
+            $membresiasVencidas,
+        ];
 
         return view('dashboard', compact(
             'periodo',
@@ -173,7 +219,22 @@ class DashboardController extends Controller
             'chartHorasLabels',
             'chartHorasData',
             'vencimientosProximos',
-            'pagosRecientes'
+            'pagosRecientes', 'clientesTotales',
+            'clientesInactivos',
+            'membresiasActivas',
+            'membresiasProximas',
+            'membresiasVencidas',
+            'ingresosHoy',
+            'ingresosMes',
+            'asistenciasHoy',
+            'puntosAcumulados',
+            'clienteMasPuntos',
+            'chartMesesLabels',
+            'chartIngresosMensuales',
+            'chartAsistenciasMensuales',
+            'chartNuevosClientes',
+            'chartMembresiasLabels',
+            'chartMembresiasData'
         ));
     }
 }

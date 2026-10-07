@@ -70,7 +70,7 @@
                                 <option value="">Buscar cliente por nombre o cédula...</option>
                                 @foreach($clientes as $c)
                                     <option value="{{ $c->id }}" {{ (old('cliente_id') ?? $clienteSeleccionado) == $c->id ? 'selected' : '' }}>
-                                        {{ $c->nombre }} - {{ $c->cedula }}
+                                        {{ $c->nombre_completo }} - {{ $c->cedula }}
                                     </option>
                                 @endforeach
                             </select>
@@ -120,8 +120,21 @@
                                 <i class="fas fa-calendar-plus text-primary mr-2"></i>
                                 <strong class="text-primary">Nueva fecha de vencimiento:</strong>
                                 <span id="proyeccionFecha" class="font-weight-bold text-dark ml-1"></span>
-                                <small class="d-block text-muted mt-1"><i class="fas fa-info-circle mr-1"></i>Los días del nuevo plan se suman al vencimiento actual.</small>
+                                <small class="d-block text-muted mt-1"><i class="fas fa-info-circle mr-1"></i>La renovación debe comenzar después del vencimiento vigente.</small>
                             </div>
+                            <div class="mt-3">
+                                <label class="font-weight-bold small">Fecha de inicio</label>
+                                <input type="date" name="fecha_inicio" id="fecha_inicio" class="form-control" value="{{ old('fecha_inicio', now()->toDateString()) }}" min="{{ now()->toDateString() }}">
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label class="font-weight-bold small text-dark">Concepto</label>
+                            <input type="text" name="concepto" class="form-control" maxlength="255" value="{{ old('concepto', 'Pago de membresía') }}" required>
+                        </div>
+                        <div class="form-group mb-4">
+                            <label class="font-weight-bold small text-dark">Fecha y hora del pago</label>
+                            <input type="datetime-local" name="fecha_pago" class="form-control" value="{{ old('fecha_pago', now()->format('Y-m-d\\TH:i')) }}" max="{{ now()->format('Y-m-d\\TH:i') }}" required>
                         </div>
 
                         <div class="form-group mb-4">
@@ -242,6 +255,8 @@
 
     // Guarda datos de membresía para calcular proyección
     var clienteMembresiaRaw = null;
+    var fechaInicioEditada = false;
+    $('#fecha_inicio').on('change', function() { fechaInicioEditada = true; });
 
     function cargarInfoCliente(clienteId) {
         if (!clienteId) {
@@ -252,6 +267,15 @@
 
         $.getJSON('/pagos/cliente/' + clienteId + '/info', function(data) {
             clienteMembresiaRaw = data.membresia;
+            if (!fechaInicioEditada) {
+                var fechaMinima = new Date().toISOString().slice(0, 10);
+                if (data.membresia && !data.membresia.vencida && data.membresia.fecha_vencimiento_raw) {
+                    var vencimiento = new Date(data.membresia.fecha_vencimiento_raw + 'T00:00:00');
+                    vencimiento.setDate(vencimiento.getDate() + 1);
+                    fechaMinima = vencimiento.toISOString().slice(0, 10);
+                }
+                $('#fecha_inicio').attr('min', fechaMinima).val(fechaMinima);
+            }
             var html = '';
             if (!data.membresia) {
                 html = '<div class="alert alert-warning py-2 mb-0"><i class="fas fa-exclamation-circle mr-2"></i><strong>Sin membresía registrada.</strong> Este cliente no tiene historial de membresías.</div>';
@@ -282,10 +306,12 @@
             if(!document.getElementById('tipo_membresia_id').value) {
                 document.getElementById('monto').value = '';
             }
+            document.getElementById('monto').readOnly = true;
         } else {
             document.getElementById('selector_membresia').style.display = 'none';
             document.getElementById('tipo_membresia_id').removeAttribute('required');
-            document.getElementById('monto').value = '100.00'; 
+            document.getElementById('monto').value = '';
+            document.getElementById('monto').readOnly = false;
         }
     }
 
@@ -297,8 +323,8 @@
             return;
         }
         var dias = parseInt(card.dataset.diasNum);
-        var fechaVenc = new Date(clienteMembresiaRaw.fecha_vencimiento_raw);
-        fechaVenc.setDate(fechaVenc.getDate() + dias);
+        var fechaVenc = new Date(document.getElementById('fecha_inicio').value + 'T00:00:00');
+        fechaVenc.setDate(fechaVenc.getDate() + dias - 1);
         var opts = { day: '2-digit', month: '2-digit', year: 'numeric' };
         var fechaFmt = fechaVenc.toLocaleDateString('es-HN', opts);
         $('#proyeccionFecha').text(fechaFmt);
@@ -335,6 +361,7 @@
         document.getElementById('btn_abrir_planes').classList.add('d-none');
         
         document.getElementById('monto').value = parseFloat(el.dataset.precio).toFixed(2);
+        document.getElementById('monto').readOnly = true;
         
         $('#modalPlanesPago').modal('hide');
         actualizarProyeccion();

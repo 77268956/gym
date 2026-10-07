@@ -18,13 +18,13 @@ class UserController extends Controller
 
     public function userget()
     {
-        $nombre = 'Jose Perez';
-        $activeMembers = Cliente::where('estado', 'activo')->count();
-        $monthlyRevenue = 42390; // mock
-        $attendanceRate = 84.2; // mock
-        $newSignups = Cliente::whereMonth('created_at', now()->month)->count();
+        $clientesActivos = Cliente::where('estado', 'activo')->count();
+        $nuevosClientes = Cliente::whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->count();
         $totalClientes = Cliente::count();
         $membresiasPorVencer = Membresia::where('estado', 'activa')
+            ->where('fecha_vencimiento', '>=', today())
             ->where('fecha_vencimiento', '<=', now()->addDays(7))
             ->count();
 
@@ -49,7 +49,7 @@ class UserController extends Controller
                 $diasRestantes = (int) ceil($horasRestantes / 24);
 
                 return (object) [
-                    'nombre' => $m->cliente->nombre ?? 'Desconocido',
+                    'nombre' => $m->cliente->nombre_completo ?? 'Desconocido',
                     'plan' => $m->tipoMembresia ? $m->tipoMembresia->nombre : 'Membresía',
                     'dias' => $diasRestantes,
                     'tiempo' => $horasRestantes < 24
@@ -82,13 +82,10 @@ class UserController extends Controller
         $growthData = $mesesData;
 
         return view('user', compact(
-            'nombre',
-            'activeMembers',
+            'clientesActivos',
             'totalClientes',
             'membresiasPorVencer',
-            'monthlyRevenue',
-            'attendanceRate',
-            'newSignups',
+            'nuevosClientes',
             'clientes',
             'porVencer',
             'growthLabels',

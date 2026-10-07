@@ -168,6 +168,7 @@
                             <tr>
                                 <th class="text-uppercase"><i class="fas fa-user-tie mr-1 text-primary"></i> Empleado</th>
                                 <th class="text-uppercase"><i class="fas fa-at mr-1 text-primary"></i> Usuario</th>
+                                <th class="text-uppercase"><i class="fas fa-envelope mr-1 text-primary"></i> Correo</th>
                                 <th class="text-uppercase"><i class="fas fa-id-card mr-1 text-primary"></i> Cédula</th>
                                 <th class="text-uppercase"><i class="fas fa-user-shield mr-1 text-primary"></i> Rol</th>
                                 
@@ -189,10 +190,11 @@
                                     </div>
                                 </td>
                                 <td class="text-muted">{{ $empleado->usuario }}</td>
+                                <td>{{ $empleado->email }}</td>
                                 <td>{{ $empleado->cedula }}</td>
                                 <td>
                                     <span class="ic-badge-role">
-                                        {{ strtoupper($empleado->rol === 'admin' ? 'Administrador' : 'Recepción') }}
+                                        {{ strtoupper($empleado->rol === 'admin' ? 'Administrador' : 'Recepcionista') }}
                                     </span>
                                 </td>
                                 

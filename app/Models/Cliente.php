@@ -14,8 +14,12 @@ class Cliente extends Model
 
     protected $fillable = [
         'nombre',
+        'apellido',
         'cedula',
         'telefono',
+        'email',
+        'fecha_nacimiento',
+        'direccion',
         'foto_referencia',
         'descriptor_facial',
         'historial_medico',
@@ -26,7 +30,13 @@ class Cliente extends Model
 
     protected $casts = [
         'ultima_actividad' => 'datetime',
+        'fecha_nacimiento' => 'date',
     ];
+
+    public function getNombreCompletoAttribute(): string
+    {
+        return trim($this->nombre.' '.($this->apellido ?? ''));
+    }
 
     public function membresias()
     {

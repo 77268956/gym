@@ -3,10 +3,10 @@
 namespace Tests\Feature;
 
 use App\Models\Cliente;
+use App\Models\Empleado;
 use App\Models\Membresia;
 use App\Models\ProductoEcogim;
 use App\Models\TipoMembresia;
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -16,7 +16,15 @@ class TiendaTest extends TestCase
 
     public function test_cliente_puede_canjear_producto(): void
     {
-        $user = User::factory()->create();
+        $user = Empleado::create([
+            'nombre' => 'Recepcionista',
+            'cedula' => '0000-0000-00001',
+            'usuario' => 'recepcionista',
+            'email' => 'recepcionista@example.test',
+            'password_hash' => bcrypt('password'),
+            'rol' => 'empleado',
+            'estado' => 'activo',
+        ]);
 
         $cliente = Cliente::factory()->create([
             'nombre' => 'Juan Perez',

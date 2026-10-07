@@ -158,9 +158,9 @@
                                         @if($asistencia->cliente && $asistencia->cliente->foto_referencia)
                                             <img src="{{ asset('storage/' . $asistencia->cliente->foto_referencia) }}" class="rounded-circle mr-2" style="width:30px;height:30px;object-fit:cover;">
                                         @else
-                                            <div class="ic-avatar mr-2">{{ strtoupper(substr($asistencia->cliente->nombre ?? '?', 0, 2)) }}</div>
+                                            <div class="ic-avatar mr-2">{{ strtoupper(substr($asistencia->cliente->nombre_completo ?? '?', 0, 2)) }}</div>
                                         @endif
-                                        <div class="font-weight-bold text-dark">{{ $asistencia->cliente->nombre ?? 'Cliente Eliminado' }}</div>
+                                        <div class="font-weight-bold text-dark">{{ $asistencia->cliente->nombre_completo ?? 'Cliente Eliminado' }}</div>
                                     </div>
                                 </td>
                                 <td>{{ $asistencia->cliente->cedula ?? '-' }}</td>

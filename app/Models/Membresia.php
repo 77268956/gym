@@ -81,6 +81,8 @@ class Membresia extends Model
         foreach (array_filter($terms) as $term) {
             $query->whereHas('cliente', function (Builder $query) use ($term): void {
                 $query->where('nombre', 'like', "%{$term}%")
+                    ->orWhere('apellido', 'like', "%{$term}%")
+                    ->orWhere('email', 'like', "%{$term}%")
                     ->orWhere('cedula', 'like', "%{$term}%")
                     ->orWhere('telefono', 'like', "%{$term}%");
             });

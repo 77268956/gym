@@ -148,7 +148,7 @@
 
     <!-- KPI Cards -->
     <div class="row dashboard-row dashboard-kpis">
-        <div class="col-xl-4 col-md-4 mb-3 mb-xl-0">
+        <div class="col-xl-2 col-md-4 mb-3 mb-xl-0">
             <div class="kpi-card">
                 <div>
                     <div class="kpi-value">${{ number_format($ingresosPeriodo, 2) }}</div>
@@ -157,16 +157,16 @@
                 <i class="fas fa-dollar-sign kpi-icon"></i>
             </div>
         </div>
-        <div class="col-xl-4 col-md-4 mb-3 mb-xl-0">
+        <div class="col-xl-2 col-md-4 mb-3 mb-xl-0">
             <div class="kpi-card">
                 <div>
-                    <div class="kpi-value">{{ $clientesActivos }}</div>
-                    <div class="kpi-label">Clientes Activos Hoy</div>
+                    <div class="kpi-value">{{ $clientesTotales }}</div>
+                    <div class="kpi-label">Clientes registrados</div>
                 </div>
                 <i class="fas fa-users kpi-icon"></i>
             </div>
         </div>
-        <div class="col-xl-4 col-md-4 mb-3 mb-xl-0">
+        <div class="col-xl-2 col-md-4 mb-3 mb-xl-0">
             <div class="kpi-card">
                 <div>
                     <div class="kpi-value">{{ $asistenciasPeriodo }}</div>
@@ -175,6 +175,25 @@
                 <i class="fas fa-walking kpi-icon"></i>
             </div>
         </div>
+        <div class="col-xl-2 col-md-4 mb-3 mb-xl-0">
+            <div class="kpi-card"><div><div class="kpi-value">{{ number_format($clientesInactivos) }}</div><div class="kpi-label">Clientes inactivos</div></div><i class="fas fa-user-slash kpi-icon"></i></div>
+        </div>
+        <div class="col-xl-2 col-md-4 mb-3 mb-xl-0">
+            <div class="kpi-card"><div><div class="kpi-value">{{ number_format($membresiasVencidas) }}</div><div class="kpi-label">Membresías vencidas</div></div><i class="fas fa-calendar-times kpi-icon"></i></div>
+        </div>
+        <div class="col-xl-2 col-md-4 mb-3 mb-xl-0">
+            <div class="kpi-card"><div><div class="kpi-value">{{ $gymConfig->simbolo_moneda }} {{ number_format($ingresosHoy, 2) }}</div><div class="kpi-label">Ingresos de hoy</div></div><i class="fas fa-cash-register kpi-icon"></i></div>
+        </div>
+        <div class="col-xl-2 col-md-4 mb-3 mb-xl-0">
+            <div class="kpi-card"><div><div class="kpi-value">{{ number_format($asistenciasHoy) }}</div><div class="kpi-label">Asistencias de hoy</div></div><i class="fas fa-walking kpi-icon"></i></div>
+        </div>
+    </div>
+
+    <div class="row dashboard-row">
+        <div class="col-md-3"><div class="ic-card p-3"><small class="text-muted">Ingresos del mes</small><div class="h5 mb-0 font-weight-bold">{{ $gymConfig->simbolo_moneda }} {{ number_format($ingresosMes, 2) }}</div></div></div>
+        <div class="col-md-3"><div class="ic-card p-3"><small class="text-muted">Membresías activas / próximas a vencer</small><div class="h5 mb-0 font-weight-bold">{{ number_format($membresiasActivas) }} / {{ number_format($membresiasProximas) }}</div></div></div>
+        <div class="col-md-3"><div class="ic-card p-3"><small class="text-muted">Puntos acumulados</small><div class="h5 mb-0 font-weight-bold">{{ number_format($puntosAcumulados) }} <i class="fas fa-star text-warning"></i></div></div></div>
+        <div class="col-md-3"><div class="ic-card p-3"><small class="text-muted">Cliente con más puntos</small><div class="h5 mb-0 font-weight-bold">{{ $clienteMasPuntos?->nombre }} {{ $clienteMasPuntos?->apellido }} <small>({{ number_format($clienteMasPuntos?->puntos_ecogim ?? 0) }})</small></div></div></div>
     </div>
 
     <!-- Charts -->
@@ -204,6 +223,12 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <div class="row dashboard-row dashboard-charts">
+        <div class="col-lg-4"><div class="ic-card h-100"><div class="ic-card-header">Ingresos por mes</div><div class="card-body"><div class="chart-container"><canvas id="ingresosMensualesChart"></canvas></div></div></div></div>
+        <div class="col-lg-4"><div class="ic-card h-100"><div class="ic-card-header">Membresías por estado</div><div class="card-body"><div class="chart-container"><canvas id="membresiasEstadoChart"></canvas></div></div></div></div>
+        <div class="col-lg-4"><div class="ic-card h-100"><div class="ic-card-header">Asistencias y clientes nuevos</div><div class="card-body"><div class="chart-container"><canvas id="actividadMensualChart"></canvas></div></div></div></div>
     </div>
 
     <!-- Tables -->
@@ -381,6 +406,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         });
+    }
+
+    const labelsMensuales = {!! json_encode($chartMesesLabels) !!};
+    const ingresosMensuales = document.getElementById('ingresosMensualesChart');
+    if (ingresosMensuales) {
+        new Chart(ingresosMensuales, { type: 'line', data: { labels: labelsMensuales, datasets: [{ label: 'Ingresos', data: {!! json_encode($chartIngresosMensuales) !!}, borderColor: primaryColor, backgroundColor: primaryColor + '33', fill: true, tension: .3 }] }, options: { responsive: true, maintainAspectRatio: false } });
+    }
+
+    const membresiasEstado = document.getElementById('membresiasEstadoChart');
+    if (membresiasEstado) {
+        new Chart(membresiasEstado, { type: 'doughnut', data: { labels: {!! json_encode($chartMembresiasLabels) !!}, datasets: [{ data: {!! json_encode($chartMembresiasData) !!}, backgroundColor: ['#10B981', '#F59E0B', '#EF4444'] }] }, options: { responsive: true, maintainAspectRatio: false } });
+    }
+
+    const actividadMensual = document.getElementById('actividadMensualChart');
+    if (actividadMensual) {
+        new Chart(actividadMensual, { type: 'bar', data: { labels: labelsMensuales, datasets: [{ label: 'Asistencias', data: {!! json_encode($chartAsistenciasMensuales) !!}, backgroundColor: primaryColor }, { label: 'Clientes nuevos', data: {!! json_encode($chartNuevosClientes) !!}, backgroundColor: '#10B981' }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } } });
     }
 });
 </script>

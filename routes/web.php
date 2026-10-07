@@ -21,22 +21,23 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [LandingController::class, 'index'])->name('home');
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-
-// Escáner facial público para recepción
-Route::get('/escanear-publico', [AsistenciaController::class, 'escanear'])->name('asistencias.publico');
-Route::post('/escanear-publico/registrar', [AsistenciaController::class, 'registrarEscaneo'])->name('asistencias.publico.registrar');
-Route::post('/escanear-publico/intento-fallido', [AsistenciaController::class, 'registrarIntentoDesconocido'])
-    ->middleware('throttle:30,1')
-    ->name('asistencias.publico.intento-fallido');
-
-// Escáner facial público para empleados
-Route::get('/escanear-empleados', [AsistenciaEmpleadoController::class, 'escanear'])->name('asistencias_empleados.publico');
-Route::post('/escanear-empleados/registrar', [AsistenciaEmpleadoController::class, 'registrarEscaneo'])->name('asistencias_empleados.publico.registrar');
 
 // Rutas autenticadas (Accesibles para Recepcionista y Administrador)
 Route::middleware('auth')->group(function () {
+    Route::get('/escanear-publico', [AsistenciaController::class, 'escanear'])->name('asistencias.publico');
+    Route::post('/escanear-publico/registrar', [AsistenciaController::class, 'registrarEscaneo'])
+        ->middleware('throttle:20,1')
+        ->name('asistencias.publico.registrar');
+    Route::post('/escanear-publico/intento-fallido', [AsistenciaController::class, 'registrarIntentoDesconocido'])
+        ->middleware('throttle:30,1')
+        ->name('asistencias.publico.intento-fallido');
+    Route::get('/escanear-empleados', [AsistenciaEmpleadoController::class, 'escanear'])->name('asistencias_empleados.publico');
+    Route::post('/escanear-empleados/registrar', [AsistenciaEmpleadoController::class, 'registrarEscaneo'])
+        ->middleware('throttle:20,1')
+        ->name('asistencias_empleados.publico.registrar');
+
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/perfil', [UserController::class, 'profile'])->name('perfil');
@@ -67,7 +68,9 @@ Route::middleware('auth')->group(function () {
     // Módulo de Asistencias (Escáner Facial)
     Route::get('/asistencias', [AsistenciaController::class, 'index'])->name('asistencias.index');
     Route::get('/escanear', [AsistenciaController::class, 'escanear'])->name('asistencias.escanear');
-    Route::post('/escanear/registrar', [AsistenciaController::class, 'registrarEscaneo'])->name('asistencias.registrar');
+    Route::post('/escanear/registrar', [AsistenciaController::class, 'registrarEscaneo'])
+        ->middleware('throttle:20,1')
+        ->name('asistencias.registrar');
 
     // Tienda EcoGim (Canjes por Recepción)
     Route::get('/tienda', [TiendaController::class, 'index'])->name('tienda.index');

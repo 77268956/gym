@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Empleado;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
@@ -19,20 +21,27 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->validate([
-            'usuario' => ['required', 'string'],
+            'email' => ['required', 'string', 'max:255'],
             'password' => ['required'],
         ]);
 
-        // Attempt login, overriding the password key to match 'password_hash' in the database
-        if (Auth::attempt(['usuario' => $credentials['usuario'], 'password' => $credentials['password']])) {
+        $empleado = Empleado::where('estado', 'activo')
+            ->where(function ($query) use ($credentials): void {
+                $query->where('email', $credentials['email'])
+                    ->orWhere('usuario', $credentials['email']);
+            })
+            ->first();
+
+        if ($empleado && Hash::check($credentials['password'], $empleado->password_hash)) {
+            Auth::login($empleado);
             $request->session()->regenerate();
 
             return redirect()->intended('dashboard');
         }
 
         return back()->withErrors([
-            'usuario' => 'Las credenciales proporcionadas no coinciden con nuestros registros.',
-        ])->onlyInput('usuario');
+            'email' => 'Las credenciales proporcionadas no coinciden con nuestros registros.',
+        ])->onlyInput('email');
     }
 
     public function logout(Request $request)

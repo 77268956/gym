@@ -14,6 +14,7 @@ class Empleado extends Authenticatable
         'nombre',
         'cedula',
         'usuario',
+        'email',
         'password_hash',
         'rol',
         'foto_referencia',

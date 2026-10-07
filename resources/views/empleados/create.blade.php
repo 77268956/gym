@@ -106,6 +106,11 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6 form-group mb-2">
+                                    <label class="config-label">Correo electrónico <span class="text-danger">*</span></label>
+                                    <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" value="{{ old('email') }}" required>
+                                    @error('email')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                                </div>
+                                <div class="col-md-6 form-group mb-2">
                                     <label class="config-label">Contraseña Inicial <span class="text-danger">*</span></label>
                                     <div class="input-group input-group-sm">
                                         <div class="input-group-prepend"><span class="input-group-text"><i class="fas fa-key"></i></span></div>
@@ -123,7 +128,7 @@
                                 <div class="col-md-6 form-group mb-3">
                                     <label class="config-label">Rol en el Sistema <span class="text-danger">*</span></label>
                                     <select name="rol" class="form-control form-control-sm @error('rol') is-invalid @enderror" required>
-                                        <option value="empleado" {{ old('rol') === 'empleado' ? 'selected' : '' }}>Recepcionista / Empleado</option>
+                                        <option value="empleado" {{ old('rol') === 'empleado' ? 'selected' : '' }}>Recepcionista</option>
                                         <option value="admin" {{ old('rol') === 'admin' ? 'selected' : '' }}>Administrador General</option>
                                     </select>
                                 </div>
