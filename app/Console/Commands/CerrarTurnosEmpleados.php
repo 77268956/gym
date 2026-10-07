@@ -12,6 +12,7 @@ class CerrarTurnosEmpleados extends Command
 {
     protected $signature = 'asistencias:cerrar-turnos
                             {--fecha= : Fecha a procesar (Y-m-d). Por defecto: hoy}
+                            {--empleado= : Nombre exacto para procesar solo un empleado}
                             {--dry-run : Solo muestra qué haría sin guardar nada}';
 
     protected $description = 'Cierra turnos sin salida y registra ausencias del día actual.';
@@ -23,11 +24,20 @@ class CerrarTurnosEmpleados extends Command
             : Carbon::today()->startOfDay();
 
         $dryRun = $this->option('dry-run');
+        $ahora = Carbon::now();
+        $registrarAusencias = $fecha->lt($ahora->copy()->startOfDay())
+            || ($fecha->isSameDay($ahora) && $ahora->format('H:i') >= '23:59');
 
         $this->info("Procesando fecha: {$fecha->toDateString()} ".($dryRun ? '[DRY RUN]' : ''));
         $this->newLine();
 
-        $empleadosActivos = Empleado::where('estado', 'activo')->get();
+        $empleadosQuery = Empleado::where('estado', 'activo');
+
+        if ($this->option('empleado')) {
+            $empleadosQuery->where('nombre', $this->option('empleado'));
+        }
+
+        $empleadosActivos = $empleadosQuery->get();
 
         $turnosCerrados = 0;
         $ausenciasRegistradas = 0;
@@ -43,18 +53,29 @@ class CerrarTurnosEmpleados extends Command
                     ? Carbon::parse($fecha->format('Y-m-d').' '.$empleado->hora_salida_turno)
                     : null;
 
+                $momentoLimite = $salidaEsperada
+                    ? $salidaEsperada->copy()->addMinutes($empleado->tolerancia_minutos ?? 10)
+                    : $fecha->copy()->endOfDay();
+
+                if ($ahora->lessThan($momentoLimite)) {
+                    continue;
+                }
+
                 $this->line("  [SIN SALIDA] {$empleado->nombre} — entró {$asistencia->hora_entrada}");
 
                 if (! $dryRun) {
                     $horaEntrada = Carbon::parse((string) $asistencia->hora_entrada)->format('H:i:s');
+                    $momentoEntrada = Carbon::parse($fecha->format('Y-m-d').' '.$horaEntrada);
+                    $salidaRegistrada = $salidaEsperada && $salidaEsperada->lessThan($momentoEntrada)
+                        ? $momentoEntrada
+                        : $salidaEsperada;
 
                     $asistencia->update([
-                        'hora_salida' => $salidaEsperada?->format('H:i:s'),
+                        'hora_salida' => $salidaRegistrada?->format('H:i:s'),
                         'salida_no_registrada' => true,
                         'salida_temprana' => false,
-                        'horas_trabajadas' => $salidaEsperada
-                            ? Carbon::parse($fecha->format('Y-m-d').' '.$horaEntrada)
-                                ->diffInMinutes($salidaEsperada) / 60
+                        'horas_trabajadas' => $salidaRegistrada
+                            ? $momentoEntrada->diffInMinutes($salidaRegistrada) / 60
                         : null,
                     ]);
 
@@ -72,7 +93,7 @@ class CerrarTurnosEmpleados extends Command
             }
 
             // ── Caso 2: No tiene ningún registro → ausencia ─────────────────
-            if (! $asistencia) {
+            if (! $asistencia && $registrarAusencias) {
                 $this->line("  [AUSENTE]    {$empleado->nombre}");
 
                 if (! $dryRun) {

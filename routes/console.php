@@ -11,5 +11,7 @@ Artisan::command('inspire', function () {
 // Sincronizar estado de clientes cada día a medianoche
 Schedule::command('clientes:sincronizar-estado')->dailyAt('00:00');
 
-// Cerrar turnos sin salida y registrar ausencias cada noche a las 23:59
-Schedule::command('asistencias:cerrar-turnos')->dailyAt('23:59');
+// Revisar salidas pendientes después de la hora de turno y registrar ausencias al cierre del día.
+Schedule::command('asistencias:cerrar-turnos')
+    ->everyMinute()
+    ->withoutOverlapping(5);
