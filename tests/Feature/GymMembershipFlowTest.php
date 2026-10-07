@@ -123,6 +123,24 @@ class GymMembershipFlowTest extends TestCase
         $this->postJson(route('asistencias.publico.registrar'), ['cliente_id' => 1])->assertUnauthorized();
     }
 
+    public function test_staff_can_log_in_with_email_and_username(): void
+    {
+        $staff = $this->createStaff();
+
+        $this->post(route('login'), [
+            'email' => '  STAFF@EXAMPLE.TEST  ',
+            'password' => 'password123',
+        ])->assertRedirect('dashboard');
+        $this->assertAuthenticatedAs($staff);
+
+        $this->post(route('logout'));
+        $this->post(route('login'), [
+            'email' => 'staff',
+            'password' => 'password123',
+        ])->assertRedirect('dashboard');
+        $this->assertAuthenticatedAs($staff);
+    }
+
     private function createStaff(): Empleado
     {
         return Empleado::create([

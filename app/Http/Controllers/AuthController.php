@@ -24,11 +24,12 @@ class AuthController extends Controller
             'email' => ['required', 'string', 'max:255'],
             'password' => ['required'],
         ]);
+        $loginIdentifier = mb_strtolower(trim($credentials['email']));
 
         $empleado = Empleado::where('estado', 'activo')
-            ->where(function ($query) use ($credentials): void {
-                $query->where('email', $credentials['email'])
-                    ->orWhere('usuario', $credentials['email']);
+            ->where(function ($query) use ($loginIdentifier): void {
+                $query->whereRaw('LOWER(email) = ?', [$loginIdentifier])
+                    ->orWhereRaw('LOWER(usuario) = ?', [$loginIdentifier]);
             })
             ->first();
 
