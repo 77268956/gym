@@ -196,13 +196,13 @@
                     @endforeach
                 </select>
             </div>
-            <div id="filtroFechas" class="dashboard-filter-control {{ $periodo === 'rango' ? '' : 'd-none' }}">
+            <div id="filtroFechas" class="dashboard-filter-control {{ ($periodo ?? '') === 'rango' ? '' : 'd-none' }}">
                 <label for="desde">Desde</label>
-                <input type="date" name="desde" id="desde" class="form-control form-control-sm date-control" value="{{ $desdeSeleccionado }}">
+                <input type="date" name="desde" id="desde" class="form-control form-control-sm date-control" value="{{ $desdeSeleccionado ?? '' }}">
             </div>
-            <div id="filtroHasta" class="dashboard-filter-control {{ $periodo === 'rango' ? '' : 'd-none' }}">
+            <div id="filtroHasta" class="dashboard-filter-control {{ ($periodo ?? '') === 'rango' ? '' : 'd-none' }}">
                 <label for="hasta">Hasta</label>
-                <input type="date" name="hasta" id="hasta" class="form-control form-control-sm date-control" value="{{ $hastaSeleccionado }}">
+                <input type="date" name="hasta" id="hasta" class="form-control form-control-sm date-control" value="{{ $hastaSeleccionado ?? '' }}">
             </div>
             <button type="submit" class="btn btn-primary btn-sm font-weight-bold"><i class="fas fa-filter mr-1"></i>Aplicar</button>
         </form>
@@ -217,8 +217,8 @@
         <div class="col-xl-2 col-md-4 mb-3 mb-xl-0">
             <div class="kpi-card">
                 <div>
-                    <div class="kpi-value">${{ number_format($ingresosPeriodo, 2) }}</div>
-                    <div class="kpi-label">Ingresos ({{ $labelPeriodo }})</div>
+                    <div class="kpi-value">${{ number_format($ingresosPeriodo ?? 0, 2) }}</div>
+                    <div class="kpi-label">Ingresos ({{ $labelPeriodo ?? '' }})</div>
                 </div>
                 <i class="fas fa-dollar-sign kpi-icon"></i>
             </div>
@@ -226,7 +226,7 @@
         <div class="col-xl-2 col-md-4 mb-3 mb-xl-0">
             <div class="kpi-card">
                 <div>
-                    <div class="kpi-value">{{ $clientesTotales }}</div>
+                    <div class="kpi-value">{{ $clientesTotales ?? 0 }}</div>
                     <div class="kpi-label">Clientes registrados</div>
                 </div>
                 <i class="fas fa-users kpi-icon"></i>
@@ -235,31 +235,31 @@
         <div class="col-xl-2 col-md-4 mb-3 mb-xl-0">
             <div class="kpi-card">
                 <div>
-                    <div class="kpi-value">{{ $asistenciasPeriodo }}</div>
-                    <div class="kpi-label">Asistencias ({{ $labelPeriodo }})</div>
+                    <div class="kpi-value">{{ $asistenciasPeriodo ?? 0 }}</div>
+                    <div class="kpi-label">Asistencias ({{ $labelPeriodo ?? '' }})</div>
                 </div>
                 <i class="fas fa-walking kpi-icon"></i>
             </div>
         </div>
         <div class="col-xl-2 col-md-4 mb-3 mb-xl-0">
-            <div class="kpi-card"><div><div class="kpi-value">{{ number_format($clientesInactivos) }}</div><div class="kpi-label">Clientes inactivos</div></div><i class="fas fa-user-slash kpi-icon"></i></div>
+            <div class="kpi-card"><div><div class="kpi-value">{{ number_format($clientesInactivos ?? 0) }}</div><div class="kpi-label">Clientes inactivos</div></div><i class="fas fa-user-slash kpi-icon"></i></div>
         </div>
         <div class="col-xl-2 col-md-4 mb-3 mb-xl-0">
-            <div class="kpi-card"><div><div class="kpi-value">{{ number_format($membresiasVencidas) }}</div><div class="kpi-label">Membresías vencidas</div></div><i class="fas fa-calendar-times kpi-icon"></i></div>
+            <div class="kpi-card"><div><div class="kpi-value">{{ number_format($membresiasVencidas ?? 0) }}</div><div class="kpi-label">Membresías vencidas</div></div><i class="fas fa-calendar-times kpi-icon"></i></div>
         </div>
         <div class="col-xl-2 col-md-4 mb-3 mb-xl-0">
-            <div class="kpi-card"><div><div class="kpi-value">{{ $gymConfig->simbolo_moneda }} {{ number_format($ingresosHoy, 2) }}</div><div class="kpi-label">Ingresos de hoy</div></div><i class="fas fa-cash-register kpi-icon"></i></div>
+            <div class="kpi-card"><div><div class="kpi-value">{{ $gymConfig->simbolo_moneda ?? '$' }} {{ number_format($ingresosHoy ?? 0, 2) }}</div><div class="kpi-label">Ingresos de hoy</div></div><i class="fas fa-cash-register kpi-icon"></i></div>
         </div>
         <div class="col-xl-2 col-md-4 mb-3 mb-xl-0">
-            <div class="kpi-card"><div><div class="kpi-value">{{ number_format($asistenciasHoy) }}</div><div class="kpi-label">Asistencias de hoy</div></div><i class="fas fa-walking kpi-icon"></i></div>
+            <div class="kpi-card"><div><div class="kpi-value">{{ number_format($asistenciasHoy ?? 0) }}</div><div class="kpi-label">Asistencias de hoy</div></div><i class="fas fa-walking kpi-icon"></i></div>
         </div>
     </div>
 
     <div class="row dashboard-row dashboard-summary">
-        <div class="col-md-3"><div class="ic-card p-3"><small class="text-muted">Ingresos del mes</small><div class="h5 mb-0 font-weight-bold">{{ $gymConfig->simbolo_moneda }} {{ number_format($ingresosMes, 2) }}</div></div></div>
-        <div class="col-md-3"><div class="ic-card p-3"><small class="text-muted">Membresías activas / próximas a vencer</small><div class="h5 mb-0 font-weight-bold">{{ number_format($membresiasActivas) }} / {{ number_format($membresiasProximas) }}</div></div></div>
-        <div class="col-md-3"><div class="ic-card p-3"><small class="text-muted">Puntos acumulados</small><div class="h5 mb-0 font-weight-bold">{{ number_format($puntosAcumulados) }} <i class="fas fa-star text-warning"></i></div></div></div>
-        <div class="col-md-3"><div class="ic-card p-3"><small class="text-muted">Cliente con más puntos</small><div class="h5 mb-0 font-weight-bold">{{ $clienteMasPuntos?->nombre }} {{ $clienteMasPuntos?->apellido }} <small>({{ number_format($clienteMasPuntos?->puntos_ecogim ?? 0) }})</small></div></div></div>
+        <div class="col-md-3"><div class="ic-card p-3"><small class="text-muted">Ingresos del mes</small><div class="h5 mb-0 font-weight-bold">{{ $gymConfig->simbolo_moneda ?? '$' }} {{ number_format($ingresosMes ?? 0, 2) }}</div></div></div>
+        <div class="col-md-3"><div class="ic-card p-3"><small class="text-muted">Membresías activas / próximas a vencer</small><div class="h5 mb-0 font-weight-bold">{{ number_format($membresiasActivas ?? 0) }} / {{ number_format($membresiasProximas ?? 0) }}</div></div></div>
+        <div class="col-md-3"><div class="ic-card p-3"><small class="text-muted">Puntos acumulados</small><div class="h5 mb-0 font-weight-bold">{{ number_format($puntosAcumulados ?? 0) }} <i class="fas fa-star text-warning"></i></div></div></div>
+        <div class="col-md-3"><div class="ic-card p-3"><small class="text-muted">Cliente con más puntos</small><div class="h5 mb-0 font-weight-bold">{{ $clienteMasPuntos?->nombre ?? '-' }} {{ $clienteMasPuntos?->apellido ?? '' }} <small>({{ number_format($clienteMasPuntos?->puntos_ecogim ?? 0) }})</small></div></div></div>
     </div>
 
     <!-- Charts -->
@@ -267,8 +267,8 @@
         <div class="col-lg-8">
             <div class="ic-card h-100">
                 <div class="ic-card-header d-flex justify-content-between align-items-center">
-                    <span><i class="fas fa-chart-bar mr-2"></i>Afluencia por Hora ({{ $labelPeriodo }})</span>
-                    <span class="badge badge-primary" style="font-size: 0.8rem;">Total: {{ $asistenciasPeriodo }}</span>
+                    <span><i class="fas fa-chart-bar mr-2"></i>Afluencia por Hora ({{ $labelPeriodo ?? '' }})</span>
+                    <span class="badge badge-primary" style="font-size: 0.8rem;">Total: {{ $asistenciasPeriodo ?? 0 }}</span>
                 </div>
                 <div class="card-body">
                     <div class="chart-container">
@@ -280,7 +280,7 @@
         <div class="col-lg-4">
             <div class="ic-card h-100">
                 <div class="ic-card-header d-flex justify-content-between align-items-center">
-                    <span><i class="fas fa-chart-pie mr-2"></i>Métodos de Pago ({{ $labelPeriodo }})</span>
+                    <span><i class="fas fa-chart-pie mr-2"></i>Métodos de Pago ({{ $labelPeriodo ?? '' }})</span>
                 </div>
                 <div class="card-body">
                     <div class="chart-container">
@@ -315,7 +315,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($vencimientosProximos as $vencimiento)
+                            @forelse($vencimientosProximos ?? [] as $vencimiento)
                             <tr>
                                 <td>
                                     <div class="font-weight-bold">{{ $vencimiento->cliente?->nombre_completo ?? 'Cliente no encontrado' }}</div>
@@ -357,7 +357,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($pagosRecientes as $pago)
+                            @forelse($pagosRecientes ?? [] as $pago)
                             <tr>
                                 <td>
                                     <span class="d-block font-weight-bold text-dark">{{ $pago->fecha_pago->format('d/m/Y') }}</span>
@@ -428,10 +428,10 @@ document.addEventListener('DOMContentLoaded', function() {
         new Chart(ctxAfluencia, {
             type: 'bar',
             data: {
-                labels: {!! json_encode($chartHorasLabels) !!},
+                labels: {!! json_encode($chartHorasLabels ?? []) !!},
                 datasets: [{
                     label: 'Asistencias',
-                    data: {!! json_encode($chartHorasData) !!},
+                    data: {!! json_encode($chartHorasData ?? []) !!},
                     backgroundColor: primaryColor,
                     borderRadius: 4
                 }]
@@ -456,9 +456,9 @@ document.addEventListener('DOMContentLoaded', function() {
         new Chart(ctxMetodos, {
             type: 'doughnut',
             data: {
-                labels: {!! json_encode($chartMetodosLabels) !!}.map(l => l.toUpperCase()),
+                labels: {!! json_encode($chartMetodosLabels ?? []) !!}.map(l => l.toUpperCase()),
                 datasets: [{
-                    data: {!! json_encode($chartMetodosData) !!},
+                    data: {!! json_encode($chartMetodosData ?? []) !!},
                     backgroundColor: ['#1cc88a', '#4e73df', '#36b9cc', '#f6c23e', '#e74a3b'],
                     borderWidth: 0
                 }]
@@ -474,20 +474,20 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    const labelsMensuales = {!! json_encode($chartMesesLabels) !!};
+    const labelsMensuales = {!! json_encode($chartMesesLabels ?? []) !!};
     const ingresosMensuales = document.getElementById('ingresosMensualesChart');
     if (ingresosMensuales) {
-        new Chart(ingresosMensuales, { type: 'line', data: { labels: labelsMensuales, datasets: [{ label: 'Ingresos', data: {!! json_encode($chartIngresosMensuales) !!}, borderColor: primaryColor, backgroundColor: primaryColor + '33', fill: true, tension: .3 }] }, options: { responsive: true, maintainAspectRatio: false } });
+        new Chart(ingresosMensuales, { type: 'line', data: { labels: labelsMensuales, datasets: [{ label: 'Ingresos', data: {!! json_encode($chartIngresosMensuales ?? []) !!}, borderColor: primaryColor, backgroundColor: primaryColor + '33', fill: true, tension: .3 }] }, options: { responsive: true, maintainAspectRatio: false } });
     }
 
     const membresiasEstado = document.getElementById('membresiasEstadoChart');
     if (membresiasEstado) {
-        new Chart(membresiasEstado, { type: 'doughnut', data: { labels: {!! json_encode($chartMembresiasLabels) !!}, datasets: [{ data: {!! json_encode($chartMembresiasData) !!}, backgroundColor: ['#10B981', '#F59E0B', '#EF4444'] }] }, options: { responsive: true, maintainAspectRatio: false } });
+        new Chart(membresiasEstado, { type: 'doughnut', data: { labels: {!! json_encode($chartMembresiasLabels ?? []) !!}, datasets: [{ data: {!! json_encode($chartMembresiasData ?? []) !!}, backgroundColor: ['#10B981', '#F59E0B', '#EF4444'] }] }, options: { responsive: true, maintainAspectRatio: false } });
     }
 
     const actividadMensual = document.getElementById('actividadMensualChart');
     if (actividadMensual) {
-        new Chart(actividadMensual, { type: 'bar', data: { labels: labelsMensuales, datasets: [{ label: 'Asistencias', data: {!! json_encode($chartAsistenciasMensuales) !!}, backgroundColor: primaryColor }, { label: 'Clientes nuevos', data: {!! json_encode($chartNuevosClientes) !!}, backgroundColor: '#10B981' }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } } });
+        new Chart(actividadMensual, { type: 'bar', data: { labels: labelsMensuales, datasets: [{ label: 'Asistencias', data: {!! json_encode($chartAsistenciasMensuales ?? []) !!}, backgroundColor: primaryColor }, { label: 'Clientes nuevos', data: {!! json_encode($chartNuevosClientes ?? []) !!}, backgroundColor: '#10B981' }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } } });
     }
 });
 </script>
