@@ -82,6 +82,10 @@ Route::middleware('auth')->group(function () {
     // Rutas Exclusivas de Administrador
     Route::middleware('admin')->group(function () {
         Route::get('/reportes', [ReporteController::class, 'index'])->name('reportes.index');
+        Route::get('/reportes/finanzas', [ReporteController::class, 'finanzas'])->name('reportes.finanzas');
+        Route::get('/reportes/clientes', [ReporteController::class, 'clientes'])->name('reportes.clientes');
+        Route::get('/reportes/empleados', [ReporteController::class, 'empleados'])->name('reportes.empleados');
+        Route::get('/reportes/sistema', [ReporteController::class, 'sistema'])->name('reportes.sistema');
         Route::get('/reportes/pdf', [ReporteController::class, 'pdf'])->name('reportes.pdf');
 
         Route::get('/notificaciones', [NotificacionController::class, 'index'])->name('notificaciones.index');

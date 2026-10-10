@@ -22,9 +22,37 @@ class ReporteController extends Controller
         return view('reportes.index', $this->datosReporte($request));
     }
 
+    public function finanzas(Request $request): View
+    {
+        return view('reportes.finanzas', $this->datosReporte($request));
+    }
+
+    public function clientes(Request $request): View
+    {
+        return view('reportes.clientes', $this->datosReporte($request));
+    }
+
+    public function empleados(Request $request): View
+    {
+        return view('reportes.empleados', $this->datosReporte($request));
+    }
+
+    public function sistema(Request $request): View
+    {
+        return view('reportes.sistema', $this->datosReporte($request));
+    }
+
     public function pdf(Request $request): View
     {
-        return view('reportes.pdf', [...$this->datosReporte($request), 'modoImpresion' => true]);
+        $tipo = $request->validate([
+            'tipo' => ['nullable', 'in:finanzas,clientes,empleados,sistema'],
+        ])['tipo'] ?? 'completo';
+
+        return view('reportes.pdf', [
+            ...$this->datosReporte($request),
+            'modoImpresion' => true,
+            'tipoReporte' => $tipo,
+        ]);
     }
 
     /** @return array<string, mixed> */

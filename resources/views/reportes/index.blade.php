@@ -3,79 +3,192 @@
 @section('title', 'Reportes')
 
 @push('styles')
+@include('reportes.partials.styles')
 <style>
-    .reports-page { min-width:0; padding: 1rem 1.5rem 1.5rem; color:var(--text-main); }
-    .reports-page .text-dark { color:var(--text-main)!important; }
-    .reports-page .text-muted { color:var(--text-muted)!important; }
-    .reports-page .page-header > div { min-width:0; }
-    .reports-toolbar { display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:.85rem; padding:1rem 1.15rem; }
-    .reports-filter { display:flex; flex-wrap:wrap; align-items:flex-end; gap:.65rem; }
-    .reports-filter label { display:block; margin-bottom:.2rem; color:var(--text-muted); font-size:.68rem; font-weight:700; }
-    .reports-filter .form-control { min-width:150px; border-radius:7px; font-size:.82rem; }
-    .reports-page .ic-card { min-width:0; max-width:100%; border:0; border-radius:12px; box-shadow:0 4px 6px rgba(0,0,0,.04); overflow:hidden; }
-    .reports-page .ic-card-header { padding:1rem 1.25rem; border-bottom:1px solid #f0f2f5; background:#fff; color:var(--text-main); font-weight:700; overflow-wrap:anywhere; }
-    .reports-page .report-accordion-toggle { display:flex; width:100%; min-width:0; align-items:center; justify-content:space-between; gap:.75rem; padding:1rem 1.25rem; background:#fff; color:var(--text-main); text-align:left; font-weight:700; cursor:pointer; list-style:none; }
-    .reports-page .report-accordion-toggle > span:first-child { min-width:0; overflow-wrap:anywhere; }
-    .reports-page .report-accordion-toggle::-webkit-details-marker { display:none; }
-    .reports-page .report-accordion-toggle:hover { background:color-mix(in srgb, var(--primary) 5%, #fff); }
-    .reports-page .report-accordion-toggle:focus { outline:2px solid rgba(78,115,223,.3); outline-offset:-2px; }
-    .reports-page .report-accordion-icon { display:inline-flex; width:26px; height:26px; align-items:center; justify-content:center; border-radius:7px; background:#eef2ff; color:var(--primary); }
-    .reports-page .report-icon-minus { display:none; }
-    .reports-page .report-accordion[open] .report-icon-plus { display:none; }
-    .reports-page .report-accordion[open] .report-icon-minus { display:inline-block; }
-    .reports-page .report-accordion-content { min-width:0; border-top:1px solid #f0f2f5; }
-    .reports-page .report-stat { display:flex; align-items:center; justify-content:space-between; min-height:92px; padding:1rem 1.1rem; border-radius:10px; color:#fff; background:var(--sidebar-bg); box-shadow:0 4px 10px rgba(0,0,0,.08); }
-    .reports-page .report-stat-label { font-size:.7rem; font-weight:700; opacity:.82; text-transform:uppercase; }
-    .reports-page .report-stat-value { margin:0; font-size:1.45rem; font-weight:800; line-height:1.2; }
-    .reports-page .report-stat-icon { font-size:1.6rem; opacity:.42; }
-    .report-chart-panel { height:280px; padding:1rem; }
-    .report-chart-title { margin-bottom:.75rem; color:var(--text-muted); font-size:.72rem; font-weight:700; text-transform:uppercase; overflow-wrap:anywhere; }
-    .reports-page .ic-table { width:100%; margin:0; table-layout:fixed; }
-    .reports-page .ic-table th { padding:.7rem .65rem; background:color-mix(in srgb, var(--primary) 7%, #fff); color:var(--primary); font-size:.7rem; text-transform:uppercase; overflow-wrap:anywhere; }
-    .reports-page .ic-table td { padding:.65rem; color:var(--text-main); font-size:.82rem; vertical-align:middle; overflow-wrap:anywhere; word-break:normal; }
-    .reports-page .report-empty { padding:1.4rem; color:var(--text-muted); text-align:center; font-size:.85rem; }
-    .reports-page .row > [class*="col-"] { min-width:0; }
-    @media(max-width:767.98px) { .reports-page{padding:.75rem}.reports-toolbar{align-items:stretch}.reports-filter{width:100%}.reports-filter>div{flex:1 1 130px}.reports-filter .form-control{width:100%;min-width:0} }
+    .report-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(270px,1fr)); gap:1.15rem; }
 </style>
 @endpush
 
 @section('content')
 <div class="container-fluid reports-page">
-    <div class="page-header d-flex flex-wrap justify-content-between align-items-center mb-3">
-        <div>
-            <h1 class="h5 font-weight-bold text-dark mb-1"><i class="fas fa-chart-pie text-primary mr-2"></i>Centro de Reportes</h1>
-            <p class="small text-muted mb-0">Consulta el rendimiento financiero, la actividad y las incidencias del gimnasio.</p>
-        </div>
-        <span class="small text-muted mt-2 mt-md-0"><i class="far fa-calendar-alt mr-1 text-primary"></i>{{ $rangoFechas ?? '' }}</span>
-    </div>
+    <div class="reports-page-scrollable pt-2 pl-2">
+    @include('reportes.partials.resumen')
 
-    <div class="ic-card reports-toolbar mb-3">
-        <form method="GET" action="{{ route('reportes.index') }}" class="reports-filter">
-            <div>
-                <label for="desde">DESDE</label>
-                <input id="desde" name="desde" type="date" class="form-control form-control-sm" value="{{ $desde }}">
+    <div class="report-grid mb-3">
+        <a href="{{ route('reportes.finanzas') }}" class="report-card-link">
+            <div class="report-card-head">
+                <span class="report-card-icon"><i class="fas fa-coins"></i></span>
+                <span class="report-card-title">Reporte financiero</span>
             </div>
-            <div>
-                <label for="hasta">HASTA</label>
-                <input id="hasta" name="hasta" type="date" class="form-control form-control-sm" value="{{ $hasta }}">
+            <div class="report-card-stats">
+                <div class="report-stat-item">
+                    <span class="report-stat-item-label">Ingresos del periodo</span>
+                    <span class="report-stat-item-value">{{ $gymConfig->simbolo_moneda ?? '$' }} {{ number_format($finanzas['ingresos'], 2) }}</span>
+                </div>
+                <div class="report-stat-item">
+                    <span class="report-stat-item-label">Transacciones</span>
+                    <span class="report-stat-item-value">{{ number_format($finanzas['transacciones']) }}</span>
+                </div>
             </div>
-            <button type="submit" class="btn btn-primary btn-sm font-weight-bold"><i class="fas fa-filter mr-1"></i>Filtrar</button>
-            <a href="{{ route('reportes.index') }}" class="btn btn-light btn-sm border"><i class="fas fa-undo mr-1"></i>Mes actual</a>
-        </form>
-        <a href="{{ route('reportes.pdf', request()->only('desde', 'hasta')) }}" target="_blank" rel="noopener" class="btn btn-danger btn-sm font-weight-bold">
-            <i class="fas fa-file-pdf mr-1"></i>Exportar a PDF
+            <div class="report-card-mini-chart">
+                <span class="report-card-mini-title">Ingresos por fecha</span>
+                <div class="report-card-mini-wrap">
+                    <canvas id="miniChartFinanzas" aria-label="Gráfica mínima de ingresos financieros"></canvas>
+                </div>
+                @if($finanzas['transacciones'] == 0)
+                    <div class="report-card-mini-empty">Sin movimientos</div>
+                @endif
+            </div>
+            <span class="report-card-cta">Ver estadísticas completas <i class="fas fa-arrow-right"></i></span>
+        </a>
+        <a href="{{ route('reportes.clientes') }}" class="report-card-link">
+            <div class="report-card-head">
+                <span class="report-card-icon"><i class="fas fa-users"></i></span>
+                <span class="report-card-title">Reporte de clientes</span>
+            </div>
+            <div class="report-card-stats">
+                <div class="report-stat-item">
+                    <span class="report-stat-item-label">Clientes nuevos</span>
+                    <span class="report-stat-item-value">{{ number_format($clientes['nuevos']) }}</span>
+                </div>
+                <div class="report-stat-item">
+                    <span class="report-stat-item-label">Clientes activos</span>
+                    <span class="report-stat-item-value">{{ number_format($clientes['activos']) }}</span>
+                </div>
+            </div>
+            <div class="report-card-mini-chart">
+                <span class="report-card-mini-title">Visitas y nuevos clientes</span>
+                <div class="report-card-mini-wrap">
+                    <canvas id="miniChartClientes" aria-label="Gráfica mínima de visitas y clientes"></canvas>
+                </div>
+                @if($clientes['asistencias'] == 0 && $clientes['nuevos'] == 0)
+                    <div class="report-card-mini-empty">Sin actividad</div>
+                @endif
+            </div>
+            <span class="report-card-cta">Ver estadísticas completas <i class="fas fa-arrow-right"></i></span>
+        </a>
+        <a href="{{ route('reportes.empleados') }}" class="report-card-link">
+            <div class="report-card-head">
+                <span class="report-card-icon"><i class="fas fa-user-clock"></i></span>
+                <span class="report-card-title">Reporte de empleados</span>
+            </div>
+            <div class="report-card-stats">
+                <div class="report-stat-item">
+                    <span class="report-stat-item-label">Asistencias</span>
+                    <span class="report-stat-item-value">{{ number_format($empleados['asistencias']) }}</span>
+                </div>
+                <div class="report-stat-item">
+                    <span class="report-stat-item-label">Llegadas tarde</span>
+                    <span class="report-stat-item-value">{{ number_format($empleados['tardanzas']) }}</span>
+                </div>
+            </div>
+            <div class="report-card-mini-chart">
+                <span class="report-card-mini-title">Incidencias de asistencia</span>
+                <div class="report-card-mini-wrap">
+                    <canvas id="miniChartEmpleados" aria-label="Gráfica mínima de incidencias de empleados"></canvas>
+                </div>
+                @if($empleados['asistencias'] == 0)
+                    <div class="report-card-mini-empty">Sin actividad</div>
+                @endif
+            </div>
+            <span class="report-card-cta">Ver estadísticas completas <i class="fas fa-arrow-right"></i></span>
+        </a>
+        <a href="{{ route('reportes.sistema') }}" class="report-card-link">
+            <div class="report-card-head">
+                <span class="report-card-icon"><i class="fas fa-shield-alt"></i></span>
+                <span class="report-card-title">Reporte del sistema</span>
+            </div>
+            <div class="report-card-stats">
+                <div class="report-stat-item">
+                    <span class="report-stat-item-label">Alertas pendientes</span>
+                    <span class="report-stat-item-value">{{ number_format($sistema['pendientes']) }}</span>
+                </div>
+                <div class="report-stat-item">
+                    <span class="report-stat-item-label">Alertas generadas</span>
+                    <span class="report-stat-item-value">{{ number_format($sistema['total']) }}</span>
+                </div>
+            </div>
+            <div class="report-card-mini-chart">
+                <span class="report-card-mini-title">Alertas por tipo</span>
+                <div class="report-card-mini-wrap">
+                    <canvas id="miniChartSistema" aria-label="Gráfica mínima de alertas del sistema"></canvas>
+                </div>
+                @if($sistema['total'] == 0)
+                    <div class="report-card-mini-empty">Sin alertas</div>
+                @endif
+            </div>
+            <span class="report-card-cta">Ver estadísticas completas <i class="fas fa-arrow-right"></i></span>
         </a>
     </div>
-
-    @if($errors->has('desde') || $errors->has('hasta'))
-        <div class="alert alert-danger py-2 small">{{ $errors->first('desde') ?: $errors->first('hasta') }}</div>
-    @endif
-
-    @include('reportes.partials.content')
+    </div>
 </div>
 @endsection
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
-@include('reportes.partials.charts-script')
+<script>
+    (() => {
+        const reportCharts = @json($graficas);
+        const palette = ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796'];
+        const themePrimary = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#2563EB';
+        const themeText = getComputedStyle(document.documentElement).getPropertyValue('--text-main').trim() || '#334155';
+        const themePrimaryHover = getComputedStyle(document.documentElement).getPropertyValue('--primary-hover').trim() || themePrimary;
+
+        Chart.defaults.color = themeText;
+
+        const drawMini = (canvasId, type, labels, values, label, options = {}) => {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            new Chart(ctx, {
+                type,
+                data: {
+                    labels,
+                    datasets: [{
+                        label,
+                        data: values,
+                        borderColor: type === 'line' ? themePrimary : '#fff',
+                        backgroundColor: type === 'line' ? `color-mix(in srgb, ${themePrimary} 12%, transparent)` : palette.slice(0, Math.max(1, values.length)),
+                        borderWidth: type === 'line' ? 2 : 1,
+                        borderRadius: type === 'bar' ? 4 : 0,
+                        fill: type === 'line',
+                        tension: .38,
+                        pointRadius: 1.5,
+                        pointHitRadius: 12,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: { duration: 0 },
+                    plugins: { legend: { display: false }, tooltip: { displayColors: false } },
+                    scales: type === 'doughnut' ? {} : {
+                        y: { display: false, beginAtZero: true, ticks: { precision: 0 } },
+                        x: { display: false, grid: { display: false } }
+                    },
+                    ...options
+                }
+            });
+        };
+
+        drawMini('miniChartFinanzas', 'line', reportCharts.etiquetasDias, reportCharts.ingresosPorDia, 'Ingresos');
+        const cCli = drawMini('miniChartClientes', 'line', reportCharts.etiquetasDias, reportCharts.visitasPorDia, 'Visitas');
+        if (cCli) {
+            const ctx = document.getElementById('miniChartClientes').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: reportCharts.etiquetasDias,
+                    datasets: [
+                        { label: 'Visitas', data: reportCharts.visitasPorDia, borderColor: themePrimary, backgroundColor: `color-mix(in srgb, ${themePrimary} 10%, transparent)`, fill: true, tension: .38, pointRadius: 1 },
+                        { label: 'Nuevos', data: reportCharts.clientesNuevosPorDia, borderColor: themePrimaryHover, backgroundColor: `color-mix(in srgb, ${themePrimaryHover} 10%, transparent)`, fill: true, tension: .38, pointRadius: 1 }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, animation: { duration: 0 }, plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { display: false } } }
+            });
+        }
+        drawMini('miniChartEmpleados', 'bar', ['Tarde', 'Temp.', 'Sin salida'], reportCharts.incidenciasEmpleados.valores, 'Incidencias', { scales: { y: { display: false }, x: { display: false } } });
+        drawMini('miniChartSistema', 'doughnut', reportCharts.alertas.labels, reportCharts.alertas.valores, 'Alertas', { scales: {} });
+    })();
+</script>
 @endpush

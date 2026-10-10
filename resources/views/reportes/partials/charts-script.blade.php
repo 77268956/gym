@@ -67,16 +67,6 @@
             document.dispatchEvent(new Event('reportChartsReady'));
         };
 
-        document.querySelectorAll('details.report-accordion').forEach(section => {
-            section.addEventListener('toggle', () => {
-                if (!section.open) return;
-
-                requestAnimationFrame(() => {
-                    section.querySelectorAll('canvas').forEach(canvas => Chart.getChart(canvas)?.resize());
-                });
-            });
-        });
-
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', drawReportCharts, { once: true });
         } else {

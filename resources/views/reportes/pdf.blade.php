@@ -39,10 +39,6 @@
         .report-chart-panel { height:205px; padding:12px; }
         .report-chart-title { margin-bottom:8px; color:var(--text-muted); font-size:9px; font-weight:700; text-transform:uppercase; overflow-wrap:anywhere; }
         .ic-card { margin-bottom:14px; border:1px solid #dbe3ed; border-radius:9px; overflow:visible; background:#fff; }
-        .report-accordion-toggle { display:flex; width:100%; justify-content:space-between; padding:10px 12px; border:0; border-bottom:1px solid #e2e8f0; border-left:4px solid var(--primary); border-radius:8px 8px 0 0; background:color-mix(in srgb, var(--primary) 6%, #fff); color:var(--text-main); font-size:12px; font-weight:700; text-align:left; list-style:none; }
-        .report-accordion-toggle::-webkit-details-marker { display:none; }
-        .report-accordion-icon { display:none; }
-        .report-accordion-content { display:block !important; }
         .ic-card-header { padding:8px 10px; border-bottom:1px solid #e2e8f0; background:#f8fafc; color:var(--text-main); font-size:10px; font-weight:700; overflow-wrap:anywhere; }
         .ic-table { width:100%; margin-bottom:0; table-layout:fixed; }
         .ic-table th, .ic-table td { padding:7px 8px; border-color:#e8edf3; font-size:9px; vertical-align:top; overflow-wrap:anywhere; }
@@ -61,7 +57,6 @@
             .print-actions { display:none !important; }
             .report-print-header, .ic-card, .report-stat { box-shadow:none!important; }
             .ic-card { break-inside:auto; }
-            .report-accordion-toggle { break-after:avoid; }
             .report-chart-panel { break-inside:avoid; }
             a { color:inherit; text-decoration:none; }
         }
@@ -89,13 +84,28 @@
                 <div>
                     <p class="report-kicker">Informe de gestión</p>
                     <h1>{{ $gymConfig->nombre_gimnasio ?? 'GymX' }}</h1>
-                    <p>Resumen financiero, clientes, empleados y sistema</p>
+                    @php($tipo = $tipoReporte ?? 'completo')
+                    <p>{{ match ($tipo) {
+                        'finanzas' => 'Reporte financiero: ingresos, métodos de pago y pagos recientes',
+                        'clientes' => 'Reporte de clientes: nuevos, activos, membresías y visitas',
+                        'empleados' => 'Reporte de empleados: asistencias e incidencias del personal',
+                        'sistema' => 'Reporte del sistema y notificaciones: alertas por tipo y estado',
+                        default => 'Resumen financiero, clientes, empleados y sistema',
+                    } }}</p>
                 </div>
             </div>
             <div class="report-period"><small>Periodo del reporte</small><strong>{{ $rangoFechas ?? '' }}</strong></div>
         </header>
         <p class="report-generated">Generado el {{ now()->format('d/m/Y H:i') }}</p>
-    @include('reportes.partials.content')
+    @if(($tipoReporte ?? 'completo') === 'completo')
+        @include('reportes.partials.resumen')
+        @include('reportes.partials.finanzas')
+        @include('reportes.partials.clientes')
+        @include('reportes.partials.empleados')
+        @include('reportes.partials.sistema')
+    @else
+        @include('reportes.partials.'.$tipoReporte)
+    @endif
     <footer class="report-footer">{{ $gymConfig->nombre_gimnasio ?? 'GymX' }} · Informe generado desde el sistema de gestión.</footer>
     </main>
     <script>
