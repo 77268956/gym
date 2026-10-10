@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\Cliente;
+use App\Models\Pago;
 use App\Models\PaseDiario;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -18,7 +20,10 @@ class PaseDiarioFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'cliente_id' => Cliente::factory(),
+            'pago_id' => Pago::factory(),
+            'fecha' => now()->toDateString(),
+            'otorga_asistencia' => true,
         ];
     }
 }

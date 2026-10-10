@@ -2,10 +2,15 @@
 
 namespace App\Models;
 
+use Database\Factories\LandingConfigFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class LandingConfig extends Model
 {
+    /** @use HasFactory<LandingConfigFactory> */
+    use HasFactory;
+
     protected $fillable = [
         'hero_title', 'hero_subtitle', 'hero_image',
         'about_text', 'about_image', 'services',

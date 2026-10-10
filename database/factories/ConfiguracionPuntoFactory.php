@@ -18,7 +18,8 @@ class ConfiguracionPuntoFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'puntos_por_visita' => 1,
+            'vigente_desde' => now()->toDateString(),
         ];
     }
 }

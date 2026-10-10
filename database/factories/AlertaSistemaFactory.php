@@ -18,7 +18,25 @@ class AlertaSistemaFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'tipo_alerta' => 'entrada_tardia',
+            'referencia_tabla' => 'asistencias_empleados',
+            'referencia_id' => fake()->randomNumber(5),
+            'mensaje' => 'Alerta de entrada tardía',
+            'estado' => 'pendiente',
         ];
+    }
+
+    public function pendiente(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'estado' => 'pendiente',
+        ]);
+    }
+
+    public function atendida(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'estado' => 'atendida',
+        ]);
     }
 }
