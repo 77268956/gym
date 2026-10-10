@@ -11,16 +11,16 @@ class EmpleadoTest extends TestCase
 {
     use RefreshDatabase;
 
-    private function createAdmin(): Empleado
+    protected function createAdmin(array $overrides = []): Empleado
     {
-        return Empleado::factory()->create([
+        return Empleado::factory()->create(array_merge([
             'nombre' => 'Admin Boss',
             'cedula' => '0801-0000-00000',
             'usuario' => 'admin_'.uniqid(),
             'password_hash' => Hash::make('password123'),
             'rol' => 'admin',
             'estado' => 'activo',
-        ]);
+        ], $overrides));
     }
 
     public function test_user_can_view_empleados_list(): void

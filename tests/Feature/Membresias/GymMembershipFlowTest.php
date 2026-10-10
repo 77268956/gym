@@ -73,7 +73,7 @@ class GymMembershipFlowTest extends TestCase
                 'metodo_pago' => 'efectivo',
                 'monto' => '1.00',
                 'concepto' => 'Membresía mensual',
-                'fecha_inicio' => '2026-10-06',
+                'fecha_inicio' => now()->toDateString(),
                 'fecha_pago' => now()->format('Y-m-d\\TH:i'),
             ]);
 
@@ -141,9 +141,9 @@ class GymMembershipFlowTest extends TestCase
         $this->assertAuthenticatedAs($staff);
     }
 
-    private function createStaff(): Empleado
+    protected function createStaff(array $overrides = []): Empleado
     {
-        return Empleado::create([
+        return Empleado::create(array_merge([
             'nombre' => 'Personal de prueba',
             'cedula' => 'TEST-STAFF-1',
             'usuario' => 'staff',
@@ -151,12 +151,12 @@ class GymMembershipFlowTest extends TestCase
             'password_hash' => Hash::make('password123'),
             'rol' => 'empleado',
             'estado' => 'activo',
-        ]);
+        ], $overrides));
     }
 
-    private function createClient(): Cliente
+    protected function createClient(array $overrides = []): Cliente
     {
-        return Cliente::create([
+        return Cliente::create(array_merge([
             'nombre' => 'Luis',
             'apellido' => 'Pérez',
             'cedula' => '23456789-0',
@@ -166,16 +166,16 @@ class GymMembershipFlowTest extends TestCase
             'direccion' => 'San Salvador',
             'estado' => 'activo',
             'puntos_ecogim' => 0,
-        ]);
+        ], $overrides));
     }
 
-    private function createPlan(): TipoMembresia
+    protected function createPlan(array $overrides = []): TipoMembresia
     {
-        return TipoMembresia::create([
+        return TipoMembresia::create(array_merge([
             'nombre' => 'Mensual',
             'duracion_dias' => 30,
             'precio' => 45,
             'estado' => 'activo',
-        ]);
+        ], $overrides));
     }
 }
