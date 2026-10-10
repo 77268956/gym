@@ -1,4 +1,5 @@
 <?php
+
 $f = 'c:/laragon/www/GymX/resources/views/user.blade.php';
 
 $blade = <<<'BLADE'
@@ -328,4 +329,4 @@ $(document).ready(function() {
 BLADE;
 
 file_put_contents($f, $blade);
-echo "New UI applied.";
+echo 'New UI applied.';

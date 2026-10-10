@@ -1,4 +1,5 @@
 <?php
+
 $f = 'c:/laragon/www/GymX/app/Http/Controllers/PagoController.php';
 $c = file_get_contents($f);
 
@@ -48,7 +49,7 @@ $ajaxMethod = <<<'EOD'
 }
 EOD;
 
-$c = str_replace("}\n", "}\n" . $ajaxMethod . "\n", rtrim($c)); // replace last closing brace
+$c = str_replace("}\n", "}\n".$ajaxMethod."\n", rtrim($c)); // replace last closing brace
 // wait, easier to just do a strict replace at the end
 $c = preg_replace('/}\s*$/', "\n$ajaxMethod\n", $c);
 

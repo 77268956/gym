@@ -1,4 +1,5 @@
 <?php
+
 $f = 'c:/laragon/www/GymX/resources/views/membresias/index.blade.php';
 
 $blade = <<<'BLADE'
@@ -426,4 +427,4 @@ function openEditModal(plan) {
 BLADE;
 
 file_put_contents($f, $blade);
-echo "Membresias view updated.";
+echo 'Membresias view updated.';

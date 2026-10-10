@@ -1,9 +1,10 @@
 <?php
+
 $f = 'c:/laragon/www/GymX/resources/views/pagos/index.blade.php';
 $c = file_get_contents($f);
 
 // Make the kpi cards thinner
-$oldKpiCss = <<<EOD
+$oldKpiCss = <<<'EOD'
     /* KPI Cards */
     .kpi-card {
         border-radius: 10px;
@@ -22,7 +23,7 @@ $oldKpiCss = <<<EOD
     .kpi-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; opacity: 0.8; margin-top: 4px;}
 EOD;
 
-$newKpiCss = <<<EOD
+$newKpiCss = <<<'EOD'
     /* KPI Cards */
     .kpi-card {
         border-radius: 8px;
@@ -44,13 +45,13 @@ EOD;
 $c = str_replace($oldKpiCss, $newKpiCss, $c);
 
 // Update HTML for the cards
-$oldCards = <<<EOD
+$oldCards = <<<'EOD'
     {{-- KPI Cards --}}
     <div class="row tight flex-shrink-0">
         <div class="col-md-6">
             <div class="kpi-card">
                 <div>
-                    <h3 class="kpi-value text-success">{{ \$gymConfig->simbolo_moneda }} {{ number_format(\$pagosHoy, 2) }}</h3>
+                    <h3 class="kpi-value text-success">{{ $gymConfig->simbolo_moneda }} {{ number_format($pagosHoy, 2) }}</h3>
                     <div class="kpi-label">Ingresos de Hoy</div>
                 </div>
                 <i class="fas fa-hand-holding-usd kpi-icon"></i>
@@ -59,7 +60,7 @@ $oldCards = <<<EOD
         <div class="col-md-6">
             <div class="kpi-card">
                 <div>
-                    <h3 class="kpi-value">{{ \$gymConfig->simbolo_moneda }} {{ number_format(\$totalIngresos, 2) }}</h3>
+                    <h3 class="kpi-value">{{ $gymConfig->simbolo_moneda }} {{ number_format($totalIngresos, 2) }}</h3>
                     <div class="kpi-label">Ingresos Totales (Global)</div>
                 </div>
                 <i class="fas fa-wallet kpi-icon"></i>
@@ -68,13 +69,13 @@ $oldCards = <<<EOD
     </div>
 EOD;
 
-$newCards = <<<EOD
+$newCards = <<<'EOD'
     {{-- KPI Cards --}}
     <div class="row tight flex-shrink-0">
         <div class="col-md-4">
             <div class="kpi-card">
                 <div>
-                    <h3 class="kpi-value text-success">{{ \$gymConfig->simbolo_moneda }} {{ number_format(\$pagosHoy, 2) }}</h3>
+                    <h3 class="kpi-value text-success">{{ $gymConfig->simbolo_moneda }} {{ number_format($pagosHoy, 2) }}</h3>
                     <div class="kpi-label">Ingresos de Hoy</div>
                 </div>
                 <i class="fas fa-hand-holding-usd kpi-icon"></i>
@@ -83,7 +84,7 @@ $newCards = <<<EOD
         <div class="col-md-4">
             <div class="kpi-card">
                 <div>
-                    <h3 class="kpi-value text-info">{{ \$gymConfig->simbolo_moneda }} {{ number_format(\$pagosMes ?? 0, 2) }}</h3>
+                    <h3 class="kpi-value text-info">{{ $gymConfig->simbolo_moneda }} {{ number_format($pagosMes ?? 0, 2) }}</h3>
                     <div class="kpi-label">Ingresos del Mes</div>
                 </div>
                 <i class="fas fa-calendar-check kpi-icon"></i>
@@ -92,7 +93,7 @@ $newCards = <<<EOD
         <div class="col-md-4">
             <div class="kpi-card">
                 <div>
-                    <h3 class="kpi-value">{{ \$gymConfig->simbolo_moneda }} {{ number_format(\$totalIngresos, 2) }}</h3>
+                    <h3 class="kpi-value">{{ $gymConfig->simbolo_moneda }} {{ number_format($totalIngresos, 2) }}</h3>
                     <div class="kpi-label">Ingresos Históricos</div>
                 </div>
                 <i class="fas fa-wallet kpi-icon"></i>
@@ -104,4 +105,4 @@ EOD;
 $c = str_replace($oldCards, $newCards, $c);
 
 file_put_contents($f, $c);
-echo "Pagos cards updated.";
+echo 'Pagos cards updated.';

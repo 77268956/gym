@@ -1,4 +1,5 @@
 <?php
+
 $f = 'c:/laragon/www/GymX/resources/views/user.blade.php';
 $c = file_get_contents($f);
 
@@ -22,10 +23,10 @@ $(document).ready(function() {
 </script>
 EOD;
 
-$c = str_replace('</body>', $script . "\n</body>", $c);
+$c = str_replace('</body>', $script."\n</body>", $c);
 // wait, user.blade.php probably extends app.blade.php and has @push('scripts')
 if (strpos($c, "@push('scripts')") !== false) {
-    $c = preg_replace("/@push\('scripts'\)/", "@push('scripts')\n" . $script, $c);
+    $c = preg_replace("/@push\('scripts'\)/", "@push('scripts')\n".$script, $c);
 } else {
     $c .= "\n@push('scripts')\n$script\n@endpush\n";
 }

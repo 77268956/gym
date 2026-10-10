@@ -1,4 +1,5 @@
 <?php
+
 $f = 'c:/laragon/www/GymX/resources/views/pagos/index.blade.php';
 $c = file_get_contents($f);
 
@@ -34,8 +35,8 @@ $newHtml = <<<'EOD'
 EOD;
 
 // There are probably encoding issues with "Cédula" and "Membresía", I'll use regex carefully
-$c = preg_replace('/<div class="position-relative d-inline-block mb-3">.*?<\/div>\s*<a href="#" id="btnCobrar"/is', 
-'<div class="position-relative d-inline-block mb-3">
+$c = preg_replace('/<div class="position-relative d-inline-block mb-3">.*?<\/div>\s*<a href="#" id="btnCobrar"/is',
+    '<div class="position-relative d-inline-block mb-3">
     <div id="infoFoto"></div>
 </div>
 
@@ -50,7 +51,6 @@ $c = preg_replace('/<div class="position-relative d-inline-block mb-3">.*?<\/div
 </div>
 
 <a href="#" id="btnCobrar"', $c);
-
 
 // 2. Fix the JS
 $oldJs = <<<'EOD'

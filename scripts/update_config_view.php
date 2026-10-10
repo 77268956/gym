@@ -1,4 +1,5 @@
 <?php
+
 $f = 'c:/laragon/www/GymX/resources/views/configuracion/index.blade.php';
 $c = file_get_contents($f);
 
@@ -36,7 +37,7 @@ EOD;
 // Insert before the last <hr class="my-4"> before buttons
 $c = str_replace('<hr class="my-4">
 
-                    <!-- Botones de Acci', $puntos_section . '
+                    <!-- Botones de Acci', $puntos_section.'
 
                     <hr class="my-4">
 

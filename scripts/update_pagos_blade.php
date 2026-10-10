@@ -1,4 +1,5 @@
 <?php
+
 $f = 'c:/laragon/www/GymX/resources/views/pagos/index.blade.php';
 
 $blade = <<<'BLADE'
@@ -354,4 +355,4 @@ $(document).ready(function() {
 BLADE;
 
 file_put_contents($f, $blade);
-echo "Pagos view updated.";
+echo 'Pagos view updated.';

@@ -1,4 +1,5 @@
 <?php
+
 $f = 'c:/laragon/www/GymX/resources/views/layouts/app.blade.php';
 $c = file_get_contents($f);
 
@@ -18,7 +19,7 @@ $pagosLink = '<li class="nav-item">
                         <span class="sidebar-label">Pagos y Cobros</span>
                     </a>
                 </li>
-                ' . $membresiaLink;
+                '.$membresiaLink;
 
 if (strpos($c, 'pagos.index') === false) {
     $c = str_replace($membresiaLink, $pagosLink, $c);

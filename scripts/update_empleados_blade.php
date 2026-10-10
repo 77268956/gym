@@ -1,4 +1,5 @@
 <?php
+
 $f = 'c:/laragon/www/GymX/resources/views/empleados/index.blade.php';
 
 $blade = <<<'BLADE'
@@ -308,4 +309,4 @@ $(document).ready(function() {
 BLADE;
 
 file_put_contents($f, $blade);
-echo "Empleados view updated.";
+echo 'Empleados view updated.';

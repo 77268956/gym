@@ -1,4 +1,5 @@
 <?php
+
 $f = 'c:/laragon/www/GymX/resources/views/pagos/index.blade.php';
 $c = file_get_contents($f);
 

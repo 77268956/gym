@@ -1,4 +1,5 @@
 <?php
+
 // 1. Update app.blade.php
 $f = 'c:/laragon/www/GymX/resources/views/layouts/app.blade.php';
 $c = file_get_contents($f);
@@ -6,7 +7,7 @@ $c = file_get_contents($f);
 // Make sure Cleave.js is included
 if (strpos($c, 'cleave.min.js') === false) {
     $c = str_replace('<script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>',
-                     "<script src=\"https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js\"></script>\n    <script src=\"https://cdnjs.cloudflare.com/ajax/libs/cleave.js/1.6.0/cleave.min.js\"></script>", $c);
+        "<script src=\"https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js\"></script>\n    <script src=\"https://cdnjs.cloudflare.com/ajax/libs/cleave.js/1.6.0/cleave.min.js\"></script>", $c);
 }
 
 // Add the global JS for Notyf and Swal2
@@ -57,12 +58,11 @@ EOD;
 $c = preg_replace('/@stack\(\'scripts\'\)/is', $globalJs, $c);
 file_put_contents($f, $c);
 
-
 // 2. Replace standard confirms with SweetAlert class
 $viewsToFix = [
     'c:/laragon/www/GymX/resources/views/user.blade.php',
     'c:/laragon/www/GymX/resources/views/empleados/index.blade.php',
-    'c:/laragon/www/GymX/resources/views/membresias/index.blade.php'
+    'c:/laragon/www/GymX/resources/views/membresias/index.blade.php',
 ];
 
 foreach ($viewsToFix as $view) {
@@ -75,9 +75,9 @@ foreach ($viewsToFix as $view) {
     }
 }
 
-
 // 3. Add Cleave.js to Clientes forms
-function addCleaveToForm($file) {
+function addCleaveToForm($file)
+{
     if (file_exists($file)) {
         $c = file_get_contents($file);
         $cleaveScript = <<<'EOD'
@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 EOD;
         if (strpos($c, 'Cleave(') === false) {
-            $c = preg_replace('/@endpush/i', $cleaveScript . "\n@endpush", $c);
+            $c = preg_replace('/@endpush/i', $cleaveScript."\n@endpush", $c);
             file_put_contents($file, $c);
         }
     }

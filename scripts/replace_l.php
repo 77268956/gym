@@ -1,7 +1,8 @@
 <?php
+
 $files = [
     'c:/laragon/www/GymX/resources/views/clientes/create.blade.php',
-    'c:/laragon/www/GymX/resources/views/membresias/index.blade.php'
+    'c:/laragon/www/GymX/resources/views/membresias/index.blade.php',
 ];
 
 foreach ($files as $f) {

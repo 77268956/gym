@@ -1,4 +1,5 @@
 <?php
+
 $content = <<<'EOD'
 @extends('layouts.app')
 

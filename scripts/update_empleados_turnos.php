@@ -1,9 +1,10 @@
 <?php
+
 $f = 'c:/laragon/www/GymX/resources/views/empleados/index.blade.php';
 $c = file_get_contents($f);
 
 // 1. Replace Panel Title
-$oldTitle = <<<EOD
+$oldTitle = <<<'EOD'
             {{-- Panel Turnos --}}
             <div class="ic-card flex-grow-1" style="min-height:0;">
                 <div class="d-flex justify-content-between align-items-center mb-2 flex-shrink-0">
@@ -12,16 +13,16 @@ $oldTitle = <<<EOD
                 </div>
                 <div style="overflow-y:auto; padding-right:4px;">
                     @php
-                        \$listaTurnos = [
+                        $listaTurnos = [
                             (object)['nombre' => 'Admin General', 'plan' => 'Turno Completo', 'dias' => 0, 'nivel' => 'active'],
                             (object)['nombre' => 'Recepción 1', 'plan' => 'Mañana', 'dias' => 0, 'nivel' => 'active'],
                         ];
                     @endphp
-                    @forelse (\$listaTurnos as \$item)
+                    @forelse ($listaTurnos as $item)
                     <div class="ic-list-item">
                         <div>
-                            <div class="ic-list-title">{{ \$item->nombre }}</div>
-                            <div class="ic-list-sub">{{ \$item->plan }}</div>
+                            <div class="ic-list-title">{{ $item->nombre }}</div>
+                            <div class="ic-list-sub">{{ $item->plan }}</div>
                         </div>
                         <div>
                             <span class="ic-badge-active">EN CURSO</span>
@@ -34,7 +35,7 @@ $oldTitle = <<<EOD
             </div>
 EOD;
 
-$newTitle = <<<EOD
+$newTitle = <<<'EOD'
             {{-- Panel Asistencias (Pendientes) --}}
             <div class="ic-card flex-grow-1" style="min-height:0;">
                 <div class="d-flex justify-content-between align-items-center mb-2 flex-shrink-0">
@@ -44,16 +45,16 @@ $newTitle = <<<EOD
                 <div style="overflow-y:auto; padding-right:4px;">
                     @php
                         // DATOS DE PRUEBA: Empleados que no han marcado entrada
-                        \$listaFaltantes = [
+                        $listaFaltantes = [
                             (object)['nombre' => 'Carlos Javier', 'turno' => 'Turno Mañana', 'hora_esperada' => '07:00 AM'],
                             (object)['nombre' => 'María José',    'turno' => 'Turno Tarde',  'hora_esperada' => '02:00 PM'],
                         ];
                     @endphp
-                    @forelse (\$listaFaltantes as \$item)
+                    @forelse ($listaFaltantes as $item)
                     <div class="ic-list-item">
                         <div>
-                            <div class="ic-list-title">{{ \$item->nombre }}</div>
-                            <div class="ic-list-sub">{{ \$item->turno }} ({{ \$item->hora_esperada }})</div>
+                            <div class="ic-list-title">{{ $item->nombre }}</div>
+                            <div class="ic-list-sub">{{ $item->turno }} ({{ $item->hora_esperada }})</div>
                         </div>
                         <div>
                             <span class="ic-badge-critical">PENDIENTE</span>
@@ -75,4 +76,4 @@ if (strpos($c, 'Faltan por llegar') === false) {
 }
 
 file_put_contents($f, $c);
-echo "Panel updated.";
+echo 'Panel updated.';

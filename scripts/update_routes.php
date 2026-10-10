@@ -1,4 +1,5 @@
 <?php
+
 $f = 'c:/laragon/www/GymX/routes/web.php';
 $c = file_get_contents($f);
 $c = str_replace('});', "

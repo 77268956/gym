@@ -1,4 +1,5 @@
 <?php
+
 $f = 'c:/laragon/www/GymX/app/Http/Controllers/EmpleadoController.php';
 $c = file_get_contents($f);
 
@@ -51,4 +52,4 @@ EOD;
 $c = preg_replace("/\\\$totalEmpleados = Empleado::count\(\);.*?return view\('empleados\.index', compact\([^)]+\)\);/is", $chartLogic, $c);
 
 file_put_contents($f, $c);
-echo "Controller updated.";
+echo 'Controller updated.';

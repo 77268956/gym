@@ -1,4 +1,5 @@
 <?php
+
 $f = 'c:/laragon/www/GymX/resources/views/user.blade.php';
 
 $blade = <<<'BLADE'
@@ -317,4 +318,4 @@ $(document).ready(function() {
 BLADE;
 
 file_put_contents($f, $blade);
-echo "Perfectly optimized layout.";
+echo 'Perfectly optimized layout.';

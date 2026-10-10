@@ -1,4 +1,5 @@
 <?php
+
 $f = 'c:/laragon/www/GymX/app/Http/Controllers/AsistenciaController.php';
 $c = file_get_contents($f);
 

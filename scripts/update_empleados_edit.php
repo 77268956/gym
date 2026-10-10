@@ -1,4 +1,5 @@
 <?php
+
 $f = 'c:/laragon/www/GymX/resources/views/empleados/edit.blade.php';
 
 $blade = <<<'BLADE'
@@ -302,4 +303,4 @@ document.addEventListener('DOMContentLoaded', function() {
 BLADE;
 
 file_put_contents($f, $blade);
-echo "Empleado edit view updated.";
+echo 'Empleado edit view updated.';

@@ -1,4 +1,5 @@
 <?php
+
 $f = 'c:/laragon/www/GymX/app/Http/Controllers/UserController.php';
 $c = file_get_contents($f);
 
@@ -72,7 +73,7 @@ $chartLogic = <<<'EOD'
     }
 EOD;
 
-$c = preg_replace("/\\\$membresiasPorVencer = Membresia::where.*?\}\n/is", $chartLogic . "\n", $c);
+$c = preg_replace("/\\\$membresiasPorVencer = Membresia::where.*?\}\n/is", $chartLogic."\n", $c);
 
 file_put_contents($f, $c);
-echo "UserController updated.";
+echo 'UserController updated.';

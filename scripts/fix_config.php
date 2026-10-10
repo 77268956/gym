@@ -1,4 +1,5 @@
 <?php
+
 $f = 'c:/laragon/www/GymX/resources/views/configuracion/index.blade.php';
 $c = file_get_contents($f);
 
@@ -20,6 +21,6 @@ $fields = <<<'EOD'
                     </div>
 EOD;
 
-$c = str_replace('<hr class="my-4">', $fields . "\n                    <hr class=\"my-4\">", $c);
+$c = str_replace('<hr class="my-4">', $fields."\n                    <hr class=\"my-4\">", $c);
 file_put_contents($f, $c);
 echo "Fixed configuracion\n";

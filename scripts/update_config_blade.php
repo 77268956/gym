@@ -1,4 +1,5 @@
 <?php
+
 $f = 'c:/laragon/www/GymX/resources/views/configuracion/index.blade.php';
 
 $blade = <<<'BLADE'
@@ -193,4 +194,4 @@ $blade = <<<'BLADE'
 BLADE;
 
 file_put_contents($f, $blade);
-echo "Configuracion view updated.";
+echo 'Configuracion view updated.';

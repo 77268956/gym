@@ -1,4 +1,5 @@
 <?php
+
 $f = 'c:/laragon/www/GymX/resources/views/pagos/index.blade.php';
 $c = file_get_contents($f);
 
@@ -37,7 +38,6 @@ $headStyles = <<<'EOD'
 EOD;
 
 $c = preg_replace('/@push\(\'styles\'\).*?@endpush/is', $headStyles, $c);
-
 
 $modalContent = <<<'EOD'
 {{-- ============================================================
@@ -89,7 +89,6 @@ $modalContent = <<<'EOD'
 EOD;
 
 $c = preg_replace('/\{\{-- ============================================================.*?MODAL 1: SELECCIÓN DE CLIENTE.*?\<\/div\>\n\s*\<\/div\>\n\s*\<\/div\>/is', $modalContent, $c);
-
 
 $scriptsContent = <<<'EOD'
 @push('scripts')
