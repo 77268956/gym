@@ -191,8 +191,8 @@
                             <option value="ACTIVO">Activos</option>
                             <option value="INACTIVO">Inactivos</option>
                         </select>
-                        <a href="{{ route('empleados.create') }}" class="btn btn-sm btn-primary" title="Nuevo Empleado" style="width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; border-radius: 50%;">
-                            <i class="fas fa-user-plus"></i>
+                        <a href="{{ route('empleados.create') }}" class="btn btn-sm btn-primary font-weight-bold px-3" title="Nuevo Empleado">
+                            <i class="fas fa-plus mr-1"></i> Nuevo Empleado
                         </a>
                     </div>
                 </div>

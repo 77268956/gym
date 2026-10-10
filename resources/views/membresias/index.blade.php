@@ -88,6 +88,7 @@
 
     .ic-color-btn { color: var(--card-color) !important; border-color: var(--card-color) !important; }
     .ic-color-btn:hover, .ic-color-btn.active { background-color: var(--card-color) !important; color: #fff !important; border-color: var(--card-color) !important; }
+    .custom-tab-btn { min-width: 42px; display: inline-flex; align-items: center; justify-content: center; }
     
     /* Plan Pricing Card */
     .plan-card { border: 1px solid #E2E8F0; border-radius: .75rem; transition: transform .2s; background: #fff; height: 100%; display: flex; flex-direction: column; }

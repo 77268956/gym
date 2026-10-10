@@ -70,11 +70,13 @@
     .row.tight { margin-bottom: 0.75rem; }
     .filters-panel { background: #fff; border-radius: 10px; padding: .75rem 1rem; box-shadow: 0 2px 5px rgba(0,0,0,.04); margin-bottom: .75rem; flex-shrink: 0; }
     .filters-panel .form-control, .filters-panel .custom-select { font-size: .8rem; height: 32px; border-radius: 6px; }
+    .filters-panel--inline { background: #f8fafc; border: 1px solid #e2e8f0; box-shadow: none; border-radius: 8px; margin-bottom: .6rem; }
     .attendance-filter-fields { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)) auto; gap: .75rem; align-items: end; }
     .attendance-filter-field { min-width: 0; }
     .attendance-filter-field label { display: block; color: #475569; }
     .attendance-filter-actions { display: flex; align-items: center; justify-content: flex-end; gap: .35rem; white-space: nowrap; }
     .attendance-filter-actions .btn { width: 34px; min-height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center; }
+    .attendance-filter-actions .btn-label { width: auto; padding: 0 .8rem; border-radius: 6px; }
     .attendance-toolbar { gap: .75rem; }
     .attendance-toolbar-main { flex: 1 1 420px; min-width: 0; }
     .attendance-search { flex: 1 1 220px; min-width: 180px; }
@@ -98,7 +100,7 @@
         .ic-card > .d-flex.justify-content-between.align-items-center > div:last-child { width: 100%; }
         .ic-card > .d-flex.justify-content-between.align-items-center > div:last-child .btn { flex: 1 1 auto; margin: 0 !important; }
         .main-container > .row.flex-grow-1 { height: auto; flex: none !important; }
-        .filters-panel { margin-bottom: .75rem; }
+        .filters-panel--inline { margin-bottom: .6rem; }
         .attendance-filter-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         .attendance-filter-actions { grid-column: 1 / -1; justify-content: flex-start; flex-wrap: wrap; }
         .attendance-toolbar { gap: .75rem; flex-wrap: wrap; }
@@ -164,59 +166,6 @@
         </div>
     </div>
 
-    {{-- Filters --}}
-    <div class="filters-panel">
-        <form method="GET" action="{{ route('asistencias_empleados.index') }}">
-            <div class="attendance-filter-fields">
-                <div class="attendance-filter-field">
-                    <label class="small font-weight-bold mb-1">Empleado</label>
-                    <select name="empleado_id" class="custom-select">
-                        <option value="">Todos</option>
-                        @foreach($empleados as $emp)
-                            <option value="{{ $emp->id }}" {{ request('empleado_id') == $emp->id ? 'selected' : '' }}>{{ $emp->nombre }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="attendance-filter-field">
-                    <label class="small font-weight-bold mb-1">Desde</label>
-                    <input type="date" name="fecha_desde" class="form-control" value="{{ request('fecha_desde') }}">
-                </div>
-                <div class="attendance-filter-field">
-                    <label class="small font-weight-bold mb-1">Hasta</label>
-                    <input type="date" name="fecha_hasta" class="form-control" value="{{ request('fecha_hasta') }}">
-                </div>
-                <div class="attendance-filter-field">
-                    <label class="small font-weight-bold mb-1">Estado</label>
-                    <select name="estado" class="custom-select">
-                        <option value="">Todos</option>
-                        <option value="completo" {{ request('estado') === 'completo' ? 'selected' : '' }}>Completo</option>
-                        <option value="en_turno" {{ request('estado') === 'en_turno' ? 'selected' : '' }}>En turno</option>
-                        <option value="ausente" {{ request('estado') === 'ausente' ? 'selected' : '' }}>Ausente</option>
-                        <option value="tardanza" {{ request('estado') === 'tardanza' ? 'selected' : '' }}>Tardanza</option>
-                        <option value="salida_temp" {{ request('estado') === 'salida_temp' ? 'selected' : '' }}>Salida Temprana</option>
-                        <option value="cerrado_auto" {{ request('estado') === 'cerrado_auto' ? 'selected' : '' }}>Cerrado Auto</option>
-                    </select>
-                </div>
-                <div class="attendance-filter-actions">
-                    <button type="submit" class="btn btn-sm btn-primary" title="Aplicar filtros"><i class="fas fa-filter"></i></button>
-                    <a href="{{ route('asistencias_empleados.index') }}" class="btn btn-sm btn-outline-secondary" title="Limpiar filtros"><i class="fas fa-redo"></i></a>
-                    <a href="{{ route('asistencias_empleados.escanear') }}" class="btn btn-sm btn-outline-primary" title="Escáner Interno"><i class="fas fa-camera"></i></a>
-                    <a href="{{ route('asistencias_empleados.publico') }}" class="btn btn-sm btn-outline-primary" target="_blank" title="Endpoint Público"><i class="fas fa-external-link-alt"></i></a>
-                </div>
-            </div>
-            @if(request('fecha_desde') || request('fecha_hasta') || request('estado'))
-                <div class="attendance-filter-summary">
-                    @if(request('fecha_desde') || request('fecha_hasta'))
-                        <span class="badge badge-light border">{{ request('fecha_desde', '…') }} → {{ request('fecha_hasta', '…') }}</span>
-                    @endif
-                    @if(request('estado'))
-                        <span class="badge badge-light border">{{ str_replace('_', ' ', request('estado')) }}</span>
-                    @endif
-                </div>
-            @endif
-        </form>
-    </div>
-
     {{-- Attendance history --}}
     <div class="row flex-grow-1" style="min-height: 0;">
         <div class="col-12 h-100 pb-1">
@@ -232,6 +181,57 @@
                         </div>
                     </div>
                     <span class="attendance-toolbar-count badge badge-light text-muted">{{ $asistencias->count() }} registros</span>
+                </div>
+                <div class="filters-panel filters-panel--inline flex-shrink-0">
+                    <form method="GET" action="{{ route('asistencias_empleados.index') }}">
+                        <div class="attendance-filter-fields">
+                            <div class="attendance-filter-field">
+                                <label class="small font-weight-bold mb-1">Empleado</label>
+                                <select name="empleado_id" class="custom-select">
+                                    <option value="">Todos</option>
+                                    @foreach($empleados as $emp)
+                                        <option value="{{ $emp->id }}" {{ request('empleado_id') == $emp->id ? 'selected' : '' }}>{{ $emp->nombre }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="attendance-filter-field">
+                                <label class="small font-weight-bold mb-1">Desde</label>
+                                <input type="date" name="fecha_desde" class="form-control" value="{{ request('fecha_desde') }}">
+                            </div>
+                            <div class="attendance-filter-field">
+                                <label class="small font-weight-bold mb-1">Hasta</label>
+                                <input type="date" name="fecha_hasta" class="form-control" value="{{ request('fecha_hasta') }}">
+                            </div>
+                            <div class="attendance-filter-field">
+                                <label class="small font-weight-bold mb-1">Estado</label>
+                                <select name="estado" class="custom-select">
+                                    <option value="">Todos</option>
+                                    <option value="completo" {{ request('estado') === 'completo' ? 'selected' : '' }}>Completo</option>
+                                    <option value="en_turno" {{ request('estado') === 'en_turno' ? 'selected' : '' }}>En turno</option>
+                                    <option value="ausente" {{ request('estado') === 'ausente' ? 'selected' : '' }}>Ausente</option>
+                                    <option value="tardanza" {{ request('estado') === 'tardanza' ? 'selected' : '' }}>Tardanza</option>
+                                    <option value="salida_temp" {{ request('estado') === 'salida_temp' ? 'selected' : '' }}>Salida Temprana</option>
+                                    <option value="cerrado_auto" {{ request('estado') === 'cerrado_auto' ? 'selected' : '' }}>Cerrado Auto</option>
+                                </select>
+                            </div>
+                            <div class="attendance-filter-actions">
+                                <button type="submit" class="btn btn-sm btn-primary" title="Aplicar filtros"><i class="fas fa-filter"></i></button>
+                                <a href="{{ route('asistencias_empleados.index') }}" class="btn btn-sm btn-outline-secondary" title="Limpiar filtros"><i class="fas fa-redo"></i></a>
+                                <a href="{{ route('asistencias_empleados.escanear') }}" class="btn btn-sm btn-primary font-weight-bold px-3 btn-label" title="Escáner Interno"><i class="fas fa-camera mr-1"></i> Escanear</a>
+                                <a href="{{ route('asistencias_empleados.publico') }}" class="btn btn-sm btn-outline-primary" target="_blank" title="Endpoint Público"><i class="fas fa-external-link-alt"></i></a>
+                            </div>
+                        </div>
+                        @if(request('fecha_desde') || request('fecha_hasta') || request('estado'))
+                            <div class="attendance-filter-summary">
+                                @if(request('fecha_desde') || request('fecha_hasta'))
+                                    <span class="badge badge-light border">{{ request('fecha_desde', '…') }} → {{ request('fecha_hasta', '…') }}</span>
+                                @endif
+                                @if(request('estado'))
+                                    <span class="badge badge-light border">{{ str_replace('_', ' ', request('estado')) }}</span>
+                                @endif
+                            </div>
+                        @endif
+                    </form>
                 </div>
                 <div class="table-panel">
                     <table id="asistenciasEmpleadosTable" class="table ic-table w-100">

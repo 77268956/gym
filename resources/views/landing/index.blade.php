@@ -546,7 +546,7 @@
         }
         /* Contact Section */
         .contact {
-            background-color: #191b1e;
+            background-color: var(--secondary);
             color: white;
         }
         .contact-heading {
@@ -573,11 +573,13 @@
             line-height: 1.7;
         }
         .contact-form-panel {
-            padding: 1.25rem;
-            border: 0;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.08);
             border-left: 4px solid var(--primary);
-            background: var(--bg-light);
-            color: var(--text-dark);
+            border-radius: 8px;
+            background: linear-gradient(145deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.0) 100%), var(--secondary);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
+            color: white;
         }
         .contact-form-panel h3 {
             margin-bottom: 0.3rem;
@@ -586,7 +588,7 @@
         }
         .contact-form-intro {
             margin-bottom: 0.9rem;
-            color: #62666b;
+            color: #b8babd;
             font-size: 0.86rem;
         }
         .contact-form-grid {
@@ -600,7 +602,7 @@
         .contact-field label {
             display: block;
             margin-bottom: 0.4rem;
-            color: #292b2e;
+            color: #fff;
             font-size: 0.8rem;
             font-weight: 700;
         }
@@ -622,7 +624,7 @@
         }
         .contact-form-note {
             margin: 0.7rem 0 0.85rem;
-            color: #62666b;
+            color: #b8babd;
             font-size: 0.78rem;
         }
         .contact-submit {
@@ -635,7 +637,7 @@
         .contact-form-status {
             min-height: 1.5rem;
             margin: 0.8rem 0 0;
-            color: #236b43;
+            color: #34d399;
             font-size: 0.82rem;
         }
         .contact-details {

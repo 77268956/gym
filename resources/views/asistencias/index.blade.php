@@ -161,6 +161,9 @@
                         </select>
                         <input type="date" id="filterFechaDesde" class="form-control form-control-sm mr-2" title="Fecha desde" style="width: 135px;">
                         <input type="date" id="filterFechaHasta" class="form-control form-control-sm" title="Fecha hasta" style="width: 135px;">
+                        <a href="{{ route('asistencias.escanear') }}" class="btn btn-sm btn-primary font-weight-bold px-3 ml-2" title="Escanear Acceso">
+                            <i class="fas fa-qrcode mr-1"></i> Escanear Acceso
+                        </a>
                     </div>
                 </div>
                 

@@ -58,6 +58,15 @@
     .kpi-icon { font-size: 1.8rem; opacity: 0.4; }
     .kpi-value { font-size: 1.4rem; font-weight: 800; margin: 0; line-height: 1; }
     .kpi-label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; opacity: 0.8; margin-top: 2px;}
+
+    @media (max-width: 991.98px) {
+        body, html { overflow: auto; height: auto; }
+        #page-wrapper main { height: auto; min-height: calc(100vh - 60px); overflow: visible; padding: .75rem !important; }
+        .main-container { overflow: visible; }
+        .main-container > .d-flex.justify-content-between.align-items-center { flex-wrap: wrap; gap: .65rem; }
+        .main-container > .d-flex.justify-content-between.align-items-center > div { width: 100%; flex-wrap: wrap; gap: .5rem; }
+        #customSearch { width: 100%; }
+    }
 </style>
 @endpush
 
@@ -127,8 +136,8 @@
                     <option value="Activo">Activos</option>
                     <option value="Inactivo">Inactivos</option>
                 </select>
-                <button class="btn btn-sm btn-primary" onclick="abrirModalCrear()" title="Nuevo producto" style="width:35px;height:35px;display:flex;align-items:center;justify-content:center;border-radius:50%;">
-                    <i class="fas fa-plus"></i>
+                <button type="button" class="btn btn-sm btn-primary font-weight-bold px-3" onclick="abrirModalCrear()" title="Nuevo producto">
+                    <i class="fas fa-plus mr-1"></i> Nuevo Producto
                 </button>
             </div>
         </div>

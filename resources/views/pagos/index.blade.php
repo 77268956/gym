@@ -113,6 +113,7 @@
     .payments-toolbar-main .ic-card-title { flex: 0 1 auto; }
     .payments-toolbar-main .input-group { flex: 1 1 250px; min-width: 180px; }
     .payments-toolbar-actions { flex: 0 1 auto; }
+    #filterFechaDesde, #filterFechaHasta { width: 130px; min-width: 0; }
 
     /* Modales y Ajustes Select2 para Modal */
     .payment-client-search-modal .modal-dialog { max-width: 560px; }
@@ -293,7 +294,9 @@
             margin-top: 0 !important;
         }
         #filterTipoCobro,
-        #filterMetodoPago {
+        #filterMetodoPago,
+        #filterFechaDesde,
+        #filterFechaHasta {
             flex: 1 1 140px;
             width: auto !important;
             margin-right: 0 !important;
@@ -351,7 +354,9 @@
             align-items: stretch !important;
         }
         #filterTipoCobro,
-        #filterMetodoPago {
+        #filterMetodoPago,
+        #filterFechaDesde,
+        #filterFechaHasta {
             flex: 1 1 100%;
             width: 100% !important;
             margin-right: 0 !important;
@@ -470,7 +475,7 @@
                     </div>
                 </div>
         
-                <div class="table-panel mt-2">
+                <div class="table-panel">
                     <table id="pagosTable" class="table ic-table w-100">
                         <thead>
                             <tr>

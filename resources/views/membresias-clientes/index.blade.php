@@ -113,6 +113,16 @@
     .filters-panel .form-control, .filters-panel .custom-select {
         font-size: 0.8rem; height: 32px; border-radius: 6px;
     }
+    .card-wrap {
+        background: #fff; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+        padding: 0; overflow: hidden; display: flex; flex-direction: column;
+    }
+    .filters-inline {
+        margin: 0; padding: .85rem 1rem; border-radius: 0; border-bottom: 1px solid #e2e8f0;
+        background: #f8fafc; box-shadow: none;
+    }
+    .card-wrap #membershipResults .ic-card,
+    .card-wrap #membershipResults .card-grid { box-shadow: none; border-radius: 0; }
     .memberships-toolbar { gap: .75rem; }
     .memberships-toolbar-main,
     .memberships-toolbar-count { min-width: 0; }
@@ -190,6 +200,7 @@
             overflow: visible !important;
         }
         .filters-panel { margin-bottom: .75rem; }
+        .filters-inline { margin: 0; }
         .filters-panel .row > [class*="col-"] { margin-bottom: .6rem; }
         .filters-panel .row > [class*="col-"]:last-child { margin-bottom: 0; }
         .ic-card.h-100 { height: auto !important; min-height: 0; }
@@ -295,9 +306,10 @@
         </div>
     </div>
 
-    {{-- Filters --}}
-    <div class="filters-panel">
-        <form id="filtersForm" method="GET" action="{{ route('membresias-clientes.index') }}">
+{{-- Panel de Membresías: filtros + resultados unificados --}}
+    <div class="card-wrap flex-grow-1" style="min-height: 0;">
+        <div class="filters-panel filters-inline flex-shrink-0">
+            <form id="filtersForm" method="GET" action="{{ route('membresias-clientes.index') }}">
             <input type="hidden" name="vista" value="{{ $vista }}">
             <div class="filter-fields">
                 <div class="filter-field">
@@ -562,8 +574,9 @@
         </div>
         @endif
 
-    </div>
+</div>
     @endfragment
+    </div>
 </div>
 @endsection
 

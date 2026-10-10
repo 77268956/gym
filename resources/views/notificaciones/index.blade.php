@@ -66,57 +66,56 @@
         </div>
     </div>
 
-    <div class="ic-card filters-panel mb-3">
-        <form method="GET" action="{{ route('notificaciones.index') }}">
-            <div class="form-row align-items-end">
-                <div class="form-group col-xl-2 col-md-6 mb-2">
-                    <label for="tipo" class="font-weight-bold text-muted">TIPO DE ALERTA</label>
-                    <select name="tipo" id="tipo" class="form-control form-control-sm">
-                        <option value="">Todos los tipos</option>
-                        @foreach($tiposAlerta as $valor => $etiqueta)
-                            <option value="{{ $valor }}" {{ request('tipo') === $valor ? 'selected' : '' }}>{{ $etiqueta }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="form-group col-xl-2 col-md-6 mb-2">
-                    <label for="estado" class="font-weight-bold text-muted">ESTADO</label>
-                    <select name="estado" id="estado" class="form-control form-control-sm">
-                        <option value="">Todos</option>
-                        <option value="pendiente" {{ request('estado') === 'pendiente' ? 'selected' : '' }}>Pendientes</option>
-                        <option value="atendida" {{ request('estado') === 'atendida' ? 'selected' : '' }}>Atendidas</option>
-                    </select>
-                </div>
-                <div class="form-group col-xl-2 col-md-6 mb-2">
-                    <label for="desde" class="font-weight-bold text-muted">DESDE</label>
-                    <input type="date" name="desde" id="desde" class="form-control form-control-sm" value="{{ request('desde') }}">
-                </div>
-                <div class="form-group col-xl-2 col-md-6 mb-2">
-                    <label for="hasta" class="font-weight-bold text-muted">HASTA</label>
-                    <input type="date" name="hasta" id="hasta" class="form-control form-control-sm" value="{{ request('hasta') }}">
-                </div>
-                <div class="form-group col-xl-4 mb-2">
-                    <label for="busqueda" class="font-weight-bold text-muted">BUSCAR</label>
-                    <div class="input-group input-group-sm">
-                        <input type="search" name="busqueda" id="busqueda" class="form-control" placeholder="Texto del aviso..." value="{{ request('busqueda') }}">
-                        <div class="input-group-append">
-                            <button class="btn btn-primary" type="submit"><i class="fas fa-filter mr-1"></i>Filtrar</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="d-flex justify-content-between align-items-center flex-wrap">
-                <small class="text-muted">{{ $alertas->total() }} alerta(s) encontrada(s)</small>
-                @if(request()->hasAny(['tipo', 'estado', 'desde', 'hasta', 'busqueda']))
-                    <a href="{{ route('notificaciones.index') }}" class="btn btn-link btn-sm px-0">Limpiar filtros</a>
-                @endif
-            </div>
-        </form>
-    </div>
-
     <div class="ic-card p-0 overflow-hidden">
         <div class="ic-card-header d-flex justify-content-between align-items-center px-3 py-3">
             <h2 class="h6 font-weight-bold text-primary mb-0"><i class="fas fa-list-ul mr-2"></i>Historial de alertas</h2>
             <small class="text-muted">{{ $alertas->total() }} registro(s)</small>
+        </div>
+        <div class="px-3 py-3 border-bottom">
+            <form method="GET" action="{{ route('notificaciones.index') }}">
+                <div class="form-row align-items-end">
+                    <div class="form-group col-xl-2 col-md-6 mb-2">
+                        <label for="tipo" class="font-weight-bold text-muted">TIPO DE ALERTA</label>
+                        <select name="tipo" id="tipo" class="form-control form-control-sm">
+                            <option value="">Todos los tipos</option>
+                            @foreach($tiposAlerta as $valor => $etiqueta)
+                                <option value="{{ $valor }}" {{ request('tipo') === $valor ? 'selected' : '' }}>{{ $etiqueta }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group col-xl-2 col-md-6 mb-2">
+                        <label for="estado" class="font-weight-bold text-muted">ESTADO</label>
+                        <select name="estado" id="estado" class="form-control form-control-sm">
+                            <option value="">Todos</option>
+                            <option value="pendiente" {{ request('estado') === 'pendiente' ? 'selected' : '' }}>Pendientes</option>
+                            <option value="atendida" {{ request('estado') === 'atendida' ? 'selected' : '' }}>Atendidas</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-xl-2 col-md-6 mb-2">
+                        <label for="desde" class="font-weight-bold text-muted">DESDE</label>
+                        <input type="date" name="desde" id="desde" class="form-control form-control-sm" value="{{ request('desde') }}">
+                    </div>
+                    <div class="form-group col-xl-2 col-md-6 mb-2">
+                        <label for="hasta" class="font-weight-bold text-muted">HASTA</label>
+                        <input type="date" name="hasta" id="hasta" class="form-control form-control-sm" value="{{ request('hasta') }}">
+                    </div>
+                    <div class="form-group col-xl-4 mb-2">
+                        <label for="busqueda" class="font-weight-bold text-muted">BUSCAR</label>
+                        <div class="input-group input-group-sm">
+                            <input type="search" name="busqueda" id="busqueda" class="form-control" placeholder="Texto del aviso..." value="{{ request('busqueda') }}">
+                            <div class="input-group-append">
+                                <button class="btn btn-primary" type="submit"><i class="fas fa-filter mr-1"></i>Filtrar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between align-items-center flex-wrap">
+                    <small class="text-muted">{{ $alertas->total() }} alerta(s) encontrada(s)</small>
+                    @if(request()->hasAny(['tipo', 'estado', 'desde', 'hasta', 'busqueda']))
+                        <a href="{{ route('notificaciones.index') }}" class="btn btn-link btn-sm px-0">Limpiar filtros</a>
+                    @endif
+                </div>
+            </form>
         </div>
         <div class="table-responsive">
             <table class="table ic-table table-hover mb-0">

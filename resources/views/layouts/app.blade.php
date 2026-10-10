@@ -685,10 +685,17 @@
                 body.classList.add('sidebar-collapsed');
             }
 
+            function adjustDataTables() {
+                if (window.jQuery && jQuery.fn && jQuery.fn.dataTable) {
+                    jQuery.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
+                }
+            }
+
             if (toggle) {
                 toggle.addEventListener('click', function () {
                     var collapsed = body.classList.toggle('sidebar-collapsed');
                     localStorage.setItem('sidebar-collapsed', collapsed);
+                    window.setTimeout(adjustDataTables, 350);
                 });
             }
 
@@ -703,6 +710,7 @@
             });
 
             window.addEventListener('resize', function () {
+                adjustDataTables();
                 if (!isMobile()) {
                     closeMobileSidebar();
                     if (localStorage.getItem('sidebar-collapsed') === 'true') {
